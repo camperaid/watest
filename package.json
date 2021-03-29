@@ -1,0 +1,24 @@
+{
+  "name": "watest",
+  "version": "1.0.0",
+  "description": "Web Application Testsuite",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/camperaid/watest.git"
+  },
+  "keywords": [
+    "webapp",
+    "testing",
+    "testsuite"
+  ],
+  "author": "Alexander Surkov",
+  "license": "MPL",
+  "bugs": {
+    "url": "https://github.com/camperaid/watest/issues"
+  },
+  "homepage": "https://github.com/camperaid/watest#readme"
+}
