@@ -52,6 +52,7 @@ The testsuite has basic functions:
 - `is(got, expected, msg)` to compare two values
 
 Other functions:
+
 - `info(msg)`to print an info message
 - `assert(expression, msg)` to print an assert message if an expression fails
 - `not_reached(msg)` to fail with stack trace printed
@@ -62,7 +63,7 @@ Other functions:
 
 ## Integration testing
 
-Make sure to add `servicer` into `watestrc.js` configuration, which refers to an object  managing the services. See interfaces/servicer.js for the API, which should be implemented by a `servicer`.
+Make sure to add `servicer` into `watestrc.js` configuration, which refers to an object managing the services. See interfaces/servicer.js for the API, which should be implemented by a `servicer`.
 
 Each time when the testsuite encounters `services` directive in `meta.js` file, it pokes into `servicer` object to start the referred services, and then to stop them, when leaving the folder.
 
@@ -175,10 +176,7 @@ module.exports.expected_failures = [
 - `--timeout` to set up a custom timeout for webdriver tests, for example, to break wd condition early
 
 Pre-defined webdrivers:
+
 - `chrome` to run tests in Chrome
 - `chrome-mobile` to run tests in Chrome on iPhone
 - `firefox` to run tests in Firefox
-
-## Configuration
-
-See `watestrc.js` configuration file for all configurations.

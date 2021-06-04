@@ -355,7 +355,7 @@ class Series {
         }
         // Stop services in reverse order.
         await Promise.all(
-          (test_module.services || []).reverse().map(s => servicer.stop(s))
+          [...(test_module.services || [])].reverse().map(s => servicer.stop(s))
         );
       };
       tests.push({
