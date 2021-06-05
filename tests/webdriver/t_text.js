@@ -5,6 +5,10 @@ const { eat_failure, eat_ok, do_self_tests, is_output } = require('./test.js');
 const snippet = `
 <html><body>
   <p id='p'>Paragraph</p>
+  <p id='p-whitespace'>
+    Paragraph
+    ParagraphNext
+  </p>
   <p id='p-empty'></p>
   <input id='input' value='hey' class='chorizo'>
   <textarea id='textarea'>hey</textarea>
@@ -24,6 +28,20 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
     `textIs`
   );
 
+  // textIs: whitespaces
+  await is_output(
+    eat_ok(() =>
+      driver.textIs('#p-whitespace', 'Paragraph ParagraphNext', `textIs`)
+    ),
+    [
+      `Test: textIs. Expected: 'Paragraph ParagraphNext'. Selector: '#p-whitespace'`,
+      `Ok: textIs, got: 'Paragraph ParagraphNext'`,
+      `Ok: textIs`,
+    ],
+    [],
+    `textIs:whitespaces`
+  );
+
   // textIs: failure
   await is_output(
     eat_failure(() => driver.textIs('#p', 'Para', `textIs`)),
@@ -41,7 +59,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
     eat_failure(() => driver.textIs('p', 'Para', `textIs`)),
     [`Test: textIs. Expected: 'Para'. Selector: 'p'`],
     [
-      `Failed: textIs, ambigious 'p' selector, got 2 elements, expected 1`,
+      `Failed: textIs, ambigious 'p' selector, got 3 elements, expected 1`,
       `Failed: textIs`,
     ],
     `textIs:ambigious`

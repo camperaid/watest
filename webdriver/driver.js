@@ -300,7 +300,8 @@ class Driver extends DriverBase {
       selector,
       text,
       msg,
-      test: got => got == text,
+      test: got =>
+        typeof got == 'string' && got.replace(/\s+/g, ' ').trim() == text,
       expected_stringified: stringify(text),
     });
   }

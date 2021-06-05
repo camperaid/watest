@@ -42,6 +42,13 @@ Tests has to be located in `tests/` folder. Each test folder can contain
 
 `.watestrc.js` is used to define configuration.
 
+Pre-defined webdrivers:
+
+- `chrome` to run tests in Chrome
+- `chrome-mobile` to run tests in Chrome on iPhone
+- `firefox` to run tests in Firefox
+- `safari` to run tests in Safari
+
 ## Unit testing
 
 The testsuite has basic functions:
@@ -174,9 +181,3 @@ module.exports.expected_failures = [
 - `--debunk` to enable debunk mode which will run a test the number of times or until it fails whichever is first
 - `-v` or `--verify` to re-run failing tests
 - `--timeout` to set up a custom timeout for webdriver tests, for example, to break wd condition early
-
-Pre-defined webdrivers:
-
-- `chrome` to run tests in Chrome
-- `chrome-mobile` to run tests in Chrome on iPhone
-- `firefox` to run tests in Firefox
