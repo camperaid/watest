@@ -348,14 +348,28 @@ Expected: ${stringify(expected)}`
  * Tests whether |func| produces the given stdout/stderr output.
  */
 async function is_output(func, out, err, msg) {
+  const { stdout, stderr } = await capture_output(func);
+  out instanceof Function
+    ? out(stdout, `${msg}: unexpected stdout`)
+    : is_out(stdout, out, `${msg}: unexpected stdout`);
+
+  err instanceof Function
+    ? err(stderr, `${msg}: unexpected stderr`)
+    : is_out(stderr, err, `${msg}: unexpected stderr`);
+}
+
+/**
+ * Captures stdout and stderr prodcued by a function.
+ */
+async function capture_output(func) {
   const stdoutWrite = process.stdout.write;
   const stderrWrite = process.stderr.write;
 
-  let gotout = [];
-  let goterr = [];
+  let stdout = [];
+  let stderr = [];
 
-  process.stdout.write = (...args) => gotout.push(args[0]);
-  process.stderr.write = (...args) => goterr.push(args[0]);
+  process.stdout.write = (...args) => stdout.push(args[0]);
+  process.stderr.write = (...args) => stderr.push(args[0]);
 
   let expection = null;
   try {
@@ -371,13 +385,10 @@ async function is_output(func, out, err, msg) {
     fail(expection);
   }
 
-  out instanceof Function
-    ? out(gotout, `${msg}: unexpected stdout`)
-    : is_out(gotout, out, `${msg}: unexpected stdout`);
-
-  err instanceof Function
-    ? err(goterr, `${msg}: unexpected stderr`)
-    : is_out(goterr, err, `${msg}: unexpected stderr`);
+  return {
+    stdout,
+    stderr,
+  };
 }
 
 function is_out(got, expected, msg) {
@@ -461,4 +472,6 @@ module.exports = {
 
   test_is,
   test_contains,
+
+  capture_output,
 };

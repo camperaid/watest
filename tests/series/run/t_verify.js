@@ -105,7 +105,7 @@ module.exports.test = async () => {
   ];
 
   await is_output(
-    () => MockSeries.run('', { ts, verify: true }),
+    () => MockSeries.run([], { ts, verify: true }),
     expected_stdout,
     expected_stderr,
     'nested'

@@ -115,7 +115,7 @@ class LogPipe {
     console.log(`Logs are written to ${pipeToRelease.fstream.filepath}`);
     this.suppress_fstream = false;
 
-    if (this.stack.length == 1) {
+    if (this.stack.length == 0) {
       this.deattachFromStdStreams();
     }
   }

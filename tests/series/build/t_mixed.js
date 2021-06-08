@@ -39,8 +39,12 @@ module.exports.test = async () => {
     },
   };
 
-  const series = new MockSeries('', { ts, webdrivers: ['chrome', 'firefox'] });
-  const tests = series.build({ patterns: [], folder: 'tests', virtual_folder: 'mac' });
+  const series = new MockSeries([], { ts, webdrivers: ['chrome', 'firefox'] });
+  const tests = series.build({
+    patterns: [],
+    folder: 'tests',
+    virtual_folder: 'mac',
+  });
   series.shutdown();
 
   is(

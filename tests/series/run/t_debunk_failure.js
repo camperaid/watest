@@ -54,7 +54,7 @@ module.exports.test = async () => {
   ];
 
   await is_output(
-    () => MockSeries.run('', { ts, debunk: true }),
+    () => MockSeries.run([], { ts, debunk: true }),
     expected_stdout,
     expected_stderr,
     'debunk failure'

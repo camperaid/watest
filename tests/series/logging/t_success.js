@@ -47,7 +47,7 @@ module.exports.test = async () => {
   const LogPipe = new LogPipeMockFileStream();
   LogPipe.suppressStdStreams();
   try {
-    await MockSeries.run('', { ts, LogPipe });
+    await MockSeries.run([], { ts, LogPipe });
   } finally {
     LogPipe.restoreStdStreams();
   }
@@ -72,7 +72,10 @@ module.exports.test = async () => {
   is(
     buffers.get(`${path}/log`),
     [
-      running_checker(`${path}/t_testo.js`, `tests/unit/base/t_testo.js`).trim(),
+      running_checker(
+        `${path}/t_testo.js`,
+        `tests/unit/base/t_testo.js`
+      ).trim(),
       format_ok('Testo'),
       ...completed_checkers({
         context: path,
@@ -87,7 +90,10 @@ module.exports.test = async () => {
   is(
     buffers.get(`${path}/log`),
     [
-      running_checker(`${path}/t_presto.js`, `tests/unit/core/t_presto.js`).trim(),
+      running_checker(
+        `${path}/t_presto.js`,
+        `tests/unit/core/t_presto.js`
+      ).trim(),
       format_ok('Presto'),
       ...completed_checkers({
         context: path,

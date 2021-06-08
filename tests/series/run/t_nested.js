@@ -45,16 +45,22 @@ module.exports.test = async () => {
   };
 
   await is_output(
-    () => MockSeries.run('', { ts }),
+    () => MockSeries.run([], { ts }),
     [
-      running_checker(`${invocation}/unit/base/t_testo.js`, `tests/unit/base/t_testo.js`),
+      running_checker(
+        `${invocation}/unit/base/t_testo.js`,
+        `tests/unit/base/t_testo.js`
+      ),
       format_ok(`Testo`),
       ...completed_checkers({
         context: `${invocation}/unit/base`,
         name: `${invocation}/unit/base/t_testo.js`,
       }),
       logswritten_checker,
-      running_checker(`${invocation}/unit/core/t_presto.js`, `tests/unit/core/t_presto.js`),
+      running_checker(
+        `${invocation}/unit/core/t_presto.js`,
+        `tests/unit/core/t_presto.js`
+      ),
       format_ok(`Presto`),
       ...completed_checkers({
         context: `${invocation}/unit/core`,

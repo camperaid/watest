@@ -9,6 +9,8 @@ const root_folder = 'tests';
 const settings = require('./settings.js');
 const { servicer } = settings;
 
+const { stringify } = require('./util.js');
+
 const testflow = require('./core.js');
 const { assert, fail } = testflow;
 
@@ -60,6 +62,7 @@ class Series {
     patterns,
     {
       debunk,
+      invocation,
       skipOnFail,
       timeout,
       verify,
@@ -69,6 +72,7 @@ class Series {
     }
   ) {
     this.debunk = debunk;
+    this.invocation = invocation || settings.invocation;
     this.patterns = patterns;
     this.skipOnFail = skipOnFail;
     this.verify = verify;
@@ -96,7 +100,12 @@ class Series {
    */
   async run() {
     // Run tests matching the patterns.
-    await this.runFor(this.patterns);
+    await this.runFor(
+      this.patterns.map(pattern => ({
+        path: pattern,
+        webdriver: '',
+      }))
+    );
 
     // In debunk mode re-run tests until it fails.
     if (this.debunk) {
@@ -104,14 +113,12 @@ class Series {
         if (this.failures.length != 0) {
           break;
         }
-        await this.runFor(this.patterns);
+        await this.runFor(this.patterns.map(p => ({ path: p, webdriver: '' })));
       }
     } else {
       // In very mode, re-run all failing tests.
       if (this.verify && this.failures.length > 0) {
-        let patterns = this.failures.map(f => f.path);
-        this.failures = [];
-        await this.runFor(patterns, '2');
+        await this.runFor(this.failures, '2');
       }
     }
 
@@ -125,7 +132,7 @@ class Series {
     let tests = this.build({
       patterns,
       folder: root_folder,
-      virtual_folder: settings.invocation,
+      virtual_folder: this.invocation,
     });
 
     // Adjust names.
@@ -138,13 +145,13 @@ class Series {
         colorify(
           'failures',
           '!Failed:',
-          `no tests matching '${patterns}' pattern(s) found`
+          `no tests matching '${stringify(patterns)}' pattern(s) found`
         )
       );
       return Promise.resolve();
     }
 
-    await this.perform({ folder: `${settings.invocation}/`, tests });
+    await this.perform({ folder: `${this.invocation}/`, tests });
   }
 
   shutdown() {
@@ -167,79 +174,60 @@ class Series {
       }
 
       let subfolders = test_module.folders;
-      let include_list = test_module.include_list;
-      let exclude_list = test_module.exclude_list || [];
-
-      let list = test_module.list || this.getTestFileList(folder);
-      if (!subfolders && list.length == 0) {
+      let testfiles = test_module.list || this.getTestFileList(folder);
+      if (!subfolders && testfiles.length == 0) {
         throw new Error(`No tests found in ${folder}`);
       }
 
-      list = list
-        .filter(fn => !include_list || include_list.includes(fn))
-        .filter(fn => !exclude_list.includes(fn))
-        .map(fn => ({
-          fn,
-          name: `${virtual_folder}/${fn}`,
-          path: `${folder}/${fn}`,
-        }));
-
-      if (patterns.length > 0) {
-        list = list.filter(test =>
-          patterns.find(pattern => test.path.startsWith(pattern))
-        );
-      }
-
-      // Go into subfolders
-      let subtests = this.buildSubtests({
-        patterns,
-        folder,
-        virtual_folder,
-        subfolders,
-        webdriver,
-      });
-      if (list.length == 0 && subtests.length == 0) {
-        return tests;
-      }
-
+      // Go into subfolders.
       if (webdriver || !test_module.webdriver) {
-        this.buildFor({
+        return this.buildTests({
           tests,
-          test_module,
-          webdriver,
           folder,
           virtual_folder,
-          list,
-          subtests,
+          test_module,
+          testfiles,
+          webdriver,
+          patterns,
+          subtests: this.buildSubtests({
+            patterns,
+            folder,
+            virtual_folder,
+            subfolders,
+            webdriver,
+          }),
         });
-        return tests;
       }
 
       // A separate folder for the webdriver tests.
       assert(this.webdrivers instanceof Array, `Webdrivers are misconfigured`);
-      tests.push(
-        ...this.webdrivers.map(webdriver => ({
-          name: `${virtual_folder}/${webdriver}`,
-          subtests: this.buildFor({
-            tests: [],
-            test_module,
-            webdriver,
+
+      // Build the tests for webdrivers. Filter the list according traversed
+      // webdriver.
+      for (let webdriver of this.webdrivers) {
+        let wdtests = this.buildTests({
+          tests: [],
+          folder,
+          virtual_folder: `${virtual_folder}/${webdriver}`,
+          testfiles,
+          test_module,
+          webdriver,
+          patterns,
+          subtests: this.buildSubtests({
+            patterns,
             folder,
             virtual_folder: `${virtual_folder}/${webdriver}`,
-            list: list.map(test => ({
-              name: `${virtual_folder}/${webdriver}/${test.fn}`,
-              path: test.path,
-            })),
-            subtests: this.buildSubtests({
-              patterns,
-              folder,
-              virtual_folder: `${virtual_folder}/${webdriver}`,
-              subfolders,
-              webdriver,
-            }),
+            subfolders,
+            webdriver,
           }),
-        }))
-      );
+        });
+        if (wdtests.length > 0) {
+          tests.push({
+            name: `${virtual_folder}/${webdriver}`,
+            subtests: wdtests,
+          });
+        }
+      }
     } catch (e) {
       console.error(e);
       fail(`Failed to process '${folder}' tests`);
@@ -271,15 +259,32 @@ class Series {
       .filter(t => t.subtests.length > 0);
   }
 
-  buildFor({
+  buildTests({
     tests,
-    test_module,
-    webdriver,
     folder,
     virtual_folder,
-    list,
+    test_module,
+    testfiles,
+    patterns,
+    webdriver,
     subtests,
   }) {
+    const { include_list, exclude_list } = test_module;
+    let list = this.buildList({
+      folder,
+      virtual_folder,
+      testfiles,
+      webdriver,
+      patterns,
+      include_list,
+      exclude_list,
+    });
+
+    // Empty folder: no test matching a pattern.
+    if (list.length == 0 && subtests.length == 0) {
+      return tests;
+    }
+
     const expected_failures = test_module.expected_failures || [];
 
     // Initialize
@@ -370,6 +375,40 @@ class Series {
     return tests;
   }
 
+  buildList({
+    folder,
+    virtual_folder,
+    testfiles,
+    webdriver,
+    patterns,
+    include_list,
+    exclude_list = [],
+  }) {
+    let list = testfiles
+      .filter(fn => !include_list || include_list.includes(fn))
+      .filter(fn => !exclude_list.includes(fn))
+      .map(fn => ({
+        fn,
+        name: `${virtual_folder}/${fn}`,
+        path: `${folder}/${fn}`,
+      }));
+
+    // Filter tests by a given test paths and by a webdriver if given.
+    if (patterns.length > 0) {
+      list = list.filter(test =>
+        patterns.find(
+          pattern =>
+            (!webdriver ||
+              !pattern.webdriver ||
+              pattern.webdriver == webdriver) &&
+            test.path.startsWith(pattern.path)
+        )
+      );
+    }
+
+    return list;
+  }
+
   /**
    * Appends a prefix to test names and their containing virtual folders.
    */
@@ -456,7 +495,7 @@ class Series {
       } finally {
         this.core.failIfExpectedFailurePass();
 
-        let hasFailures = this.recordStats(name, path);
+        let hasFailures = this.recordStats({ name, path, webdriver });
 
         // If failed, then stop running the current tests.
         if (hasFailures && (this.skipOnFail || skip_on_fail)) {
@@ -483,7 +522,7 @@ class Series {
     await this.LogPipe.release();
   }
 
-  recordStats(name, path) {
+  recordStats({ name, path, webdriver }) {
     let hasFailures = false;
 
     // Record failures.
@@ -493,6 +532,7 @@ class Series {
       this.failures.push({
         name,
         path,
+        webdriver,
         count: delta,
       });
       this.fcnt = this.core.failureCount;
@@ -527,7 +567,7 @@ class Series {
   }
 
   report({ folder, fidx, fcnt, icnt, tcnt, wcnt, ocnt }) {
-    const is_root = folder == `${settings.invocation}/`;
+    const is_root = folder == `${this.invocation}/`;
 
     // Do not log interim test results into console to reduce noice. Keep
     // file logging.
