@@ -9,7 +9,12 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2021,
   },
-  rules: {},
+  rules: {
+    'node/no-unsupported-features/es-syntax': [
+      'error',
+      { ignores: ['dynamicImport'] },
+    ],
+  },
   overrides: [
     {
       files: ['bin/watest.js'],

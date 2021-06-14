@@ -129,7 +129,7 @@ class Series {
    * Runs tests matching the patterns.
    */
   async runFor(patterns, name_postfix = '') {
-    let tests = this.build({
+    let tests = await this.build({
       patterns,
       folder: root_folder,
       virtual_folder: this.invocation,
@@ -162,19 +162,19 @@ class Series {
   /**
    * Returns tests as an array of { name, func, ... } objects.
    */
-  build({ patterns, folder, virtual_folder, webdriver = '' }) {
+  async build({ patterns, folder, virtual_folder, webdriver = '' }) {
     let tests = [];
 
     try {
       let test_module = {};
       try {
-        test_module = this.loadTestMeta(folder);
+        test_module = await this.loadTestMeta(folder);
       } catch (e) {
         // no meta.js
       }
 
       let subfolders = test_module.folders;
-      let testfiles = test_module.list || this.getTestFileList(folder);
+      let testfiles = test_module.list || (await this.getTestFileList(folder));
       if (!subfolders && testfiles.length == 0) {
         throw new Error(`No tests found in ${folder}`);
       }
@@ -189,7 +189,7 @@ class Series {
           testfiles,
           webdriver,
           patterns,
-          subtests: this.buildSubtests({
+          subtests: await this.buildSubtests({
             patterns,
             folder,
             virtual_folder,
@@ -205,7 +205,7 @@ class Series {
       // Build the tests for webdrivers. Filter the list according traversed
       // webdriver.
       for (let webdriver of this.webdrivers) {
-        let wdtests = this.buildTests({
+        let wdtests = await this.buildTests({
           tests: [],
           folder,
           virtual_folder: `${virtual_folder}/${webdriver}`,
@@ -213,7 +213,7 @@ class Series {
           test_module,
           webdriver,
           patterns,
-          subtests: this.buildSubtests({
+          subtests: await this.buildSubtests({
             patterns,
             folder,
             virtual_folder: `${virtual_folder}/${webdriver}`,
@@ -242,24 +242,40 @@ class Series {
     return tests;
   }
 
-  buildSubtests({ patterns, folder, virtual_folder, subfolders, webdriver }) {
+  async buildSubtests({
+    patterns,
+    folder,
+    virtual_folder,
+    subfolders,
+    webdriver,
+  }) {
     if (!subfolders) {
       return [];
     }
-    return subfolders
-      .map(subfolder => ({
-        name: `${virtual_folder}/${subfolder}`,
-        subtests: this.build({
+
+    let subtests_for_subfolders = await Promise.all(
+      subfolders.map(subfolder =>
+        this.build({
           patterns,
           folder: `${folder}/${subfolder}`,
           virtual_folder: `${virtual_folder}/${subfolder}`,
           webdriver,
-        }),
+        }).then(subtests => ({
+          subfolder,
+          subtests,
+        }))
+      )
+    );
+
+    return subtests_for_subfolders
+      .map(({ subfolder, subtests }) => ({
+        name: `${virtual_folder}/${subfolder}`,
+        subtests,
       }))
       .filter(t => t.subtests.length > 0);
   }
 
-  buildTests({
+  async buildTests({
     tests,
     folder,
     virtual_folder,
@@ -313,22 +329,23 @@ class Series {
 
     // Tests
     for (let { name, path } of list) {
+      // Get a test.
       let single_test_module = null;
       try {
-        single_test_module = this.loadTest(path);
+        single_test_module = await this.loadTest(path);
       } catch (e) {
         console.error(e);
-        throw new Error(`Failed to load test file: ${path}`);
+        throw new Error(`Failed to load test: ${path}`);
       }
 
-      let test = single_test_module.test;
+      const test = single_test_module.test;
       if (!test) {
-        throw new Error(`No test function to was found in ${path}`);
+        throw new Error(`No test was found in ${path}`);
       }
 
-      // If request service is running, then notify it of a test start.
-      let test_wrap = () =>
-        Promise.resolve(servicer.ontest(name)).then(() => test());
+      // A function to notify the servicer the test is about to start and then
+      // to invoke the test.
+      const test_wrap = () => Promise.resolve(servicer.ontest(name)).then(test);
 
       let failures_info = Series.failuresInfo({
         failures: expected_failures,
@@ -637,11 +654,11 @@ class Series {
   }
 
   loadTestMeta(folder) {
-    return require(path.join(root_dir, `${folder}/meta.js`));
+    return import(path.join(root_dir, `${folder}/meta.js`));
   }
 
   loadTest(fn) {
-    return require(path.join(root_dir, fn));
+    return import(path.join(root_dir, fn));
   }
 
   getTestFileList(folder) {

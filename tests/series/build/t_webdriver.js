@@ -27,7 +27,11 @@ module.exports.test = async () => {
   };
 
   const series = new MockSeries('', { ts, webdrivers: ['chrome', 'firefox'] });
-  const tests = series.build({ patterns: [], folder: 'e2e', virtual_folder: 'e2e' });
+  const tests = await series.build({
+    patterns: [],
+    folder: 'e2e',
+    virtual_folder: 'e2e',
+  });
   series.shutdown();
 
   is(

@@ -30,7 +30,7 @@ module.exports.test = async () => {
   };
 
   const series = new MockSeries([], { ts, webdrivers: ['chrome', 'firefox'] });
-  const tests = series.build({
+  const tests = await series.build({
     patterns: [
       {
         path: 'tests/webdriver/end-to-end/sharing/t_shared_editing.js',

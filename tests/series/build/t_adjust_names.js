@@ -34,7 +34,11 @@ module.exports.test = async () => {
   };
 
   const series = new MockSeries([], { ts });
-  const tests = series.build({ patterns: [], folder: 'unit', virtual_folder: 'unit' });
+  const tests = await series.build({
+    patterns: [],
+    folder: 'unit',
+    virtual_folder: 'unit',
+  });
   series.adjustTestNames(tests, '2');
   series.shutdown();
 
