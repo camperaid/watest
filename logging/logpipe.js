@@ -2,7 +2,8 @@
 
 const path = require('path');
 
-const { log_dir, logger, run } = require('../core/settings.js');
+const settings = require('../core/settings.js');
+const { log_dir, run } = settings;
 
 /**
  * A single instance of a logpipe writing to std and file streams.
@@ -22,7 +23,7 @@ class LogPipeInstance {
       console.error(e);
     });
 
-    return logger.testRunStarted({ run, invocation });
+    return settings.logger.testRunStarted({ run, invocation });
   }
 
   async logScreenshot(pic) {
@@ -34,7 +35,7 @@ class LogPipeInstance {
     await stream.end();
     console.log(`Screenshot is captured and written to ${stream.filepath}`);
 
-    await logger.writeLogFile({
+    await settings.logger.writeLogFile({
       run,
       invocation: this.invocation,
       name,
@@ -43,7 +44,7 @@ class LogPipeInstance {
   }
 
   logSourceMap() {
-    return logger.writeSourceMap({ run, invocation: this.invocation });
+    return settings.logger.writeSourceMap({ run, invocation: this.invocation });
   }
 
   release() {
@@ -51,7 +52,7 @@ class LogPipeInstance {
       .end()
       .then(() => this.fstream.readFile())
       .then(content =>
-        logger.writeLogFile({
+        settings.logger.writeLogFile({
           run,
           invocation: this.invocation,
           name: this.fname,
