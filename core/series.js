@@ -7,8 +7,6 @@ const root_dir = path.resolve('.');
 const root_folder = 'tests';
 
 const settings = require('./settings.js');
-const { servicer } = settings;
-
 const { stringify } = require('./util.js');
 
 const testflow = require('./core.js');
@@ -38,24 +36,27 @@ class Series {
     if (!('LogPipe' in options)) {
       options.LogPipe = require('../logging/logpipe.js').LogPipe;
     }
-    return options.LogPipe.attach('').then(() => {
-      const series = new this(patterns, options);
-      return series
-        .run()
-        .then(() =>
-          // shutdown returns list of failures or null if no failures
-          options.LogPipe.release()
-        )
-        .then(
-          () => series.shutdown(),
-          e => {
-            let failures = series.shutdown();
-            fail(e.message);
-            console.error(e);
-            return failures;
-          }
-        );
-    });
+    return settings
+      .initialize()
+      .then(() => options.LogPipe.attach(''))
+      .then(() => {
+        const series = new this(patterns, options);
+        return series
+          .run()
+          .then(() =>
+            // shutdown returns list of failures or null if no failures
+            options.LogPipe.release()
+          )
+          .then(
+            () => series.shutdown(),
+            e => {
+              let failures = series.shutdown();
+              fail(e.message);
+              console.error(e);
+              return failures;
+            }
+          );
+      });
   }
 
   constructor(
@@ -122,7 +123,7 @@ class Series {
       }
     }
 
-    await servicer.shutdown();
+    await settings.servicer.shutdown();
   }
 
   /**
@@ -309,7 +310,7 @@ class Series {
         // Start services if any.
         let chain = Promise.resolve();
         for (let service of test_module.services || []) {
-          chain = chain.then(() => servicer.start(service));
+          chain = chain.then(() => settings.servicer.start(service));
         }
         await chain;
 
@@ -345,7 +346,8 @@ class Series {
 
       // A function to notify the servicer the test is about to start and then
       // to invoke the test.
-      const test_wrap = () => Promise.resolve(servicer.ontest(name)).then(test);
+      const test_wrap = () =>
+        Promise.resolve(settings.servicer.ontest(name)).then(test);
 
       let failures_info = Series.failuresInfo({
         failures: expected_failures,
@@ -377,7 +379,9 @@ class Series {
         }
         // Stop services in reverse order.
         await Promise.all(
-          [...(test_module.services || [])].reverse().map(s => servicer.stop(s))
+          [...(test_module.services || [])]
+            .reverse()
+            .map(s => settings.servicer.stop(s))
         );
       };
       tests.push({

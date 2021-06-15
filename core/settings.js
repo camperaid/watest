@@ -9,24 +9,22 @@ class Settings {
     this.run = '';
     this.invocation = '';
     this.tmp_storage_dir = '';
+    this.logger = null;
+    this.servicer = null;
 
     this.setupTmpStorageDir();
     this.setupLogDir();
     this.setupWebdrivers();
   }
 
-  /**
-   * Returns the logger.
-   */
-  get logger() {
-    return require(rc.logger || '../interfaces/logger.js');
-  }
+  async initialize() {
+    this.logger = (
+      await import(rc.logger || '../interfaces/logger.js')
+    ).default;
 
-  /**
-   * Returns the servicer.
-   */
-  get servicer() {
-    return require(rc.servicer || '../interfaces/servicer.js');
+    this.servicer = (
+      await import(rc.servicer || '../interfaces/servicer.js')
+    ).default;
   }
 
   get debunkLimit() {

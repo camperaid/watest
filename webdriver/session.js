@@ -131,9 +131,11 @@ async function start_session(arg1, arg2) {
 
   // Load libraries into the sesssion.
   if (libs) {
-    for (let lib of libs) {
-      require(lib).loadIntoSession(s);
-    }
+    await Promise.all(
+      libs.map(lib =>
+        import(lib).then(lib_module => lib_module.loadIntoSession(s))
+      )
+    );
   }
 
   return s;
