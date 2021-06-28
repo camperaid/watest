@@ -2,44 +2,10 @@
 
 'use strict';
 
-let debunk = false;
-let patterns = [];
-let skipOnFail = false;
-let showHelp = false;
-let timeout = 0;
-let verify = false;
+const { ProcessArgs } = require('../core/process_args.js');
 
-for (let i = 2; i < process.argv.length; i++) {
-  let arg = process.argv[i];
-  switch (arg) {
-    case '--debunk':
-      debunk = true;
-      break;
-
-    case '--skip-on-fail':
-      skipOnFail = true;
-      break;
-
-    case '--timeout':
-      timeout = process.argv[++i];
-      break;
-
-    case '-v':
-    case '--verify':
-      verify = true;
-      break;
-
-    case '-h':
-    case '--help':
-      showHelp = true;
-      break;
-
-    default:
-      patterns.push(arg);
-  }
-}
-
-if (showHelp) {
+const args = ProcessArgs.asObject();
+if (args.showHelp) {
   console.log(`Runs tests.`);
   console.log('Usage: watest [options] patterns');
   console.log(`
@@ -58,9 +24,4 @@ require('../core/settings.js');
 
 // Run tests.
 const { runSeries } = require('../core/series.js');
-runSeries(patterns, {
-  debunk,
-  skipOnFail,
-  timeout,
-  verify,
-}).then(failures => failures && process.exit(1));
+runSeries(args.patterns, args).then(failures => failures && process.exit(1));
