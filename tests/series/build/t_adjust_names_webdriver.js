@@ -48,15 +48,19 @@ module.exports.test = async () => {
     [
       {
         name: 'mac/webdriver',
+        path: 'tests/webdriver/',
         subtests: [
           {
             name: 'mac/webdriver/firefox',
+            path: 'tests/webdriver/',
             subtests: [
               {
                 name: 'mac/webdriver/firefox/end-to-end',
+                path: 'tests/webdriver/end-to-end/',
                 subtests: [
                   {
                     name: 'mac/webdriver/firefox/end-to-end/sharing2',
+                    path: 'tests/webdriver/end-to-end/sharing/',
                     subtests: [
                       {
                         name:

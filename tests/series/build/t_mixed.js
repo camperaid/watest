@@ -59,6 +59,7 @@ module.exports.test = async () => {
       },
       {
         name: 'mac/unit',
+        path: 'tests/unit/',
         subtests: [
           {
             name: 'mac/unit/t_testo.js',
@@ -71,9 +72,11 @@ module.exports.test = async () => {
       },
       {
         name: 'mac/e2e',
+        path: 'tests/e2e/',
         subtests: [
           {
             name: 'mac/e2e/chrome',
+            path: 'tests/e2e/',
             subtests: [
               {
                 name: 'mac/e2e/chrome/t_presto.js',
@@ -84,6 +87,7 @@ module.exports.test = async () => {
               },
               {
                 name: 'mac/e2e/chrome/controls',
+                path: 'tests/e2e/controls/',
                 subtests: [
                   {
                     name: 'mac/e2e/chrome/controls/t_input.js',
@@ -98,6 +102,7 @@ module.exports.test = async () => {
           },
           {
             name: 'mac/e2e/firefox',
+            path: 'tests/e2e/',
             subtests: [
               {
                 name: 'mac/e2e/firefox/t_presto.js',
@@ -108,6 +113,7 @@ module.exports.test = async () => {
               },
               {
                 name: 'mac/e2e/firefox/controls',
+                path: 'tests/e2e/controls/',
                 subtests: [
                   {
                     name: 'mac/e2e/firefox/controls/t_input.js',

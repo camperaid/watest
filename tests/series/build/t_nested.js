@@ -46,6 +46,7 @@ module.exports.test = async () => {
     [
       {
         name: 'unit/base',
+        path: 'unit/base/',
         subtests: [
           {
             name: 'unit/base/t_testo.js',
@@ -56,6 +57,7 @@ module.exports.test = async () => {
           },
           {
             name: 'unit/base/generic',
+            path: 'unit/base/generic/',
             subtests: [
               {
                 name: 'unit/base/generic/t_nahimov.js',
@@ -70,6 +72,7 @@ module.exports.test = async () => {
       },
       {
         name: 'unit/core',
+        path: 'unit/core/',
         subtests: [
           {
             name: 'unit/core/t_presto.js',

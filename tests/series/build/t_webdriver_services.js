@@ -35,6 +35,7 @@ module.exports.test = async () => {
     [
       {
         name: 'e2e/chrome',
+        path: 'e2e/',
         subtests: [
           {
             name: 'e2e/chrome/init',
@@ -68,6 +69,7 @@ module.exports.test = async () => {
       },
       {
         name: 'e2e/firefox',
+        path: 'e2e/',
         subtests: [
           {
             name: 'e2e/firefox/init',

@@ -225,6 +225,7 @@ class Series {
         if (wdtests.length > 0) {
           tests.push({
             name: `${virtual_folder}/${webdriver}`,
+            path: `${folder}/`,
             subtests: wdtests,
           });
         }
@@ -271,6 +272,7 @@ class Series {
     return subtests_for_subfolders
       .map(({ subfolder, subtests }) => ({
         name: `${virtual_folder}/${subfolder}`,
+        path: `${folder}/${subfolder}/`,
         subtests,
       }))
       .filter(t => t.subtests.length > 0);

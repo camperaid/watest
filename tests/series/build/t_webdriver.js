@@ -39,6 +39,7 @@ module.exports.test = async () => {
     [
       {
         name: 'e2e/chrome',
+        path: 'e2e/',
         subtests: [
           {
             name: 'e2e/chrome/t_testo.js',
@@ -56,6 +57,7 @@ module.exports.test = async () => {
           },
           {
             name: 'e2e/chrome/controls',
+            path: 'e2e/controls/',
             subtests: [
               {
                 name: 'e2e/chrome/controls/t_input.js',
@@ -70,6 +72,7 @@ module.exports.test = async () => {
       },
       {
         name: 'e2e/firefox',
+        path: 'e2e/',
         subtests: [
           {
             name: 'e2e/firefox/t_testo.js',
@@ -87,6 +90,7 @@ module.exports.test = async () => {
           },
           {
             name: 'e2e/firefox/controls',
+            path: 'e2e/controls/',
             subtests: [
               {
                 name: 'e2e/firefox/controls/t_input.js',

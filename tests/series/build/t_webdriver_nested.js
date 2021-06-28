@@ -32,9 +32,11 @@ module.exports.test = async () => {
     [
       {
         name: 'e2e/chrome',
+        path: 'e2e/',
         subtests: [
           {
             name: 'e2e/chrome/core',
+            path: 'e2e/core/',
             subtests: [
               {
                 name: 'e2e/chrome/core/t_core.js',
@@ -49,9 +51,11 @@ module.exports.test = async () => {
       },
       {
         name: 'e2e/firefox',
+        path: 'e2e/',
         subtests: [
           {
             name: 'e2e/firefox/core',
+            path: 'e2e/core/',
             subtests: [
               {
                 name: 'e2e/firefox/core/t_core.js',
