@@ -16,12 +16,34 @@ const colors = {
   success: '102',
 };
 
+const codes = new Map(
+  Array.from(Object.keys(colors)).map(key => [colors[key], key])
+);
+
+// Colorifies the message.
 function colorify(color, label, msg) {
   return `\x1b[${colors[color]}m${label}\x1b[0m ${msg}`;
 }
 
+// Parses the given message.
+function parse(str) {
+  // eslint-disable-next-line no-control-regex
+  const re = /^\x1b\[([0-9;]+)m(.+?)\x1b\[0m(.+)?$/;
+  const m = str.match(re);
+  if (!m) {
+    return null;
+  }
+  const [, code, label, msg] = m;
+  return {
+    color: codes.get(code),
+    label,
+    msg: msg.trim(),
+  };
+}
+
 module.exports = {
   colorify,
+  parse,
 
   format_completed(msg) {
     return colorify('completed', 'Completed', msg);
