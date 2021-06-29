@@ -100,6 +100,8 @@ class Series {
    * Runs tests matching the patterns. Re-runs failing tests in verify mode.
    */
   async run() {
+    const start_time = Date.now();
+
     // Run tests matching the patterns.
     await this.runFor(
       this.patterns.map(pattern => ({
@@ -124,6 +126,8 @@ class Series {
     }
 
     await settings.servicer.shutdown();
+
+    console.log(`Elapsed: ${Date.now() - start_time}ms`);
   }
 
   /**

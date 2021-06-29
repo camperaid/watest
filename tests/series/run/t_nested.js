@@ -1,18 +1,6 @@
 'use strict';
 
-const {
-  completed_checkers,
-  format_completed,
-  format_ok,
-  format_success,
-  is_output,
-  MockSeries,
-  logswritten_checker,
-  running_checker,
-  success,
-} = require('../test.js');
-
-const { invocation } = require('../../../core/settings.js');
+const { is_test_output, MockSeries, success } = require('../test.js');
 
 module.exports.test = async () => {
   const ts = {
@@ -44,36 +32,27 @@ module.exports.test = async () => {
     },
   };
 
-  await is_output(
+  await is_test_output(
     () => MockSeries.run([], { ts }),
     [
-      running_checker(
-        `${invocation}/unit/base/t_testo.js`,
-        `tests/unit/base/t_testo.js`
-      ),
-      format_ok(`Testo`),
-      ...completed_checkers({
-        context: `${invocation}/unit/base`,
-        name: `${invocation}/unit/base/t_testo.js`,
-      }),
-      logswritten_checker,
-      running_checker(
-        `${invocation}/unit/core/t_presto.js`,
-        `tests/unit/core/t_presto.js`
-      ),
-      format_ok(`Presto`),
-      ...completed_checkers({
-        context: `${invocation}/unit/core`,
-        name: `${invocation}/unit/core/t_presto.js`,
-      }),
-      logswritten_checker,
-      format_completed(`${invocation}/unit`),
-      logswritten_checker,
-      format_completed(`${invocation}/`),
-      format_success(2),
-      logswritten_checker,
+      '!Running: mac/unit/base/t_testo.js, path: tests/unit/base/t_testo.js',
+      '\x1B[32mOk:\x1B[0m Testo',
+      '>mac/unit/base/t_testo.js completed in',
+      '\x1B[38;5;243mCompleted\x1B[0m mac/unit/base',
+      'Logs are written to',
+      '!Running: mac/unit/core/t_presto.js, path: tests/unit/core/t_presto.js',
+      '\x1B[32mOk:\x1B[0m Presto',
+      '>mac/unit/core/t_presto.js completed in',
+      '\x1B[38;5;243mCompleted\x1B[0m mac/unit/core',
+      'Logs are written to',
+      '\x1B[38;5;243mCompleted\x1B[0m mac/unit',
+      'Logs are written to',
+      '\x1B[38;5;243mCompleted\x1B[0m mac/',
+      '\x1B[102mSuccess!\x1B[0m Total: 2',
+      'Logs are written to',
       'Testsuite: shutdown',
-      logswritten_checker,
+      'Elapsed:',
+      'Logs are written to',
     ],
     [],
     'nested'

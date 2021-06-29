@@ -1,6 +1,6 @@
 'use strict';
 
-const { fail, is_output, MockSeries, success } = require('../test.js');
+const { fail, is_test_output, MockSeries, success } = require('../test.js');
 
 module.exports.test = async () => {
   let testfailed = false;
@@ -33,50 +33,46 @@ module.exports.test = async () => {
   };
 
   const expected_stdout = [
-    // t_shared_editing.js failure on chrome
     '!Running: mac/webdriver/chrome/end-to-end/sharing/t_shared_editing.js, path: tests/webdriver/end-to-end/sharing/t_shared_editing.js',
     '>mac/webdriver/chrome/end-to-end/sharing/t_shared_editing.js completed in',
     '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome/end-to-end/sharing',
-    'Logs are written to ',
+    'Logs are written to',
     '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome/end-to-end',
-    'Logs are written to ',
+    'Logs are written to',
     '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome',
-    'Logs are written to ',
-
-    // t_shared_editing.js success on firefox
+    'Logs are written to',
     '!Running: mac/webdriver/firefox/end-to-end/sharing/t_shared_editing.js, path: tests/webdriver/end-to-end/sharing/t_shared_editing.js',
     '\x1B[32mOk:\x1B[0m WDSuccessio',
     '>mac/webdriver/firefox/end-to-end/sharing/t_shared_editing.js completed in',
     '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/firefox/end-to-end/sharing',
-    'Logs are written to ',
+    'Logs are written to',
     '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/firefox/end-to-end',
-    'Logs are written to ',
+    'Logs are written to',
     '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/firefox',
-    'Logs are written to ',
+    'Logs are written to',
     '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver',
-    'Logs are written to ',
+    'Logs are written to',
     '\x1B[38;5;243mCompleted\x1B[0m mac/',
     '\x1B[41m\x1B[37m>mac/webdriver/chrome/end-to-end/sharing/t_shared_editing.js\x1B[0m Failure count: 1',
     '\x1B[41m\x1B[37mFailed!\x1B[0m Passed: 1. Failed: 1',
-    'Logs are written to ',
-
-    // t_shared_editing.js subsequent success run on chrome
+    'Logs are written to',
     '!Running: mac/webdriver/chrome/end-to-end/sharing2/t_shared_editing.js, path: tests/webdriver/end-to-end/sharing/t_shared_editing.js',
     '\x1B[32mOk:\x1B[0m WDSuccessio',
     '>mac/webdriver/chrome/end-to-end/sharing2/t_shared_editing.js completed in',
     '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome/end-to-end/sharing2',
-    'Logs are written to ',
+    'Logs are written to',
     '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome/end-to-end',
-    'Logs are written to ',
+    'Logs are written to',
     '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome',
-    'Logs are written to ',
+    'Logs are written to',
     '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver',
-    'Logs are written to ',
+    'Logs are written to',
     '\x1B[38;5;243mCompleted\x1B[0m mac/',
     '\x1B[102mSuccess!\x1B[0m Total: 1',
-    'Logs are written to ',
+    'Logs are written to',
     'Testsuite: shutdown',
-    'Logs are written to ',
+    'Elapsed:',
+    'Logs are written to',
   ];
 
   const expected_stderr = [
@@ -84,15 +80,15 @@ module.exports.test = async () => {
     '\x1B[31m>mac/webdriver/chrome/end-to-end/sharing/t_shared_editing.js\x1B[0m has 1 failure(s)',
   ];
 
-  await is_output(
+  await is_test_output(
     () =>
       MockSeries.run([], {
         ts,
         webdrivers: ['chrome', 'firefox'],
         verify: true,
       }),
-    expected_stdout.map(expected => got => got.trim().startsWith(expected)),
-    expected_stderr.map(expected => got => got.trim().startsWith(expected)),
+    expected_stdout,
+    expected_stderr,
     'verify_wd'
   );
 };

@@ -50,7 +50,7 @@ module.exports.test = async () => {
   is(
     buffers,
     [
-      ['log', ['Testsuite: shutdown']],
+      ['log', ['Testsuite: shutdown', got => got.startsWith('Elapsed:')]],
       [
         'mac/log',
         [

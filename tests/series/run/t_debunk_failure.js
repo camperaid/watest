@@ -1,18 +1,6 @@
 'use strict';
 
-const {
-  completed_checkers,
-  format_completed,
-  format_failure,
-  format_failures,
-  is_output,
-  MockSeries,
-  logswritten_checker,
-  running_checker,
-  fail,
-} = require('../test.js');
-
-const { invocation } = require('../../../core/settings.js');
+const { is_test_output, MockSeries, fail } = require('../test.js');
 
 module.exports.test = async () => {
   const ts = {
@@ -32,28 +20,25 @@ module.exports.test = async () => {
   };
 
   const expected_stdout = [
-    // t_presto.js 1st failure
-    running_checker(`${invocation}/unit/t_testo.js`, `tests/unit/t_testo.js`),
-    ...completed_checkers({
-      context: `${invocation}/unit`,
-      name: `${invocation}/unit/t_testo.js`,
-    }),
-    logswritten_checker,
-    format_completed(`${invocation}/`),
-    format_failures(1, 'mac/unit/t_testo.js'),
-    format_failures(1, 0),
-    logswritten_checker,
-
+    '!Running: mac/unit/t_testo.js, path: tests/unit/t_testo.js',
+    '>mac/unit/t_testo.js completed in',
+    '\x1B[38;5;243mCompleted\x1B[0m mac/unit',
+    'Logs are written to',
+    '\x1B[38;5;243mCompleted\x1B[0m mac/',
+    '\x1B[41m\x1B[37m>mac/unit/t_testo.js\x1B[0m Failure count: 1',
+    '\x1B[41m\x1B[37mFailed!\x1B[0m Passed: 0. Failed: 1',
+    'Logs are written to',
     'Testsuite: shutdown',
-    logswritten_checker,
+    'Elapsed:',
+    'Logs are written to',
   ];
 
   const expected_stderr = [
-    format_failure(`Testo`),
-    format_failure('has 1 failure(s)', '>mac/unit/t_testo.js'),
+    '\x1B[31mFailed:\x1B[0m Testo',
+    '\x1B[31m>mac/unit/t_testo.js\x1B[0m has 1 failure(s)',
   ];
 
-  await is_output(
+  await is_test_output(
     () => MockSeries.run([], { ts, debunk: true }),
     expected_stdout,
     expected_stderr,

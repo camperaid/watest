@@ -359,6 +359,18 @@ async function is_output(func, out, err, msg) {
 }
 
 /**
+ * Tests whether |func| produces the test output.
+ */
+function is_test_output(func, out, err, msg) {
+  return is_output(
+    func,
+    out.map(expected => got => got.trim().startsWith(expected)),
+    err.map(expected => got => got.trim().startsWith(expected)),
+    msg
+  );
+}
+
+/**
  * Captures stdout and stderr prodcued by a function.
  */
 async function capture_output(func) {
@@ -388,6 +400,33 @@ async function capture_output(func) {
   return {
     stdout,
     stderr,
+  };
+}
+
+/**
+ * Captures stdout and stderr prodcued by a function for a testing.
+ */
+async function capture_test_output(func) {
+  const { stdout, stderr } = await capture_output(func);
+
+  return {
+    stdout: stdout.map(l => {
+      const shorties = [
+        /(Logs are written to).+/,
+        /(Elapsed:).+/,
+        /(.+ completed in).+/,
+      ];
+      for (let shorty of shorties) {
+        l = l.replace(shorty, (match, p) => p);
+      }
+      return l.trim();
+    }),
+    stderr: stderr.map(l => {
+      if (l.endsWith('\n')) {
+        l = l.slice(0, -1);
+      }
+      return l.trim();
+    }),
   };
 }
 
@@ -466,6 +505,7 @@ module.exports = {
   is,
   contains,
   is_output,
+  is_test_output,
   is_object,
   is_primitive,
   is_string,
@@ -474,4 +514,5 @@ module.exports = {
   test_contains,
 
   capture_output,
+  capture_test_output,
 };
