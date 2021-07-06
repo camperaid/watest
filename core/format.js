@@ -31,7 +31,7 @@ function parse(str) {
   const re = /^\x1b\[([0-9;]+)m(.+?)\x1b\[0m(.+)?$/;
   const m = str.match(re);
   if (!m) {
-    return null;
+    return {};
   }
   const [, code, label, msg] = m;
   return {

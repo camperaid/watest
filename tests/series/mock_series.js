@@ -91,7 +91,7 @@ class MockSeries extends Series {
   }
 
   loadTest(fn) {
-    return this.ts[fn];
+    return this.ts[fn].test;
   }
 
   getTestFileList(folder) {

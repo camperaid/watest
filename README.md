@@ -176,6 +176,25 @@ module.exports.expected_failures = [
 ];
 ```
 
+## Mocking
+
+ES6 modules mocking is supported only. You should add `meta.js` to provide ES6
+module loader. For example, you can substitute a module path by a mock module
+path this way:
+
+```
+export const loader = true;
+
+export async function resolve(specifier, context, defaultResolve) {
+  switch (specifier) {
+    case './base.mjs':
+      specifier = './base_mock.mjs';
+      break;
+  }
+  return defaultResolve(specifier, context, defaultResolve);
+}
+```
+
 ## Testsuite options
 
 - `--debunk` to enable debunk mode which will run a test the number of times or until it fails whichever is first

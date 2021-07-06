@@ -2,15 +2,20 @@
 
 const fs = require('fs');
 const path = require('path');
+const nodepath = path;
+const { spawn } = require('child_process');
 
 const root_dir = path.resolve('.');
 const root_folder = 'tests';
 
 const settings = require('./settings.js');
 const { stringify } = require('./util.js');
+const { parse } = require('./format.js');
 
 const testflow = require('./core.js');
 const { assert, fail } = testflow;
+
+const { ProcessArgs } = require('./process_args.js');
 
 const {
   format_completed,
@@ -67,6 +72,7 @@ class Series {
       skipOnFail,
       timeout,
       verify,
+      noChildProcess,
       core,
       LogPipe,
       webdrivers = settings.webdrivers,
@@ -77,6 +83,7 @@ class Series {
     this.patterns = patterns;
     this.skipOnFail = skipOnFail;
     this.verify = verify;
+    this.noChildProcess = noChildProcess;
 
     this.fcnt = 0;
     this.failures = [];
@@ -169,19 +176,30 @@ class Series {
    */
   async build({ patterns, folder, virtual_folder, webdriver = '' }) {
     let tests = [];
-
     try {
-      let test_module = {};
-      try {
-        test_module = await this.loadTestMeta(folder);
-      } catch (e) {
-        // no meta.js
-      }
-
+      let test_module = await this.loadTestMeta(folder);
       let subfolders = test_module.folders;
       let testfiles = test_module.list || (await this.getTestFileList(folder));
       if (!subfolders && testfiles.length == 0) {
         throw new Error(`No tests found in ${folder}`);
+      }
+
+      if (
+        !this.noChildProcess &&
+        test_module.loader &&
+        this.matchesPattern({
+          path: folder,
+          webdriver,
+          patterns,
+          path_is_not_final: true,
+        })
+      ) {
+        tests.push({
+          name: virtual_folder,
+          path: folder,
+          loader: this.getTestMetaPath(folder),
+        });
+        return tests;
       }
 
       // Go into subfolders.
@@ -336,19 +354,7 @@ class Series {
 
     // Tests
     for (let { name, path } of list) {
-      // Get a test.
-      let single_test_module = null;
-      try {
-        single_test_module = await this.loadTest(path);
-      } catch (e) {
-        console.error(e);
-        throw new Error(`Failed to load test: ${path}`);
-      }
-
-      const test = single_test_module.test;
-      if (!test) {
-        throw new Error(`No test was found in ${path}`);
-      }
+      const test = await this.loadTest(path);
 
       // A function to notify the servicer the test is about to start and then
       // to invoke the test.
@@ -423,17 +429,20 @@ class Series {
     // Filter tests by a given test paths and by a webdriver if given.
     if (patterns.length > 0) {
       list = list.filter(test =>
-        patterns.find(
-          pattern =>
-            (!webdriver ||
-              !pattern.webdriver ||
-              pattern.webdriver == webdriver) &&
-            test.path.startsWith(pattern.path)
-        )
+        this.matchesPattern({ path: test.path, webdriver, patterns })
       );
     }
 
     return list;
+  }
+
+  matchesPattern({ path, webdriver, patterns, path_is_not_final }) {
+    return patterns.find(
+      pattern =>
+        (!webdriver || !pattern.webdriver || pattern.webdriver == webdriver) &&
+        (path.startsWith(pattern.path) ||
+          (path_is_not_final && pattern.path.startsWith(path)))
+    );
   }
 
   /**
@@ -486,12 +495,18 @@ class Series {
         webdriver,
         failures_info,
         skip_on_fail,
+        loader,
       } = test;
 
       if (stop && !name.endsWith('uninit')) {
         console.log(
           `\x1b[31m!Skipped:\x1b[0m ${name}, because of previous failures\n`
         );
+        continue;
+      }
+
+      if (loader) {
+        await this.performInChildProcess({ name, path, loader });
         continue;
       }
 
@@ -663,18 +678,108 @@ class Series {
     );
   }
 
-  loadTestMeta(folder) {
-    return import(path.join(root_dir, `${folder}/meta.js`));
+  async loadTestMeta(folder) {
+    try {
+      return await import(this.getTestMetaPath(folder));
+    } catch (e) {
+      return {}; // no meta.js
+    }
   }
 
-  loadTest(fn) {
-    return import(path.join(root_dir, fn));
+  loadTest(test_path) {
+    return import(path.join(root_dir, test_path)).then(
+      test_module => {
+        if (!test_module.test) {
+          throw new Error(`No test was found in ${test_path}`);
+        }
+        return test_module.test;
+      },
+      e => {
+        console.error(e);
+        throw new Error(`Failed to load test: ${test_path}`);
+      }
+    );
+  }
+
+  getTestMetaPath(folder) {
+    let meta_path = path.join(root_dir, `${folder}/meta.js`);
+    return (
+      (fs.existsSync(meta_path) && meta_path) ||
+      path.join(root_dir, `${folder}/meta.mjs`)
+    );
   }
 
   getTestFileList(folder) {
     return fs
       .readdirSync(path.join(root_dir, folder))
       .filter(n => n.startsWith('t_'));
+  }
+
+  performInChildProcess({ name, path, loader }) {
+    return new Promise((resolve, reject) => {
+      let out = [];
+
+      let args = [];
+      if (loader) {
+        args.push('--experimental-loader', loader);
+      }
+      const watest_bin = nodepath.join(__dirname, '../bin/watest.js');
+      args.push(
+        watest_bin,
+        '--input-type=module',
+        '--no-child-process',
+        ...ProcessArgs.controlArguments,
+        path
+      );
+
+      const cp = spawn(`node`, args);
+      cp.on('close', code => {
+        this.processChildProcessOutput(name, out);
+        if (code != 0) {
+          reject(new Error(`${path} failed, process exited with code ${code}`));
+          return;
+        }
+        resolve();
+      });
+      cp.stdout.on('data', data =>
+        out.push({ is_stdout: true, data: data.toString().slice(0, -1) })
+      );
+      cp.stderr.on('data', data =>
+        out.push({ is_stdout: false, data: data.toString().slice(0, -1) })
+      );
+      cp.on('error', reject);
+    });
+  }
+
+  processChildProcessOutput(virtual_folder, out) {
+    for (let record of out) {
+      const { color, msg } = parse(record.data);
+      switch (color) {
+        case 'completed':
+          // Eat all logs after completed message for the running test, the main
+          // process will take care to represent those.
+          if (msg == virtual_folder) {
+            return;
+          }
+          break;
+        case 'failure':
+          this.core.failureCount++;
+          break;
+        case 'intermittent':
+          this.core.intermittentCount++;
+          break;
+        case 'ok':
+          this.core.okCount++;
+          break;
+        case 'todo':
+          this.core.todoCount++;
+          break;
+        case 'warning':
+          this.core.warningCount++;
+          break;
+      }
+      record.is_stdout ? console.log(record.data) : console.error(record.data);
+    }
   }
 }
 

@@ -108,17 +108,32 @@ class Core {
   get failureCount() {
     return this.fcnt;
   }
+  set failureCount(v) {
+    this.fcnt = v;
+  }
   get okCount() {
     return this.kcnt;
+  }
+  set okCount(v) {
+    this.kcnt = v;
   }
   get todoCount() {
     return this.todocnt;
   }
+  set todoCount(v) {
+    this.todocnt = v;
+  }
   get intermittentCount() {
     return this.intermittentcnt;
   }
+  set intermittentCount(v) {
+    this.intermittentcnt = v;
+  }
   get warningCount() {
     return this.warningcnt;
+  }
+  set warningCount(v) {
+    this.warningcnt = v;
   }
   failed() {
     return this.fcnt > 0;
