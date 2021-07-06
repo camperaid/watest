@@ -253,14 +253,16 @@ class Series {
         }
       }
     } catch (e) {
-      console.error(e);
-      fail(`Failed to process '${folder}' tests`);
-      this.failures.push({
-        name: `${virtual_folder}/`,
-        path: `${folder}/`,
-        count: 1,
+      tests.push({
+        name: virtual_folder,
+        path: folder,
+        func: () => {
+          console.error(e);
+          fail(`Failed to process tests in '${folder}' folder`);
+        },
+        failures_info: [],
+        skip_on_fail: 'skip-on-fail',
       });
-      this.fcnt++;
     }
 
     return tests;
