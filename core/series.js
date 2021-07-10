@@ -749,12 +749,16 @@ class Series {
         }
         resolve();
       });
-      cp.stdout.on('data', data =>
-        out.push({ is_stdout: true, data: data.toString().slice(0, -1) })
-      );
-      cp.stderr.on('data', data =>
-        out.push({ is_stdout: false, data: data.toString().slice(0, -1) })
-      );
+      cp.stdout.on('data', data => {
+        data = data.toString().slice(0, -1);
+        out.push({ is_stdout: true, data });
+        console.log(data);
+      });
+      cp.stderr.on('data', data => {
+        data = data.toString().slice(0, -1);
+        out.push({ is_stdout: false, data });
+        console.error(data);
+      });
       cp.on('error', reject);
     });
   }
@@ -787,7 +791,6 @@ class Series {
             this.core.warningCount++;
             break;
         }
-        record.is_stdout ? console.log(line) : console.error(line);
       }
     }
   }
