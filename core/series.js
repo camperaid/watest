@@ -761,32 +761,34 @@ class Series {
 
   processChildProcessOutput(virtual_folder, out) {
     for (let record of out) {
-      const { color, msg } = parse(record.data);
-      switch (color) {
-        case 'completed':
-          // Eat all logs after completed message for the running test, the main
-          // process will take care to represent those.
-          if (msg == virtual_folder) {
-            return;
-          }
-          break;
-        case 'failure':
-          this.core.failureCount++;
-          break;
-        case 'intermittent':
-          this.core.intermittentCount++;
-          break;
-        case 'ok':
-          this.core.okCount++;
-          break;
-        case 'todo':
-          this.core.todoCount++;
-          break;
-        case 'warning':
-          this.core.warningCount++;
-          break;
+      for (let line of record.data.split('\n')) {
+        const { color, msg } = parse(line);
+        switch (color) {
+          case 'completed':
+            // Eat all logs after completed message for the running test, the main
+            // process will take care to represent those.
+            if (msg == virtual_folder) {
+              return;
+            }
+            break;
+          case 'failure':
+            this.core.failureCount++;
+            break;
+          case 'intermittent':
+            this.core.intermittentCount++;
+            break;
+          case 'ok':
+            this.core.okCount++;
+            break;
+          case 'todo':
+            this.core.todoCount++;
+            break;
+          case 'warning':
+            this.core.warningCount++;
+            break;
+        }
+        record.is_stdout ? console.log(line) : console.error(line);
       }
-      record.is_stdout ? console.log(record.data) : console.error(record.data);
     }
   }
 }
