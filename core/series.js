@@ -186,19 +186,25 @@ class Series {
 
       if (
         !this.noChildProcess &&
-        test_module.loader &&
-        this.matchesPattern({
+        test_module.loader
+      ) {
+        let matched_pattern = this.matchesPattern({
           path: folder,
           webdriver,
           patterns,
           path_is_not_final: true,
-        })
-      ) {
-        tests.push({
-          name: virtual_folder,
-          path: folder,
-          loader: this.getTestMetaPath(folder),
         });
+        if (matched_pattern) {
+          let path = folder;
+          if (matched_pattern.path.startsWith(folder)) {
+            path = matched_pattern.path;
+          }
+          tests.push({
+            name: virtual_folder,
+            path,
+            loader: this.getTestMetaPath(folder),
+          });
+        }
         return tests;
       }
 
