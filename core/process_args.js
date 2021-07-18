@@ -17,7 +17,7 @@ class ProcessArgs {
           break;
 
         case '--timeout':
-          obj.timeout = process.argv[++i];
+          obj.timeout = parseInt(process.argv[++i]);
           break;
 
         case '-v':

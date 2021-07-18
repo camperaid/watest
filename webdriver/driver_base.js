@@ -53,7 +53,7 @@ function getFirefoxArgs() {
 
 const defaultTimeout = 10;
 const getTimeout = () => (core.getTimeout() || defaultTimeout) * 1000;
-const timeoutOnFailure = (core.getTimeout() || 0) * 1000; // use non zero values for failure debugging
+const getTimeoutOnFailure = () => (core.getTimeout() || 0) * 1000; // use non zero values for failure debugging
 const browserLogLevel = 'ALL'; // 'WARNING'
 
 function warn_if_stale(e, msg) {
@@ -829,7 +829,9 @@ class DriverBase {
               report(`${msg}${fdetails}`);
             })
             .then(() => this.captureScreenshot())
+            .catch(e => fail(e))
             .then(() => {
+              let timeoutOnFailure = getTimeoutOnFailure();
               let promise = Promise.resolve();
               if (timeoutOnFailure > 0) {
                 console.log(`Sleeping for ${timeoutOnFailure} ms`);
