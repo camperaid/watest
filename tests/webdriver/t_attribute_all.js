@@ -1,6 +1,6 @@
 'use strict';
 
-const { eat_failure, eat_ok, do_self_tests, is_output } = require('./test.js');
+const { do_self_tests, is_failure_output, is_ok_output } = require('./test.js');
 
 const snippet = `
 <html><body>
@@ -11,15 +11,14 @@ const snippet = `
 
 module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   // attributeContainsAll: success
-  await is_output(
-    eat_ok(() =>
+  await is_ok_output(
+    () =>
       driver.attributeContainsAll(
         'input',
         'value',
         ['he', 'hacha'],
         `attributeContainsAll`
-      )
-    ),
+      ),
     [
       `Test: attributeContainsAll. Expected: ['he', 'hacha']. Selector: 'input'`,
       `Ok: attributeContainsAll, match attribute values, got: ['hey', 'chacha']`,
@@ -30,15 +29,14 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // attributeContainsAll: failure
-  await is_output(
-    eat_failure(() =>
+  await is_failure_output(
+    () =>
       driver.attributeContainsAll(
         'input',
         'value',
         ['hey', 'chachacha'],
         `attributeContainsAll`
-      )
-    ),
+      ),
     [
       `Test: attributeContainsAll. Expected: ['hey', 'chachacha']. Selector: 'input'`,
     ],

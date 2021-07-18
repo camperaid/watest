@@ -1,6 +1,6 @@
 'use strict';
 
-const { eat_failure, eat_ok, do_self_tests, is_output } = require('./test.js');
+const { do_self_tests, is_failure_output, is_ok_output } = require('./test.js');
 
 const snippet = `
 <html><body>
@@ -19,10 +19,8 @@ const snippet = `
 
 module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   // scriptRetvalIs: success
-  await is_output(
-    eat_ok(() =>
-      driver.scriptRetvalIs('window.getValue()', 'hey', `scriptRetvalIs`)
-    ),
+  await is_ok_output(
+    () => driver.scriptRetvalIs('window.getValue()', 'hey', `scriptRetvalIs`),
     [
       `Test: scriptRetvalIs. Expected: 'hey'`,
       `Ok: scriptRetvalIs, script retval, got: hey`,
@@ -33,10 +31,8 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // scriptRetvalIs: failure
-  await is_output(
-    eat_failure(() =>
-      driver.scriptRetvalIs('window.getValue()', 'heo', `scriptRetvalIs`)
-    ),
+  await is_failure_output(
+    () => driver.scriptRetvalIs('window.getValue()', 'heo', `scriptRetvalIs`),
     [`Test: scriptRetvalIs. Expected: 'heo'`],
     [
       `Failed: scriptRetvalIs, script retval;
@@ -52,14 +48,13 @@ unexpected character: 'y' at 2 pos, expected: 'o' at '' line`,
   );
 
   // scriptRetvalContains: success
-  await is_output(
-    eat_ok(() =>
+  await is_ok_output(
+    () =>
       driver.scriptRetvalContains(
         'window.getValues()',
         ['hey'],
         `scriptRetvalContains`
-      )
-    ),
+      ),
     [
       `Test: scriptRetvalContains. Expected: ['hey']`,
       `Ok: script retval contains ['hey'], got: ['hey', 'bo']`,
@@ -70,14 +65,13 @@ unexpected character: 'y' at 2 pos, expected: 'o' at '' line`,
   );
 
   // scriptRetvalContains: failure
-  await is_output(
-    eat_failure(() =>
+  await is_failure_output(
+    () =>
       driver.scriptRetvalContains(
         'window.getValues()',
         ['heo'],
         `scriptRetvalContains`
-      )
-    ),
+      ),
     [`Test: scriptRetvalContains. Expected: ['heo']`],
     [
       `Failed: Array has no expected item 'heo'`,

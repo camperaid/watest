@@ -1,6 +1,6 @@
 'use strict';
 
-const { eat_failure, eat_ok, do_self_tests, is_output } = require('./test.js');
+const { do_self_tests, is_failure_output, is_ok_output } = require('./test.js');
 
 const snippet = `
 <html><body>
@@ -12,10 +12,9 @@ const snippet = `
 
 module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   // classNameStateIs: on
-  await is_output(
-    eat_ok(() =>
-      driver.classNameStateIs('#input', 'chorizo', 'on', `classNameStateIs.on`)
-    ),
+  await is_ok_output(
+    () =>
+      driver.classNameStateIs('#input', 'chorizo', 'on', `classNameStateIs.on`),
     [
       `Test: classNameStateIs.on. Selector: '#input'`,
       `Ok: #input has chorizo class name`,
@@ -26,15 +25,14 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // classNameStateIs: off
-  await is_output(
-    eat_ok(() =>
+  await is_ok_output(
+    () =>
       driver.classNameStateIs(
         '#input',
         'chorizo-off',
         'off',
         `classNameStateIs.off`
-      )
-    ),
+      ),
     [
       `Test: classNameStateIs.off. Selector: '#input'`,
       `Ok: #input has not chorizo-off class name`,
@@ -45,15 +43,14 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // classNameStateIs: failure
-  await is_output(
-    eat_failure(() =>
+  await is_failure_output(
+    () =>
       driver.classNameStateIs(
         '#input',
         'chorizo-off',
         'on',
         `classNameStateIs.off`
-      )
-    ),
+      ),
     [`Test: classNameStateIs.off. Selector: '#input'`],
     [
       `Failed: #input has chorizo-off class name`,
@@ -64,10 +61,8 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // innerHTMLIs
-  await is_output(
-    eat_ok(() =>
-      driver.innerHTMLIs('#button', '<span>button</span>', `innerHTMLIs`)
-    ),
+  await is_ok_output(
+    () => driver.innerHTMLIs('#button', '<span>button</span>', `innerHTMLIs`),
     [
       `Test: innerHTMLIs. Selector: '#button'`,
       `Ok: innerHTMLIs, HTML match for '#button, got: <span>button</span>`,
@@ -78,8 +73,8 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // innerHTMLIs: failure
-  await is_output(
-    eat_failure(() => driver.innerHTMLIs('#button', 'button', `innerHTMLIs`)),
+  await is_failure_output(
+    () => driver.innerHTMLIs('#button', 'button', `innerHTMLIs`),
     [`Test: innerHTMLIs. Selector: '#button'`],
     [
       `Failed: innerHTMLIs, HTML match for '#button;
@@ -95,8 +90,8 @@ unexpected character: '<' at 0 pos, expected: 'b' at '' line`,
   );
 
   // propertyIs
-  await is_output(
-    eat_ok(() => driver.propertyIs('#button', 'id', 'button', `propertyIs`)),
+  await is_ok_output(
+    () => driver.propertyIs('#button', 'id', 'button', `propertyIs`),
     [
       `Test: propertyIs. Selector: '#button'`,
       `Ok: id property value match, got: button`,
@@ -107,10 +102,8 @@ unexpected character: '<' at 0 pos, expected: 'b' at '' line`,
   );
 
   // propertyIs: failure
-  await is_output(
-    eat_failure(() =>
-      driver.propertyIs('#button', 'id', 'button2', `propertyIs`)
-    ),
+  await is_failure_output(
+    () => driver.propertyIs('#button', 'id', 'button2', `propertyIs`),
     [`Test: propertyIs. Selector: '#button'`],
     [
       `Failed: id property value match, string longer than expected, got: 'button' of 6 chars, expected: 'button2' of 7 chars, diff: '2'`,

@@ -1,6 +1,6 @@
 'use strict';
 
-const { eat_failure, eat_ok, do_self_tests, is_output } = require('./test.js');
+const { do_self_tests, is_failure_output, is_ok_output } = require('./test.js');
 
 const snippet = `
 <html><body>
@@ -11,10 +11,8 @@ const snippet = `
 
 module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   // textIs: success
-  await is_output(
-    eat_ok(() =>
-      driver.textIsAll('p', ['Paragraph', 'Maragraph'], `textIsAll`)
-    ),
+  await is_ok_output(
+    () => driver.textIsAll('p', ['Paragraph', 'Maragraph'], `textIsAll`),
     [
       `Test: textIsAll. Expected: ['Paragraph', 'Maragraph']. Selector: 'p'`,
       `Ok: textIsAll, match text, got: ['Paragraph', 'Maragraph']`,
@@ -25,8 +23,8 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // textIs: failure
-  await is_output(
-    eat_failure(() => driver.textIsAll('p', ['Para', 'Mara'], `textIsAll`)),
+  await is_failure_output(
+    () => driver.textIsAll('p', ['Para', 'Mara'], `textIsAll`),
     [`Test: textIsAll. Expected: ['Para', 'Mara']. Selector: 'p'`],
     [
       `Failed: textIsAll, match text: unexpected value: ['Paragraph', 'Maragraph'], expected: ['Para', 'Mara']`,
@@ -38,8 +36,8 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // textIs: ambigious
-  await is_output(
-    eat_failure(() => driver.textIsAll('p', ['Para'], `textIsAll`)),
+  await is_failure_output(
+    () => driver.textIsAll('p', ['Para'], `textIsAll`),
     [`Test: textIsAll. Expected: ['Para']. Selector: 'p'`],
     [
       `Failed: textIsAll, ambigious 'p' selector, got 2 elements, expected 1`,
@@ -49,8 +47,8 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // textIs: no elements
-  await is_output(
-    eat_failure(() => driver.textIs('#p-not-exists', ['Para'], `textIsAll`)),
+  await is_failure_output(
+    () => driver.textIs('#p-not-exists', ['Para'], `textIsAll`),
     [`Test: textIsAll. Expected: ['Para']. Selector: '#p-not-exists'`],
     [
       `Failed: textIsAll, no elements matching '#p-not-exists' selector`,

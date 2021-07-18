@@ -1,6 +1,6 @@
 'use strict';
 
-const { eat_failure, eat_ok, do_self_tests, is_output } = require('./test.js');
+const { do_self_tests, is_failure_output, is_ok_output } = require('./test.js');
 
 const snippet = `
 <html><body>
@@ -14,8 +14,8 @@ const snippet = `
 
 module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   // textSelected
-  await is_output(
-    eat_ok(() => driver.textSelected('#selected-input', `textSelected`)),
+  await is_ok_output(
+    () => driver.textSelected('#selected-input', `textSelected`),
     [
       `Test: textSelected. Expected: text should be selected. Selector: '#selected-input'`,
       `Ok: textSelected: text is selected`,
@@ -26,8 +26,8 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // textSelected:failure
-  await is_output(
-    eat_failure(() => driver.textSelected('#unselected-input', `textSelected`)),
+  await is_failure_output(
+    () => driver.textSelected('#unselected-input', `textSelected`),
     [
       `Test: textSelected. Expected: text should be selected. Selector: '#unselected-input'`,
     ],

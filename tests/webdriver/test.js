@@ -3,6 +3,7 @@
 const testflow = require('../../core/core.js');
 const { fail, core } = testflow;
 
+const { is_output } = require('../../core/base.js');
 const { scope } = require('../../webdriver/session.js');
 const { TestExecutionError } = require('../../webdriver/driver_base.js');
 
@@ -34,7 +35,7 @@ module.exports.do_self_tests = (snippet, test) =>
     }
   });
 
-module.exports.eat_ok = func => async () => {
+const eat_ok = func => async () => {
   try {
     testflow.lock();
     await func();
@@ -43,7 +44,7 @@ module.exports.eat_ok = func => async () => {
   }
 };
 
-module.exports.eat_failure = func => async () => {
+const eat_failure = func => async () => {
   try {
     testflow.lock();
     await func();
@@ -55,4 +56,13 @@ module.exports.eat_failure = func => async () => {
       throw e;
     }
   }
+};
+
+module.exports.is_ok_output = (func, out, err, msg) => {
+  return is_output(eat_ok(func), out, err, msg);
+};
+
+module.exports.is_failure_output = (func, out, err, msg) => {
+  out.push(`Sleeping for 1 ms`);
+  return is_output(eat_failure(func), out, err, msg);
 };

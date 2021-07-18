@@ -1,6 +1,6 @@
 'use strict';
 
-const { eat_failure, eat_ok, do_self_tests, is_output } = require('./test.js');
+const { do_self_tests, is_failure_output, is_ok_output } = require('./test.js');
 
 const snippet = `
 <html><body>
@@ -10,8 +10,8 @@ const snippet = `
 
 module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   // attributeIs: success
-  await is_output(
-    eat_ok(() => driver.attributeIs('#input', 'value', 'hey', `attributeIs`)),
+  await is_ok_output(
+    () => driver.attributeIs('#input', 'value', 'hey', `attributeIs`),
     [
       `Test: attributeIs. Expected: 'hey'. Selector: '#input'`,
       `Ok: attributeIs, got: 'hey'`,
@@ -22,10 +22,8 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // attributeIs: failure
-  await is_output(
-    eat_failure(() =>
-      driver.attributeIs('#input', 'value', 'he', `attributeIs`)
-    ),
+  await is_failure_output(
+    () => driver.attributeIs('#input', 'value', 'he', `attributeIs`),
     [`Test: attributeIs. Expected: 'he'. Selector: '#input'`],
     [
       `Failed: attributeIs, got: 'hey', expected: 'he'`,
@@ -36,10 +34,9 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // attributeContains: success
-  await is_output(
-    eat_ok(() =>
-      driver.attributeContains('#input', 'value', 'he', `attributeContains`)
-    ),
+  await is_ok_output(
+    () =>
+      driver.attributeContains('#input', 'value', 'he', `attributeContains`),
     [
       `Test: attributeContains. Expected: contains 'he'. Selector: '#input'`,
       `Ok: attributeContains, got: 'hey'`,

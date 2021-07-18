@@ -1,6 +1,6 @@
 'use strict';
 
-const { eat_failure, eat_ok, do_self_tests, is_output } = require('./test.js');
+const { do_self_tests, is_failure_output, is_ok_output } = require('./test.js');
 
 const snippet = `
 <html><body>
@@ -17,8 +17,8 @@ const snippet = `
 
 module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   // textIs: success
-  await is_output(
-    eat_ok(() => driver.textIs('#p', 'Paragraph', `textIs`)),
+  await is_ok_output(
+    () => driver.textIs('#p', 'Paragraph', `textIs`),
     [
       `Test: textIs. Expected: 'Paragraph'. Selector: '#p'`,
       `Ok: textIs, got: 'Paragraph'`,
@@ -29,10 +29,8 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // textIs: whitespaces
-  await is_output(
-    eat_ok(() =>
-      driver.textIs('#p-whitespace', 'Paragraph ParagraphNext', `textIs`)
-    ),
+  await is_ok_output(
+    () => driver.textIs('#p-whitespace', 'Paragraph ParagraphNext', `textIs`),
     [
       `Test: textIs. Expected: 'Paragraph ParagraphNext'. Selector: '#p-whitespace'`,
       `Ok: textIs, got: 'Paragraph ParagraphNext'`,
@@ -43,8 +41,8 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // textIs: failure
-  await is_output(
-    eat_failure(() => driver.textIs('#p', 'Para', `textIs`)),
+  await is_failure_output(
+    () => driver.textIs('#p', 'Para', `textIs`),
     [`Test: textIs. Expected: 'Para'. Selector: '#p'`],
     [
       `Failed: textIs, got: 'Paragraph', expected: 'Para'`,
@@ -55,8 +53,8 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // textIs: ambigious
-  await is_output(
-    eat_failure(() => driver.textIs('p', 'Para', `textIs`)),
+  await is_failure_output(
+    () => driver.textIs('p', 'Para', `textIs`),
     [`Test: textIs. Expected: 'Para'. Selector: 'p'`],
     [
       `Failed: textIs, ambigious 'p' selector, got 3 elements, expected 1`,
@@ -66,8 +64,8 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // textIs: no elements
-  await is_output(
-    eat_failure(() => driver.textIs('#p-not-exists', 'Para', `textIs`)),
+  await is_failure_output(
+    () => driver.textIs('#p-not-exists', 'Para', `textIs`),
     [`Test: textIs. Expected: 'Para'. Selector: '#p-not-exists'`],
     [
       `Failed: textIs, no elements matching '#p-not-exists' selector`,
@@ -77,8 +75,8 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // textIs: input
-  await is_output(
-    eat_ok(() => driver.textIs('#input', 'hey', `textIs`)),
+  await is_ok_output(
+    () => driver.textIs('#input', 'hey', `textIs`),
     [
       `Test: textIs. Expected: 'hey'. Selector: '#input'`,
       `Ok: textIs, got: 'hey'`,
@@ -89,8 +87,8 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // textIs: textarea
-  await is_output(
-    eat_ok(() => driver.textIs('#textarea', 'hey', `textIs`)),
+  await is_ok_output(
+    () => driver.textIs('#textarea', 'hey', `textIs`),
     [
       `Test: textIs. Expected: 'hey'. Selector: '#textarea'`,
       `Ok: textIs, got: 'hey'`,
@@ -101,8 +99,8 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // textStartsWith: success
-  await is_output(
-    eat_ok(() => driver.textStartsWith('#p', 'Para', `textStartsWith`)),
+  await is_ok_output(
+    () => driver.textStartsWith('#p', 'Para', `textStartsWith`),
     [
       `Test: textStartsWith. Expected: starts with 'Para'. Selector: '#p'`,
       `Ok: textStartsWith, got: 'Paragraph'`,
@@ -113,8 +111,8 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // textStartsWith: failure
-  await is_output(
-    eat_failure(() => driver.textStartsWith('#p', 'Mara', `textStartsWith`)),
+  await is_failure_output(
+    () => driver.textStartsWith('#p', 'Mara', `textStartsWith`),
     [`Test: textStartsWith. Expected: starts with 'Mara'. Selector: '#p'`],
     [
       `Failed: textStartsWith, got: 'Paragraph', expected: starts with 'Mara'`,
@@ -125,8 +123,8 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
   );
 
   // textEmpty: success
-  await is_output(
-    eat_ok(() => driver.textEmpty('#p-empty', `textEmpty`)),
+  await is_ok_output(
+    () => driver.textEmpty('#p-empty', `textEmpty`),
     [
       `Test: textEmpty. Expected: no text. Selector: '#p-empty'`,
       `Ok: textEmpty, got: ''`,

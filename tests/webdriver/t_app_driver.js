@@ -1,6 +1,6 @@
 'use strict';
 
-const { AppDriver, eat_ok, do_self_tests, is_output } = require('./test.js');
+const { AppDriver, is_ok_output, do_self_tests } = require('./test.js');
 
 const snippet = `
 <html><body>
@@ -19,8 +19,8 @@ class Input extends AppDriver {
 
 module.exports.test = do_self_tests(snippet, async session => {
   // AppDriver: chainable
-  await is_output(
-    eat_ok(() => Input.get(session).type('hello')),
+  await is_ok_output(
+    () => Input.get(session).type('hello'),
     [
       `Action: Get Input`,
       `Test: Input is shown. Selector: '#input'`,
