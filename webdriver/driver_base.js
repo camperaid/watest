@@ -829,7 +829,10 @@ class DriverBase {
               report(`${msg}${fdetails}`);
             })
             .then(() => this.captureScreenshot())
-            .catch(e => fail(e))
+            .catch(e => {
+              console.error(e);
+              fail(e.message);
+            })
             .then(() => {
               let timeoutOnFailure = getTimeoutOnFailure();
               let promise = Promise.resolve();
