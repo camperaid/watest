@@ -3,17 +3,49 @@
 const { contains, is_output } = require('./test.js');
 
 module.exports.test = async () => {
-  // success
+  // string: success
   await is_output(
-    () => contains([0, 1], [1], `Contains`),
-    [`Ok: Contains, got: [0, 1]`],
+    () => contains('green cat', 'cat', `String contains`),
+    [`Ok: String contains, got: 'green cat'`],
     [],
     `success`
   );
 
-  // failure
+  // string: failure: expected string, got array
   await is_output(
-    () => contains([0, 1], [1, 3], `Contains`),
+    () => contains([], 'green cat', `String contains`),
+    [],
+    [`Failed: Expected string, got object: []`],
+    `failure`
+  );
+
+  // string: failure: got string, expected array
+  await is_output(
+    () => contains('cat', [], `String contains`),
+    [],
+    [`Failed: Got string, expected object: []`],
+    `failure`
+  );
+
+  // string: failure: doesn't contains
+  await is_output(
+    () => contains('cat', 'green cat', `String contains`),
+    [],
+    [`Failed: Got string doesn't contain expected string, got: 'cat', expected: 'green cat'`],
+    `failure`
+  );
+
+  // array: success
+  await is_output(
+    () => contains([0, 1], [1], `Array contains`),
+    [`Ok: Array contains, got: [0, 1]`],
+    [],
+    `success`
+  );
+
+  // array: failure
+  await is_output(
+    () => contains([0, 1], [1, 3], `Array contains`),
     [],
     [`Failed: Array has no expected item 3`],
     `failure`

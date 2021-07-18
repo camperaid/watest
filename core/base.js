@@ -70,6 +70,27 @@ function contains(
   msg,
   { ignore_unexpected, fail_ = fail, success_ = success } = {}
 ) {
+  if (typeof got == 'string' || typeof expected == 'string') {
+    if (typeof got != 'string') {
+      fail_(`Expected string, got object: []`);
+      return false;
+    }
+    if (typeof expected != 'string') {
+      fail_(`Got string, expected ${typeof expected}: ${stringify(expected)}`);
+      return false;
+    }
+    if (got.includes(expected)) {
+      success_(`${msg}, got: ${stringify(got)}`);
+      return true;
+    }
+    fail_(
+      `Got string doesn't contain expected string, got: ${stringify(
+        got
+      )}, expected: ${stringify(expected)}`
+    );
+    return false;
+  }
+
   if (!(expected instanceof Array)) {
     fail_(`Expected value is not array, expected: ${stringify(expected)}`);
     return false;
