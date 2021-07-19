@@ -528,6 +528,43 @@ class Driver extends DriverBase {
     );
   }
 
+  /**
+   * Double clicks at an element specified by the selector.
+   */
+  doubleClick(selector, msg) {
+    assert(selector, `doubleClick: no selector`);
+    assert(msg, `doubleClick: no msg`);
+
+    return super.click(
+      selector,
+      `${msg}. Double click at ${selector}`,
+      {},
+      el => this.dvr.actions({ bridge: true }).doubleClick(el).perform()
+    );
+  }
+
+  /**
+   * Double clicks at an element specified by the selector at the given position.
+   */
+  doubleClickAt(selector, pos, msg) {
+    assert(selector, `doubleClick: no selector`);
+    assert(pos, `clickAt: no pos`);
+    assert(msg, `doubleClick: no msg`);
+
+    return super.click(
+      selector,
+      `${msg}. Double click at ${pos[0]}, ${pos[1]}`,
+      {},
+      el =>
+        this.dvr
+          .actions({ bridge: true })
+          .move({ x: pos[0], y: pos[1], origin: el })
+          .pause((this.firefox && 300) || 0)
+          .doubleClick(el)
+          .perform()
+    );
+  }
+
   dragAndDrop(selector, from, to) {
     assert(selector, `dragAndDrop: no selector`);
     assert(from, `dragAndDrop: no from`);
