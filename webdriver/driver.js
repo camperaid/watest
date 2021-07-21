@@ -560,7 +560,7 @@ class Driver extends DriverBase {
           .actions({ bridge: true })
           .move({ x: pos[0], y: pos[1], origin: el })
           .pause((this.firefox && 300) || 0)
-          .doubleClick(el)
+          .doubleClick()
           .perform()
     );
   }

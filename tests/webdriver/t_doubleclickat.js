@@ -4,7 +4,7 @@ const { do_self_tests, is } = require('./test.js');
 
 const snippet = `
 <html><body>
-  <div id='div' style='width: 100px; height: 100px; background-color: blue;'></div>
+  <div id='div' style='width: 100px; height: 100px; background-color: yellow;'></div>
   <script>
     let resolve = null
     let promise = new Promise(r => resolve = r);
@@ -18,19 +18,27 @@ const snippet = `
         };
       });
     };
+    document.addEventListener('click', ev => {
+      let el = document.createElement('span');
+      el.style.backgroundColor = 'blue';
+      el.style.position = 'absolute';
+      el.style.top = ev.clientY;
+      el.style.left = ev.clientX;
+      el.style.width = '10px';
+      el.style.height = '10px';
+      document.body.append(el);
+    });
   </script>
 </body></html>
 `;
 
 module.exports.test = do_self_tests(snippet, async ({ driver }) => {
-  const x = 50;
-  const y = 50;
-  await driver.doubleClickAt('div', [x, y], `dblclick`);
+  await driver.doubleClickAt('div', [0, 0], `dblclick`);
   is(
     await driver.executeScript('window.getPromise()', `get dblclickat result`),
     {
-      x,
-      y,
+      x: 50,
+      y: 50,
     },
     'check dblclickat results'
   );
