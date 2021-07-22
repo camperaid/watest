@@ -36,9 +36,9 @@ class AppDriver {
    */
   onget() {
     return this.chain(() =>
-      this.action(`Get ${this.constructor.name}`).elementVisible(
+      this.action(`Get ${this.uiname}`).elementVisible(
         this.Self,
-        `${this.constructor.name} is shown`
+        `${this.uiname} is shown`
       )
     );
   }
@@ -73,7 +73,7 @@ class AppDriver {
 
   type(selector, value, field) {
     return this.chain(() =>
-      this.action(`${this.constructor.name}.type into ${field}`)
+      this.action(`${this.uiname}.type into ${field}`)
         .sendKeys(selector, value, `Type into ${field}`)
         .textIs(selector, value, `Check ${field} text`)
     );
@@ -81,7 +81,7 @@ class AppDriver {
 
   setValue(selector, value, field) {
     return this.chain(() =>
-      this.action(`${this.constructor.name}.setValue for ${field}`)
+      this.action(`${this.uiname}.setValue for ${field}`)
         .setValue(selector, value, `Set value property for ${field}`)
         .textIs(selector, value, `Check ${field} text`)
     );
@@ -89,7 +89,7 @@ class AppDriver {
 
   check(selector, field) {
     return this.chain(() =>
-      this.action(`${this.constructor.name}.check ${field}`)
+      this.action(`${this.uiname}.check ${field}`)
         .click(selector, `Click at ${field}`)
         .hasElements(`${selector}:checked`, `${field} should be checked`)
     );
@@ -104,6 +104,12 @@ class AppDriver {
           `${field} should be unchecked`
         )
     );
+  }
+
+  // Returns a name for the tested class. Typically the name convension for
+  // UI drivers is a test class name postixed by Driver.
+  get uiname() {
+    return this.constructor.name.replace(/Driver$/, '');
   }
 
   defineSelectors(context, selectors) {
