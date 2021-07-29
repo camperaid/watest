@@ -72,11 +72,11 @@ function contains(
 ) {
   if (typeof got == 'string' || typeof expected == 'string') {
     if (typeof got != 'string') {
-      fail_(`Expected string, got object: []`);
+      fail_(`${msg}, expected string, got object: []`);
       return false;
     }
     if (typeof expected != 'string') {
-      fail_(`Got string, expected ${typeof expected}: ${stringify(expected)}`);
+      fail_(`${msg}, got string, expected ${typeof expected}: ${stringify(expected)}`);
       return false;
     }
     if (got.includes(expected)) {
@@ -84,7 +84,7 @@ function contains(
       return true;
     }
     fail_(
-      `Got string doesn't contain expected string, got: ${stringify(
+      `${msg}, got string doesn't contain expected string, got: ${stringify(
         got
       )}, expected: ${stringify(expected)}`
     );
@@ -92,17 +92,17 @@ function contains(
   }
 
   if (!(expected instanceof Array)) {
-    fail_(`Expected value is not array, expected: ${stringify(expected)}`);
+    fail_(`${msg}, expected value is not array, expected: ${stringify(expected)}`);
     return false;
   }
 
   if (!(got instanceof Array)) {
-    fail_(`Not array, got: ${stringify(got)}`);
+    fail_(`${msg}, not array, got: ${stringify(got)}`);
     return false;
   }
 
   if (got.length < expected.length) {
-    fail_(`Array is lesser than expected, ${got.length} vs ${expected.length}`);
+    fail_(`${msg}, array is lesser than expected, ${got.length} vs ${expected.length}`);
     return false;
   }
 
@@ -114,7 +114,7 @@ function contains(
         })
       )
     ) {
-      fail_(`Array has no expected item ${stringify(e)}`);
+      fail_(`${msg}, array has no expected item ${stringify(e)}`);
       return false;
     }
   }
