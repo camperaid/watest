@@ -74,7 +74,7 @@ unexpected character: 'y' at 2 pos, expected: 'o' at '' line`,
       ),
     [`Test: scriptRetvalContains. Expected: ['heo']`],
     [
-      `Failed: Array has no expected item 'heo'`,
+      `Failed: script retval contains ['heo'], array has no expected item 'heo'`,
       `Failed: scriptRetvalContains, timeout while waiting to meet criteria`,
       `Failed: scriptRetvalContains`,
     ],

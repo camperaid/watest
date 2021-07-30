@@ -15,7 +15,7 @@ module.exports.test = async () => {
   await is_output(
     () => contains([], 'green cat', `String contains`),
     [],
-    [`Failed: Expected string, got object: []`],
+    [`Failed: String contains, expected string, got object: []`],
     `failure`
   );
 
@@ -23,7 +23,7 @@ module.exports.test = async () => {
   await is_output(
     () => contains('cat', [], `String contains`),
     [],
-    [`Failed: Got string, expected object: []`],
+    [`Failed: String contains, got string, expected object: []`],
     `failure`
   );
 
@@ -31,7 +31,7 @@ module.exports.test = async () => {
   await is_output(
     () => contains('cat', 'green cat', `String contains`),
     [],
-    [`Failed: Got string doesn't contain expected string, got: 'cat', expected: 'green cat'`],
+    [`Failed: String contains, got string doesn't contain expected string, got: 'cat', expected: 'green cat'`],
     `failure`
   );
 
@@ -47,7 +47,7 @@ module.exports.test = async () => {
   await is_output(
     () => contains([0, 1], [1, 3], `Array contains`),
     [],
-    [`Failed: Array has no expected item 3`],
+    [`Failed: Array contains, array has no expected item 3`],
     `failure`
   );
 };
