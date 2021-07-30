@@ -184,26 +184,25 @@ class Series {
         throw new Error(`No tests found in ${folder}`);
       }
 
-      if (
-        !this.noChildProcess &&
-        test_module.loader
-      ) {
-        let matched_pattern = this.matchesPattern({
+      if (!this.noChildProcess && test_module.loader) {
+        let matched_patterns = this.matchedPatterns({
           path: folder,
           webdriver,
           patterns,
           path_is_not_final: true,
         });
-        if (matched_pattern) {
-          let path = folder;
-          if (matched_pattern.path.startsWith(folder)) {
-            path = matched_pattern.path;
+        if (matched_patterns.length > 0) {
+          for (let matched_pattern of matched_patterns) {
+            let path = folder;
+            if (matched_pattern.path.startsWith(folder)) {
+              path = matched_pattern.path;
+            }
+            tests.push({
+              name: virtual_folder,
+              path,
+              loader: this.getTestMetaPath(folder),
+            });
           }
-          tests.push({
-            name: virtual_folder,
-            path,
-            loader: this.getTestMetaPath(folder),
-          });
         }
         return tests;
       }
@@ -436,16 +435,18 @@ class Series {
 
     // Filter tests by a given test paths and by a webdriver if given.
     if (patterns.length > 0) {
-      list = list.filter(test =>
-        this.matchesPattern({ path: test.path, webdriver, patterns })
+      list = list.filter(
+        test =>
+          this.matchedPatterns({ path: test.path, webdriver, patterns })
+            .length != 0
       );
     }
 
     return list;
   }
 
-  matchesPattern({ path, webdriver, patterns, path_is_not_final }) {
-    return patterns.find(
+  matchedPatterns({ path, webdriver, patterns, path_is_not_final }) {
+    return patterns.filter(
       pattern =>
         (!webdriver || !pattern.webdriver || pattern.webdriver == webdriver) &&
         (path.startsWith(pattern.path) ||
