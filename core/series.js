@@ -185,12 +185,19 @@ class Series {
       }
 
       if (!this.noChildProcess && test_module.loader) {
-        let matched_patterns = this.matchedPatterns({
-          path: folder,
-          webdriver,
-          patterns,
-          path_is_not_final: true,
-        });
+        let matched_patterns = [
+          {
+            path: folder,
+          },
+        ];
+        if (patterns.length > 0) {
+          matched_patterns = this.matchedPatterns({
+            path: folder,
+            webdriver,
+            patterns,
+            path_is_not_final: true,
+          });
+        }
         if (matched_patterns.length > 0) {
           for (let matched_pattern of matched_patterns) {
             let path = folder;
