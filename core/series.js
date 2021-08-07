@@ -72,7 +72,7 @@ class Series {
       skipOnFail,
       timeout,
       verify,
-      noChildProcess,
+      childProcess,
       core,
       LogPipe,
       webdrivers = settings.webdrivers,
@@ -83,7 +83,7 @@ class Series {
     this.patterns = patterns;
     this.skipOnFail = skipOnFail;
     this.verify = verify;
-    this.noChildProcess = noChildProcess;
+    this.childProcess = childProcess;
 
     this.fcnt = 0;
     this.failures = [];
@@ -184,7 +184,7 @@ class Series {
         throw new Error(`No tests found in ${folder}`);
       }
 
-      if (!this.noChildProcess && test_module.loader) {
+      if (!this.childProcess && test_module.loader) {
         let matched_patterns = [
           {
             path: folder,
@@ -741,7 +741,7 @@ class Series {
       args.push(
         watest_bin,
         '--input-type=module',
-        '--no-child-process',
+        '--child-process',
         ...ProcessArgs.controlArguments,
         path
       );

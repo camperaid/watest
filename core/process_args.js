@@ -30,8 +30,8 @@ class ProcessArgs {
           obj.showHelp = true;
           break;
 
-        case '--no-child-process':
-          obj.noChildProcess = true;
+        case '--child-process':
+          obj.childProcess = true;
           break;
 
         default:
