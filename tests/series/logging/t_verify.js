@@ -8,6 +8,8 @@ const {
   success,
 } = require('../test.js');
 
+const completed_in = name => got => got.startsWith(`>${name} completed in`);
+
 module.exports.test = async () => {
   let failed = false;
   const ts = {
@@ -85,7 +87,7 @@ module.exports.test = async () => {
           '!Running: mac/webdriver/chrome/end-to-end/history/t_history.js, path: tests/webdriver/end-to-end/history/t_history.js',
           '\x1B[31mFailed:\x1B[0m TestoFail',
           '\x1B[31m>mac/webdriver/chrome/end-to-end/history/t_history.js\x1B[0m has 1 failure(s)',
-          '>mac/webdriver/chrome/end-to-end/history/t_history.js completed in 0ms',
+          completed_in('mac/webdriver/chrome/end-to-end/history/t_history.js'),
           '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome/end-to-end/history',
           '\x1B[41m\x1B[37m>mac/webdriver/chrome/end-to-end/history/t_history.js\x1B[0m Failure count: 1',
           '\x1B[41m\x1B[37mmac/webdriver/chrome/end-to-end/history > failed\x1B[0m Passed: 0. Failed: 1',
@@ -110,7 +112,7 @@ module.exports.test = async () => {
         [
           '!Running: mac/webdriver/firefox/end-to-end/history/t_history.js, path: tests/webdriver/end-to-end/history/t_history.js',
           '\x1B[32mOk:\x1B[0m TestoOk',
-          '>mac/webdriver/firefox/end-to-end/history/t_history.js completed in 0ms',
+          completed_in('mac/webdriver/firefox/end-to-end/history/t_history.js'),
           '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/firefox/end-to-end/history',
           '\x1B[102mmac/webdriver/firefox/end-to-end/history\x1B[0m Total: 1',
         ],
@@ -120,7 +122,7 @@ module.exports.test = async () => {
         [
           '!Running: mac/webdriver/chrome/end-to-end/history2/t_history.js, path: tests/webdriver/end-to-end/history/t_history.js',
           '\x1B[32mOk:\x1B[0m TestoOk',
-          '>mac/webdriver/chrome/end-to-end/history2/t_history.js completed in 0ms',
+          completed_in('mac/webdriver/chrome/end-to-end/history2/t_history.js'),
           '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome/end-to-end/history2',
           '\x1B[102mmac/webdriver/chrome/end-to-end/history2\x1B[0m Total: 1',
         ],
