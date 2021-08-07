@@ -733,8 +733,6 @@ class Series {
 
   performInChildProcess({ name, path, loader }) {
     return new Promise((resolve, reject) => {
-      let out = [];
-
       let args = [];
       if (loader) {
         args.push('--experimental-loader', loader);
@@ -748,9 +746,9 @@ class Series {
         path
       );
 
+      let stop_logging = false;
       const cp = spawn(`node`, args);
       cp.on('close', code => {
-        this.processChildProcessOutput(name, out);
         if (code != 0) {
           reject(new Error(`${path} failed, process exited with code ${code}`));
           return;
@@ -758,49 +756,59 @@ class Series {
         resolve();
       });
       cp.stdout.on('data', data => {
-        data = data.toString().slice(0, -1);
-        out.push({ is_stdout: true, data });
-        console.log(data);
+        if (!stop_logging) {
+          stop_logging = this.processChildProcessOutput(name, data, (...args) =>
+            console.log(...args)
+          );
+        }
       });
-      cp.stderr.on('data', data => {
-        data = data.toString().slice(0, -1);
-        out.push({ is_stdout: false, data });
-        console.error(data);
-      });
+      cp.stderr.on('data', data =>
+        this.processChildProcessOutput(name, data, (...args) =>
+          console.error(...args)
+        )
+      );
       cp.on('error', reject);
     });
   }
 
-  processChildProcessOutput(virtual_folder, out) {
-    for (let record of out) {
-      for (let line of record.data.split('\n')) {
-        const { color, msg } = parse(line);
-        switch (color) {
-          case 'completed':
-            // Eat all logs after completed message for the running test, the main
-            // process will take care to represent those.
-            if (msg == virtual_folder) {
-              return;
-            }
-            break;
-          case 'failure':
-            this.core.failureCount++;
-            break;
-          case 'intermittent':
-            this.core.intermittentCount++;
-            break;
-          case 'ok':
-            this.core.okCount++;
-            break;
-          case 'todo':
-            this.core.todoCount++;
-            break;
-          case 'warning':
-            this.core.warningCount++;
-            break;
-        }
+  processChildProcessOutput(virtual_folder, data, func) {
+    let str = data.toString().slice(0, -1);
+    let lines = str.split('\n');
+
+    // Suppress writing into a file, because this is a responsibility of a child
+    // process.
+    this.LogPipe.suppress_fstream = true;
+    func(str);
+    this.LogPipe.suppress_fstream = false;
+
+    for (let line of lines) {
+      const { color, msg } = parse(line);
+      switch (color) {
+        case 'completed':
+          // Eat all logs after completed message for the running test, the main
+          // process will take care to represent those.
+          if (msg == virtual_folder) {
+            return true;
+          }
+          break;
+        case 'failure':
+          this.core.failureCount++;
+          break;
+        case 'intermittent':
+          this.core.intermittentCount++;
+          break;
+        case 'ok':
+          this.core.okCount++;
+          break;
+        case 'todo':
+          this.core.todoCount++;
+          break;
+        case 'warning':
+          this.core.warningCount++;
+          break;
       }
     }
+    return false;
   }
 }
 
