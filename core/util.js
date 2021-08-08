@@ -6,7 +6,7 @@ const cfg = require('./settings.js');
 /**
  * Logs object in console colored.
  */
-function log_object(obj) {
+function inspect(obj) {
   console.log(
     require('util').inspect(obj, false, null, true /* enable colors */)
   );
@@ -103,7 +103,7 @@ function toDataURL(html) {
 }
 
 module.exports = {
-  log_object,
+  inspect,
   stringify,
   is_mac,
   toDataURL,

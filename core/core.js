@@ -7,7 +7,7 @@ const {
   format_warning,
   colorify,
 } = require('./format.js');
-const { log_object, initTmpStorage } = require('./util.js');
+const { inspect, initTmpStorage } = require('./util.js');
 
 /**
  * Tracks testing flow, all the failures, intermittents, successes etc.
@@ -78,7 +78,7 @@ class Core {
     }
 
     if (typeof msg == 'object') {
-      log_object(msg);
+      inspect(msg);
       msg = 'Unexpected exception';
     }
 

@@ -15,7 +15,7 @@ module.exports.test = async () => {
     'is',
     'is_output',
     'info',
-    'log_object',
+    'inspect',
     'not_reached',
     'ok',
     'scope',

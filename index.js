@@ -22,7 +22,7 @@ const {
   test_contains,
 } = require('./core/base.js');
 
-const { log_object } = require('./core/util.js');
+const { inspect } = require('./core/util.js');
 
 const { tmp_storage_dir } = require('./core/settings.js');
 
@@ -41,7 +41,7 @@ module.exports = {
   is,
   is_output,
   info,
-  log_object,
+  inspect,
   not_reached,
   ok,
   scope,
