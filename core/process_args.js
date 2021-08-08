@@ -34,6 +34,10 @@ class ProcessArgs {
           obj.childProcess = true;
           break;
 
+        case '--root-folder':
+          obj.rootFolder = process.argv[++i];
+          break;
+
         default:
           obj.patterns.push(arg);
       }

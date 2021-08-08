@@ -73,6 +73,7 @@ class Series {
       timeout,
       verify,
       childProcess,
+      rootFolder,
       core,
       LogPipe,
       webdrivers = settings.webdrivers,
@@ -84,6 +85,7 @@ class Series {
     this.skipOnFail = skipOnFail;
     this.verify = verify;
     this.childProcess = childProcess;
+    this.rootFolder = rootFolder;
 
     this.fcnt = 0;
     this.failures = [];
@@ -200,14 +202,15 @@ class Series {
         }
         if (matched_patterns.length > 0) {
           for (let matched_pattern of matched_patterns) {
-            let path = folder;
+            let test_path = folder;
             if (matched_pattern.path.startsWith(folder)) {
-              path = matched_pattern.path;
+              test_path = matched_pattern.path;
             }
             tests.push({
               name: virtual_folder,
-              path,
+              path: test_path,
               loader: this.getTestMetaPath(folder),
+              loader_parent_virtual_folder: path.join(virtual_folder, '..'),
             });
           }
         }
@@ -522,7 +525,7 @@ class Series {
       }
 
       if (loader) {
-        await this.performInChildProcess({ name, path, loader });
+        await this.performInChildProcess(test);
         continue;
       }
 
@@ -564,17 +567,25 @@ class Series {
       }
     }
 
-    console.log(format_completed(folder));
+    // Do not report in a child process for anything outside the root folder,
+    // the parent prcess is responsible fot that.
+    let should_report =
+      !this.childProcess ||
+      !this.rootFolder ||
+      !this.rootFolder.startsWith(folder);
 
-    this.report({
-      folder,
-      fidx,
-      fcnt,
-      icnt,
-      tcnt,
-      wcnt,
-      ocnt,
-    });
+    if (should_report) {
+      console.log(format_completed(folder));
+      this.report({
+        folder,
+        fidx,
+        fcnt,
+        icnt,
+        tcnt,
+        wcnt,
+        ocnt,
+      });
+    }
 
     // Stop nested logging.
     await this.LogPipe.release();
@@ -731,7 +742,7 @@ class Series {
       .filter(n => n.startsWith('t_'));
   }
 
-  performInChildProcess({ name, path, loader }) {
+  performInChildProcess({ name, path, loader, loader_parent_virtual_folder }) {
     return new Promise((resolve, reject) => {
       let args = [];
       if (loader) {
@@ -742,6 +753,8 @@ class Series {
         watest_bin,
         '--input-type=module',
         '--child-process',
+        '--root-folder',
+        loader_parent_virtual_folder,
         ...ProcessArgs.controlArguments,
         path
       );
