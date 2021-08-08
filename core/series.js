@@ -367,6 +367,7 @@ class Series {
         func: init,
         failures_info: [],
         skip_on_fail: 'skip-on-fail',
+        init_or_uninit: true,
       });
     }
 
@@ -420,6 +421,7 @@ class Series {
         func: uninit,
         failures_info: [],
         skip_on_fail: 'skip-on-fail',
+        init_or_uninit: true,
       });
     }
 
@@ -526,6 +528,7 @@ class Series {
         failures_info,
         skip_on_fail,
         loader,
+        init_or_uninit,
       } = test;
 
       if (stop && !name.endsWith('uninit')) {
@@ -567,7 +570,12 @@ class Series {
       } finally {
         this.core.failIfExpectedFailurePass();
 
-        let hasFailures = this.recordStats({ name, path, webdriver });
+        let hasFailures = this.recordStats({
+          name,
+          init_or_uninit,
+          path,
+          webdriver,
+        });
 
         // If failed, then stop running the current tests.
         if (hasFailures && (this.skipOnFail || skip_on_fail)) {
@@ -595,7 +603,7 @@ class Series {
     await this.LogPipe.release();
   }
 
-  recordStats({ name, path, webdriver }) {
+  recordStats({ name, init_or_uninit, path, webdriver }) {
     let hasChanged = false;
     let hasFailures = false;
 
@@ -632,9 +640,11 @@ class Series {
 
     // Fail if no changes.
     delta = this.core.failureCount - this.fcnt;
-    if (delta == 0 && !hasChanged) {
-      delta = 1;
-      fail(`Neighter failure nor success in ${name}`);
+    if (!init_or_uninit) {
+      if (delta == 0 && !hasChanged) {
+        delta = 1;
+        fail(`Neighter failure nor success in ${name}`);
+      }
     }
 
     // Record failures.
