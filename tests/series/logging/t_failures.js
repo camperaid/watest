@@ -63,9 +63,9 @@ module.exports.test = async () => {
     buffers.get(`${path}/log`),
     [
       format_started(`${path}/`),
-      format_completed(`${path}/`),
       format_failures(1, `${path}/unit/core/t_presto.js`),
       format_failures(1, 1),
+      format_completed(`${path}/`),
     ],
     `logging buffer for ${path}`
   );
@@ -75,9 +75,9 @@ module.exports.test = async () => {
     buffers.get(`${path}/log`),
     [
       format_started(path),
-      format_completed(path),
       format_failures(1, `${path}/core/t_presto.js`),
       format_failures(1, 1, path),
+      format_completed(path),
     ],
     `logging buffer for ${path}`
   );
@@ -93,10 +93,10 @@ module.exports.test = async () => {
       ).trim(),
       format_ok('Testo'),
       ...completed_checkers({
-        context: path,
         name: `${path}/t_testo.js`,
       }).filter(l => l),
       format_success(1, path),
+      format_completed(path),
     ],
     `logging buffer for ${path}`
   );
@@ -113,11 +113,11 @@ module.exports.test = async () => {
       format_failure('Presto'),
       format_failure(`has 1 failure(s)`, `>${path}/t_presto.js`),
       ...completed_checkers({
-        context: path,
         name: `${path}/t_presto.js`,
       }).filter(l => l),
       format_failures(1, `${path}/t_presto.js`),
       format_failures(1, 0, path),
+      format_completed(path),
     ],
     `logging buffer for ${path}/log`
   );

@@ -27,8 +27,8 @@ module.exports.test = async () => {
     '>mac/unit/t_testo.js completed in',
     '\x1B[38;5;243mCompleted\x1B[0m mac/unit',
     'Logs are written to',
-    '\x1B[38;5;243mCompleted\x1B[0m mac/',
     '\x1B[102mSuccess!\x1B[0m Total: 1',
+    '\x1B[38;5;243mCompleted\x1B[0m mac/',
     'Logs are written to',
   ];
 

@@ -587,7 +587,6 @@ class Series {
     }
 
     if (should_report) {
-      console.log(format_completed(folder));
       this.report({
         folder,
         fidx,
@@ -597,6 +596,7 @@ class Series {
         wcnt,
         ocnt,
       });
+      console.log(format_completed(folder));
     }
 
     // Stop nested logging.

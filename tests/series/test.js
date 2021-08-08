@@ -1,6 +1,5 @@
 'use strict';
 
-const { format_completed } = require('../../core/format.js');
 const { Core } = require('../../core/core.js');
 const { Series } = require('../../core/series.js');
 
@@ -51,7 +50,6 @@ module.exports.Series = Series;
  * Message output checkers.
  */
 module.exports.completed_checkers = ({
-  context,
   name,
   intermittents,
   todos,
@@ -68,9 +66,6 @@ module.exports.completed_checkers = ({
     checkers.push(`>${name} has ${warnings} warnings(s)`);
   }
   checkers.push(got => got.startsWith(`>${name} completed in`));
-  if (context) {
-    checkers.push(format_completed(context));
-  }
   return checkers;
 };
 
