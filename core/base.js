@@ -76,7 +76,11 @@ function contains(
       return false;
     }
     if (typeof expected != 'string') {
-      fail_(`${msg}, got string, expected ${typeof expected}: ${stringify(expected)}`);
+      fail_(
+        `${msg}, got string, expected ${typeof expected}: ${stringify(
+          expected
+        )}`
+      );
       return false;
     }
     if (got.includes(expected)) {
@@ -92,7 +96,9 @@ function contains(
   }
 
   if (!(expected instanceof Array)) {
-    fail_(`${msg}, expected value is not array, expected: ${stringify(expected)}`);
+    fail_(
+      `${msg}, expected value is not array, expected: ${stringify(expected)}`
+    );
     return false;
   }
 
@@ -102,7 +108,9 @@ function contains(
   }
 
   if (got.length < expected.length) {
-    fail_(`${msg}, array is lesser than expected, ${got.length} vs ${expected.length}`);
+    fail_(
+      `${msg}, array is lesser than expected, ${got.length} vs ${expected.length}`
+    );
     return false;
   }
 
@@ -370,25 +378,41 @@ Expected: ${stringify(expected)}`
  */
 async function is_output(func, out, err, msg) {
   const { stdout, stderr } = await capture_output(func);
-  out instanceof Function
-    ? out(stdout, `${msg}: unexpected stdout`)
-    : is_out(stdout, out, `${msg}: unexpected stdout`);
+  let stdout_matched =
+    out instanceof Function
+      ? out(stdout, `${msg}: unexpected stdout`)
+      : is_out(stdout, out, `${msg}: unexpected stdout`);
 
-  err instanceof Function
-    ? err(stderr, `${msg}: unexpected stderr`)
-    : is_out(stderr, err, `${msg}: unexpected stderr`);
+  let stderr_matched =
+    err instanceof Function
+      ? err(stderr, `${msg}: unexpected stderr`)
+      : is_out(stderr, err, `${msg}: unexpected stderr`);
+
+  return { stdout, stdout_matched, stderr, stderr_matched };
 }
 
 /**
  * Tests whether |func| produces the test output.
  */
-function is_test_output(func, out, err, msg) {
-  return is_output(
+async function is_test_output(func, out, err, msg) {
+  let { stdout, stdout_matched, stderr, stderr_matched } = await is_output(
     func,
     out.map(expected => got => got.trim().startsWith(expected)),
     err.map(expected => got => got.trim().startsWith(expected)),
     msg
   );
+
+  if (!stdout_matched || !stderr_matched) {
+    let formatted = format_test_output({ stdout, stderr });
+    if (!stdout_matched) {
+      console.log(`Test ready stdout for '${msg}':`);
+      console.log(formatted.stdout);
+    }
+    if (!stderr_matched) {
+      console.log(`Test ready stderr for '${msg}':`);
+      console.log(formatted.stderr);
+    }
+  }
 }
 
 /**
@@ -428,8 +452,10 @@ async function capture_output(func) {
  * Captures stdout and stderr prodcued by a function for a testing.
  */
 async function capture_test_output(func) {
-  const { stdout, stderr } = await capture_output(func);
+  return format_test_output(await capture_output(func));
+}
 
+function format_test_output({ stdout, stderr }) {
   return {
     stdout: stdout.map(l => {
       const shorties = [
@@ -466,55 +492,58 @@ function is_out(got, expected, msg) {
 
   // Do not print |got| on success because tests for failing tests are
   // recognized as failed by testherd.
-  if (!is_object(got, expected, msg, { do_not_print_got_on_success: true })) {
-    for (let i = 0; i < Math.min(got.length, expected.length); i++) {
-      let got_i = got[i];
-      let exp_i = expected[i];
+  if (is_object(got, expected, msg, { do_not_print_got_on_success: true })) {
+    return true;
+  }
 
-      if (typeof exp_i == 'function') {
-        if (!exp_i(got_i)) {
-          console.error(
-            format_failure(
-              `got: ${stringify(got_i)}, expected: ${exp_i}`,
-              `Unexpected output at index ${i},`
-            )
-          );
-        }
-        continue;
-      }
+  for (let i = 0; i < Math.min(got.length, expected.length); i++) {
+    let got_i = got[i];
+    let exp_i = expected[i];
 
-      if (got_i == exp_i) {
-        continue;
-      }
-
-      console.error(
-        format_failure(
-          `got: ${stringify(got_i)}, expected: ${exp_i}, got len: ${
-            got_i.length
-          }, expected len: ${exp_i.length}`,
-          `Unexpected output at index ${i},`
-        )
-      );
-      console.error(
-        `index\tgot\texpected\tequal ${Math.min(got_i.length, exp_i.length)}`
-      );
-
-      let min = Math.min(got_i.length, exp_i.length);
-      for (let j = 0; j < min; j++) {
+    if (typeof exp_i == 'function') {
+      if (!exp_i(got_i)) {
         console.error(
-          `${j}\t'${got_i[j]}'\t'${exp_i[j]}'\t${exp_i[j] == got_i[j]}`
+          format_failure(
+            `got: ${stringify(got_i)}, expected: ${exp_i}`,
+            `Unexpected output at index ${i},`
+          )
         );
       }
+      continue;
+    }
 
-      for (let j = min; j < got_i.length; j++) {
-        console.error(`${j}\t'${got_i[j]}'`);
-      }
+    if (got_i == exp_i) {
+      continue;
+    }
 
-      for (let j = min; j < exp_i.length; j++) {
-        console.error(`${j}\t\t'${exp_i[j]}'`);
-      }
+    console.error(
+      format_failure(
+        `got: ${stringify(got_i)}, expected: ${exp_i}, got len: ${
+          got_i.length
+        }, expected len: ${exp_i.length}`,
+        `Unexpected output at index ${i},`
+      )
+    );
+    console.error(
+      `index\tgot\texpected\tequal ${Math.min(got_i.length, exp_i.length)}`
+    );
+
+    let min = Math.min(got_i.length, exp_i.length);
+    for (let j = 0; j < min; j++) {
+      console.error(
+        `${j}\t'${got_i[j]}'\t'${exp_i[j]}'\t${exp_i[j] == got_i[j]}`
+      );
+    }
+
+    for (let j = min; j < got_i.length; j++) {
+      console.error(`${j}\t'${got_i[j]}'`);
+    }
+
+    for (let j = min; j < exp_i.length; j++) {
+      console.error(`${j}\t\t'${exp_i[j]}'`);
     }
   }
+  return false;
 }
 
 module.exports = {
