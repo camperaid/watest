@@ -56,6 +56,7 @@ module.exports.test = async () => {
       [
         'mac/log',
         [
+          '\x1B[38;5;99mStarted\x1B[0m mac/',
           '\x1B[38;5;243mCompleted\x1B[0m mac/',
           '\x1B[102mSuccess!\x1B[0m Total: 1',
         ],
@@ -63,6 +64,7 @@ module.exports.test = async () => {
       [
         'mac/webdriver/log',
         [
+          '\x1B[38;5;99mStarted\x1B[0m mac/webdriver',
           '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver',
           '\x1B[102mmac/webdriver\x1B[0m Total: 1',
         ],
@@ -70,6 +72,7 @@ module.exports.test = async () => {
       [
         'mac/webdriver/chrome/log',
         [
+          '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/chrome',
           '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome',
           '\x1B[102mmac/webdriver/chrome\x1B[0m Total: 1',
         ],
@@ -77,6 +80,7 @@ module.exports.test = async () => {
       [
         'mac/webdriver/chrome/end-to-end/log',
         [
+          '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/chrome/end-to-end',
           '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome/end-to-end',
           '\x1B[102mmac/webdriver/chrome/end-to-end\x1B[0m Total: 1',
         ],
@@ -84,6 +88,7 @@ module.exports.test = async () => {
       [
         'mac/webdriver/chrome/end-to-end/history/log',
         [
+          '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/chrome/end-to-end/history',
           '!Running: mac/webdriver/chrome/end-to-end/history/t_history.js, path: tests/webdriver/end-to-end/history/t_history.js',
           '\x1B[31mFailed:\x1B[0m TestoFail',
           '\x1B[31m>mac/webdriver/chrome/end-to-end/history/t_history.js\x1B[0m has 1 failure(s)',
@@ -96,6 +101,7 @@ module.exports.test = async () => {
       [
         'mac/webdriver/firefox/log',
         [
+          '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/firefox',
           '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/firefox',
           '\x1B[102mmac/webdriver/firefox\x1B[0m Total: 1',
         ],
@@ -103,6 +109,7 @@ module.exports.test = async () => {
       [
         'mac/webdriver/firefox/end-to-end/log',
         [
+          '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/firefox/end-to-end',
           '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/firefox/end-to-end',
           '\x1B[102mmac/webdriver/firefox/end-to-end\x1B[0m Total: 1',
         ],
@@ -110,6 +117,7 @@ module.exports.test = async () => {
       [
         'mac/webdriver/firefox/end-to-end/history/log',
         [
+          '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/firefox/end-to-end/history',
           '!Running: mac/webdriver/firefox/end-to-end/history/t_history.js, path: tests/webdriver/end-to-end/history/t_history.js',
           '\x1B[32mOk:\x1B[0m TestoOk',
           completed_in('mac/webdriver/firefox/end-to-end/history/t_history.js'),
@@ -120,6 +128,7 @@ module.exports.test = async () => {
       [
         'mac/webdriver/chrome/end-to-end/history2/log',
         [
+          '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/chrome/end-to-end/history2',
           '!Running: mac/webdriver/chrome/end-to-end/history2/t_history.js, path: tests/webdriver/end-to-end/history/t_history.js',
           '\x1B[32mOk:\x1B[0m TestoOk',
           completed_in('mac/webdriver/chrome/end-to-end/history2/t_history.js'),

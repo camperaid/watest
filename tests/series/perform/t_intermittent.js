@@ -1,14 +1,6 @@
 'use strict';
 
-const {
-  completed_checkers,
-  format_intermittent,
-  format_warning,
-  fail,
-  is_output,
-  perform,
-  running_checker,
-} = require('../test.js');
+const { fail, make_perform_function, is_test_output } = require('../test.js');
 
 module.exports.test = async () => {
   // intermittent
@@ -27,8 +19,20 @@ module.exports.test = async () => {
     ],
   ];
 
-  await is_output(
-    perform([
+  let expected_stdout = [
+    '\x1B[38;5;99mStarted\x1B[0m tests/',
+    '!Running: t_testo.js, path: t_testo.js',
+    '\x1B[33mWarning:\x1B[0m Server terminates connection',
+    '\x1B[35mIntermittent:\x1B[0m Server terminates connection 421 error',
+    '>t_testo.js has 1 intermittent(s)',
+    '>t_testo.js has 1 warnings(s)',
+    '>t_testo.js completed in',
+    '\x1B[38;5;243mCompleted\x1B[0m tests/',
+  ];
+  let expected_stderr = [];
+
+  await is_test_output(
+    make_perform_function([
       {
         name: 't_testo.js',
         path: 't_testo.js',
@@ -38,18 +42,8 @@ module.exports.test = async () => {
         },
       },
     ]),
-    [
-      running_checker(`t_testo.js`, `t_testo.js`),
-      format_warning(`Server terminates connection`),
-      format_intermittent(`Server terminates connection 421 error`),
-      ...completed_checkers({
-        context: 'tests/',
-        name: 't_testo.js',
-        intermittents: 1,
-        warnings: 1,
-      }),
-    ],
-    [],
+    expected_stdout,
+    expected_stderr,
     'intermittent'
   );
 
@@ -69,8 +63,27 @@ module.exports.test = async () => {
     ],
   ];
 
-  await is_output(
-    perform([
+  expected_stdout = [
+    '\x1B[38;5;99mStarted\x1B[0m tests/',
+    '!Running: t_testo_1.js, path: t_testo_1.js',
+    '\x1B[33mWarning:\x1B[0m Map retrieveBounds timeout',
+    '>t_testo_1.js has 1 warnings(s)',
+    '>t_testo_1.js completed in',
+    '!Running: t_testo_2.js, path: t_testo_2.js',
+    '\x1B[33mWarning:\x1B[0m Map retrieveBounds timeout',
+    '\x1B[33mWarning:\x1B[0m Map retrieveBounds timeout',
+    '\x1B[35mIntermittent:\x1B[0m Map timeout',
+    '\x1B[33mWarning:\x1B[0m Dialog is shown',
+    '\x1B[35mIntermittent:\x1B[0m Map timeout',
+    '>t_testo_2.js has 2 intermittent(s)',
+    '>t_testo_2.js has 3 warnings(s)',
+    '>t_testo_2.js completed in',
+    '\x1B[38;5;243mCompleted\x1B[0m tests/',
+  ];
+  expected_stderr = [];
+
+  await is_test_output(
+    make_perform_function([
       {
         name: 't_testo_1.js',
         path: 't_testo_1.js',
@@ -90,24 +103,8 @@ module.exports.test = async () => {
         },
       },
     ]),
-    [
-      running_checker('t_testo_1.js', 't_testo_1.js'),
-      format_warning(`Map retrieveBounds timeout`),
-      ...completed_checkers({ name: 't_testo_1.js', warnings: 1 }),
-      running_checker('t_testo_2.js', 't_testo_2.js'),
-      format_warning(`Map retrieveBounds timeout`),
-      format_warning(`Map retrieveBounds timeout`),
-      format_intermittent(`Map timeout`),
-      format_warning(`Dialog is shown`),
-      format_intermittent(`Map timeout`),
-      ...completed_checkers({
-        context: 'tests/',
-        name: 't_testo_2.js',
-        warnings: 3,
-        intermittents: 2,
-      }),
-    ],
-    [],
+    expected_stdout,
+    expected_stderr,
     'generic intermittent'
   );
 };

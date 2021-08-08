@@ -8,6 +8,7 @@ const {
   format_failure,
   format_failures,
   format_ok,
+  format_started,
   format_success,
   is,
   success,
@@ -61,6 +62,7 @@ module.exports.test = async () => {
   is(
     buffers.get(`${path}/log`),
     [
+      format_started(`${path}/`),
       format_completed(`${path}/`),
       format_failures(1, `${path}/unit/core/t_presto.js`),
       format_failures(1, 1),
@@ -72,6 +74,7 @@ module.exports.test = async () => {
   is(
     buffers.get(`${path}/log`),
     [
+      format_started(path),
       format_completed(path),
       format_failures(1, `${path}/core/t_presto.js`),
       format_failures(1, 1, path),
@@ -83,6 +86,7 @@ module.exports.test = async () => {
   is(
     buffers.get(`${path}/log`),
     [
+      format_started(path),
       running_checker(
         `${path}/t_testo.js`,
         `tests/unit/base/t_testo.js`
@@ -101,6 +105,7 @@ module.exports.test = async () => {
   is(
     buffers.get(`${path}/log`),
     [
+      format_started(path),
       running_checker(
         `${path}/t_presto.js`,
         `tests/unit/core/t_presto.js`

@@ -8,6 +8,7 @@ const colors = {
   todo: '33',
   warning: '33',
 
+  started: '38;5;99',
   completed: '38;5;243',
   intermittents: '105',
   todos: '103',
@@ -45,6 +46,9 @@ module.exports = {
   colorify,
   parse,
 
+  format_started(msg) {
+    return colorify('started', 'Started', msg);
+  },
   format_completed(msg) {
     return colorify('completed', 'Completed', msg);
   },

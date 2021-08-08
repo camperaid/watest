@@ -1,14 +1,6 @@
 'use strict';
 
-const {
-  completed_checkers,
-  fail,
-  format_todo,
-  format_warning,
-  is_output,
-  perform,
-  running_checker,
-} = require('../test.js');
+const { fail, is_test_output, make_perform_function } = require('../test.js');
 
 module.exports.test = async () => {
   const failures = [
@@ -27,8 +19,8 @@ module.exports.test = async () => {
   ];
 
   // intermittent
-  await is_output(
-    perform([
+  await is_test_output(
+    make_perform_function([
       {
         name: 't_testo.js',
         failures,
@@ -38,15 +30,14 @@ module.exports.test = async () => {
       },
     ]),
     [
-      running_checker(`t_testo.js`),
-      format_warning(`Server terminates connection`),
-      format_todo(`Server terminates connection 421 error`),
-      ...completed_checkers({
-        context: 'tests/',
-        name: 't_testo.js',
-        warnings: 1,
-        todos: 1,
-      }),
+      '\x1B[38;5;99mStarted\x1B[0m tests/',
+      '!Running: t_testo.js, path: undefined',
+      '\x1B[33mWarning:\x1B[0m Server terminates connection',
+      '\x1B[33mTodo:\x1B[0m Server terminates connection 421 error',
+      '>t_testo.js has 1 todo(s)',
+      '>t_testo.js has 1 warnings(s)',
+      '>t_testo.js completed in',
+      '\x1B[38;5;243mCompleted\x1B[0m tests/',
     ],
     [],
     'perma'

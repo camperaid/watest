@@ -18,6 +18,7 @@ const { assert, fail } = testflow;
 const { ProcessArgs } = require('./process_args.js');
 
 const {
+  format_started,
   format_completed,
   format_failure,
   format_failures,
@@ -503,6 +504,16 @@ class Series {
 
     // Nested logging.
     await this.LogPipe.attach(folder);
+    // Do not report in a child process for anything outside the root folder,
+    // the parent prcess is responsible fot that.
+    let should_report =
+      !this.childProcess ||
+      !this.rootFolder ||
+      !this.rootFolder.startsWith(folder);
+
+    if (should_report) {
+      console.log(format_started(folder));
+    }
 
     let stop = false;
     for (let test of tests) {
@@ -566,13 +577,6 @@ class Series {
         console.log(`>${name} completed in ${new Date() - start_time}ms\n`);
       }
     }
-
-    // Do not report in a child process for anything outside the root folder,
-    // the parent prcess is responsible fot that.
-    let should_report =
-      !this.childProcess ||
-      !this.rootFolder ||
-      !this.rootFolder.startsWith(folder);
 
     if (should_report) {
       console.log(format_completed(folder));

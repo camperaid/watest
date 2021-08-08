@@ -1,18 +1,14 @@
 'use strict';
 
 const {
-  completed_checkers,
-  format_completed,
-  format_ok,
-  is_output,
-  perform,
+  is_test_output,
+  make_perform_function,
   success,
-  running_checker,
 } = require('../test.js');
 
 module.exports.test = async () => {
-  await is_output(
-    perform([
+  await is_test_output(
+    make_perform_function([
       {
         name: 'unit',
         subtests: [
@@ -46,14 +42,20 @@ module.exports.test = async () => {
       },
     ]),
     [
-      running_checker(`t_testo.js`, `t_testo.js`),
-      format_ok(`SuccessioUno!`),
-      ...completed_checkers({ context: 'unit/base', name: 't_testo.js' }),
-      running_checker(`t_pesto.js`, `t_pesto.js`),
-      format_ok(`SuccessioDuo!`),
-      ...completed_checkers({ context: 'unit/core', name: 't_pesto.js' }),
-      format_completed(`unit`),
-      format_completed(`tests/`)
+      '\x1B[38;5;99mStarted\x1B[0m tests/',
+      '\x1B[38;5;99mStarted\x1B[0m unit',
+      '\x1B[38;5;99mStarted\x1B[0m unit/base',
+      '!Running: t_testo.js, path: t_testo.js',
+      '\x1B[32mOk:\x1B[0m SuccessioUno!',
+      '>t_testo.js completed in',
+      '\x1B[38;5;243mCompleted\x1B[0m unit/base',
+      '\x1B[38;5;99mStarted\x1B[0m unit/core',
+      '!Running: t_pesto.js, path: t_pesto.js',
+      '\x1B[32mOk:\x1B[0m SuccessioDuo!',
+      '>t_pesto.js completed in',
+      '\x1B[38;5;243mCompleted\x1B[0m unit/core',
+      '\x1B[38;5;243mCompleted\x1B[0m unit',
+      '\x1B[38;5;243mCompleted\x1B[0m tests/',
     ],
     [],
     'nested'

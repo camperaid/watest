@@ -20,6 +20,8 @@ module.exports.test = async () => {
   };
 
   const expected_out_for_success = [
+    '\x1B[38;5;99mStarted\x1B[0m mac/',
+    '\x1B[38;5;99mStarted\x1B[0m mac/unit',
     '!Running: mac/unit/t_testo.js, path: tests/unit/t_testo.js',
     '\x1B[32mOk:\x1B[0m Testo',
     '>mac/unit/t_testo.js completed in',

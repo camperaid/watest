@@ -1,15 +1,6 @@
 'use strict';
 
-const {
-  completed_checkers,
-  fail,
-  format_failure,
-  format_intermittent,
-  format_warning,
-  is_output,
-  perform,
-  running_checker,
-} = require('../test.js');
+const { fail, make_perform_function, is_test_output } = require('../test.js');
 
 module.exports.test = async () => {
   // missing perma
@@ -28,8 +19,8 @@ module.exports.test = async () => {
     ],
   ];
 
-  await is_output(
-    perform([
+  await is_test_output(
+    make_perform_function([
       {
         name: 't_testo.js',
         path: 't_testo.js',
@@ -40,15 +31,15 @@ module.exports.test = async () => {
       },
     ]),
     [
-      running_checker(`t_testo.js`, 't_testo.js',),
-      ...completed_checkers({ context: 'tests/', name: 't_testo.js' }),
+      '\x1B[38;5;99mStarted\x1B[0m tests/',
+      '!Running: t_testo.js, path: t_testo.js',
+      '>t_testo.js completed in',
+      '\x1B[38;5;243mCompleted\x1B[0m tests/',
     ],
     [
-      format_failure(`Server busy`),
-      format_failure(
-        `Perma failure 'Server terminates connection' has never been hit`
-      ),
-      format_failure(`has 2 failure(s)`, `>t_testo.js`),
+      '\x1B[31mFailed:\x1B[0m Server busy',
+      "\x1B[31mFailed:\x1B[0m Perma failure 'Server terminates connection' has never been hit",
+      '\x1B[31m>t_testo.js\x1B[0m has 2 failure(s)',
     ],
     'missing perma'
   );
@@ -70,8 +61,8 @@ module.exports.test = async () => {
     ],
   ];
 
-  await is_output(
-    perform([
+  await is_test_output(
+    make_perform_function([
       {
         name: 't_testo.js',
         path: 't_testo.js',
@@ -82,15 +73,14 @@ module.exports.test = async () => {
       },
     ]),
     [
-      running_checker(`t_testo.js`, 't_testo.js',),
-      format_warning(`Map timeout`),
-      format_intermittent(`Map timeout`),
-      ...completed_checkers({
-        context: 'tests/',
-        name: `t_testo.js`,
-        warnings: 1,
-        intermittents: 1,
-      }),
+      '\x1B[38;5;99mStarted\x1B[0m tests/',
+      '!Running: t_testo.js, path: t_testo.js',
+      '\x1B[33mWarning:\x1B[0m Map timeout',
+      '\x1B[35mIntermittent:\x1B[0m Map timeout',
+      '>t_testo.js has 1 intermittent(s)',
+      '>t_testo.js has 1 warnings(s)',
+      '>t_testo.js completed in',
+      '\x1B[38;5;243mCompleted\x1B[0m tests/',
     ],
     [],
     'no perma but intermittent'

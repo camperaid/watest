@@ -42,8 +42,7 @@ class MockLogPipe {
   release() {
     return Promise.resolve();
   }
-  logToFile() {
-  }
+  logToFile() {}
 }
 
 module.exports.Series = Series;
@@ -78,17 +77,17 @@ module.exports.completed_checkers = ({
 module.exports.logswritten_checker = got =>
   got.startsWith('Logs are written to');
 
-module.exports.running_checker = (name, path) => `\n!Running: ${name}, path: ${path}\n\n`;
+module.exports.running_checker = (name, path) =>
+  `\n!Running: ${name}, path: ${path}\n\n`;
 
-module.exports.perform = tests => async () => {
+module.exports.make_perform_function = tests => async () => {
   const series = new Series('tests/', {
     core: new Core(),
     LogPipe: new MockLogPipe(),
   });
   try {
     await series.perform({ folder: 'tests/', tests: build_tests(tests) });
-  }
-  finally {
+  } finally {
     series.shutdown();
   }
 };

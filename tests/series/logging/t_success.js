@@ -6,6 +6,7 @@ const {
   LogPipeMockFileStream,
   format_completed,
   format_ok,
+  format_started,
   format_success,
   is,
   success,
@@ -57,14 +58,18 @@ module.exports.test = async () => {
   let path = `${invocation}`;
   is(
     buffers.get(`${path}/log`),
-    [format_completed(`${path}/`), format_success(2)],
+    [
+      format_started(`${path}/`),
+      format_completed(`${path}/`),
+      format_success(2),
+    ],
     `logging buffer for ${path}`
   );
 
   path = `${invocation}/unit`;
   is(
     buffers.get(`${path}/log`),
-    [format_completed(path), format_success(2, path)],
+    [format_started(path), format_completed(path), format_success(2, path)],
     `logging buffer for ${path}`
   );
 
@@ -72,6 +77,7 @@ module.exports.test = async () => {
   is(
     buffers.get(`${path}/log`),
     [
+      format_started(path),
       running_checker(
         `${path}/t_testo.js`,
         `tests/unit/base/t_testo.js`
@@ -90,6 +96,7 @@ module.exports.test = async () => {
   is(
     buffers.get(`${path}/log`),
     [
+      format_started(path),
       running_checker(
         `${path}/t_presto.js`,
         `tests/unit/core/t_presto.js`
