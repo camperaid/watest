@@ -596,10 +596,48 @@ class Series {
   }
 
   recordStats({ name, path, webdriver }) {
+    let hasChanged = false;
     let hasFailures = false;
 
+    // Record intermittents.
+    let delta = this.core.intermittentCount - this.icnt;
+    if (delta > 0) {
+      console.log(`>${name} has ${delta} intermittent(s)`);
+      this.icnt = this.core.intermittentCount;
+      hasChanged = true;
+    }
+
+    // Record todos.
+    delta = this.core.todoCount - this.tcnt;
+    if (delta > 0) {
+      console.log(`>${name} has ${delta} todo(s)`);
+      this.tcnt = this.core.todoCount;
+      hasChanged = true;
+    }
+
+    // Record warnings.
+    delta = this.core.warningCount - this.wcnt;
+    if (delta > 0) {
+      console.log(`>${name} has ${delta} warnings(s)`);
+      this.wcnt = this.core.warningCount;
+      hasChanged = true;
+    }
+
+    // Record successful test count.
+    delta = this.core.okCount - this.ocnt;
+    if (delta > 0) {
+      this.ocnt = this.core.okCount;
+      hasChanged = true;
+    }
+
+    // Fail if no changes.
+    delta = this.core.failureCount - this.fcnt;
+    if (delta == 0 && !hasChanged) {
+      delta = 1;
+      fail(`Neighter failure nor success in ${name}`);
+    }
+
     // Record failures.
-    let delta = this.core.failureCount - this.fcnt;
     if (delta > 0) {
       console.error(format_failure(`has ${delta} failure(s)`, `>${name}`));
       this.failures.push({
@@ -611,30 +649,6 @@ class Series {
       this.fcnt = this.core.failureCount;
       hasFailures = true;
     }
-
-    // Record intermittents.
-    delta = this.core.intermittentCount - this.icnt;
-    if (delta > 0) {
-      console.log(`>${name} has ${delta} intermittent(s)`);
-      this.icnt = this.core.intermittentCount;
-    }
-
-    // Record todos.
-    delta = this.core.todoCount - this.tcnt;
-    if (delta > 0) {
-      console.log(`>${name} has ${delta} todo(s)`);
-      this.tcnt = this.core.todoCount;
-    }
-
-    // Record warnings.
-    delta = this.core.warningCount - this.wcnt;
-    if (delta > 0) {
-      console.log(`>${name} has ${delta} warnings(s)`);
-      this.wcnt = this.core.warningCount;
-    }
-
-    // Record successful test count.
-    this.ocnt = this.core.okCount;
 
     return hasFailures;
   }
@@ -648,19 +662,34 @@ class Series {
       ? console.log.bind(console)
       : this.LogPipe.logToFile.bind(this.LogPipe);
 
+    let hasChanged = this.failures.length > fidx || this.core.okCount > ocnt;
+
     let delta = this.core.warningCount - wcnt;
     if (delta > 0) {
       log(format_warnings(delta, is_root ? '' : folder));
+      hasChanged = true;
     }
 
     delta = this.core.intermittentCount - icnt;
     if (delta > 0) {
       log(format_intermittents(delta, is_root ? '' : folder));
+      hasChanged = true;
     }
 
     delta = this.core.todoCount - tcnt;
     if (delta > 0) {
       log(format_todos(delta, is_root ? '' : folder));
+      hasChanged = true;
+    }
+
+    // Report a failure if no change in a folder.
+    if (!hasChanged) {
+      fail(`Neighter failure nor success in ${folder}`);
+      this.failures.push({
+        name: folder,
+        path: folder,
+        count: 1,
+      });
     }
 
     if (this.failures.length > fidx) {
