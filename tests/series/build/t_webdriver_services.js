@@ -43,6 +43,7 @@ module.exports.test = async () => {
             func: init,
             failures_info: [],
             skip_on_fail: 'skip-on-fail',
+            init_or_uninit: true,
           },
           {
             name: 'e2e/chrome/t_testo.js',
@@ -64,6 +65,7 @@ module.exports.test = async () => {
             func: uninit,
             failures_info: [],
             skip_on_fail: 'skip-on-fail',
+            init_or_uninit: true,
           },
         ],
       },
@@ -77,6 +79,7 @@ module.exports.test = async () => {
             func: init,
             failures_info: [],
             skip_on_fail: 'skip-on-fail',
+            init_or_uninit: true,
           },
           {
             name: 'e2e/firefox/t_testo.js',
@@ -98,6 +101,7 @@ module.exports.test = async () => {
             func: uninit,
             failures_info: [],
             skip_on_fail: 'skip-on-fail',
+            init_or_uninit: true,
           },
         ],
       },

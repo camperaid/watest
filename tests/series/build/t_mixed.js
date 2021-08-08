@@ -56,6 +56,7 @@ module.exports.test = async () => {
         func: init,
         skip_on_fail: 'skip-on-fail',
         failures_info: [],
+        init_or_uninit: true,
       },
       {
         name: 'mac/unit',
@@ -134,6 +135,7 @@ module.exports.test = async () => {
         func: uninit,
         skip_on_fail: 'skip-on-fail',
         failures_info: [],
+        init_or_uninit: true,
       },
     ],
     'build'
