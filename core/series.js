@@ -90,6 +90,7 @@ class Series {
 
     this.fcnt = 0;
     this.failures = [];
+    this.childProcessOutputBuffer = [];
 
     this.icnt = 0;
     this.tcnt = 0;
@@ -211,7 +212,7 @@ class Series {
               name: virtual_folder,
               path: test_path,
               loader: this.getTestMetaPath(folder),
-              loader_parent_virtual_folder: path.join(virtual_folder, '..'),
+              loader_virtual_folder: path.join(virtual_folder),
             });
           }
         }
@@ -505,7 +506,10 @@ class Series {
     const ocnt = this.core.okCount;
 
     // Nested logging.
-    await this.LogPipe.attach(folder);
+    if (!this.childProcess) {
+      await this.LogPipe.attach(folder);
+    }
+
     // Do not report in a child process for anything outside the root folder,
     // the parent prcess is responsible fot that.
     let should_report =
@@ -600,7 +604,9 @@ class Series {
     }
 
     // Stop nested logging.
-    await this.LogPipe.release();
+    if (!this.childProcess) {
+      await this.LogPipe.release();
+    }
   }
 
   recordStats({ name, init_or_uninit, path, webdriver }) {
@@ -667,10 +673,12 @@ class Series {
     const is_root = folder == `${this.invocation}/`;
 
     // Do not log interim test results into console to reduce noice. Keep
-    // file logging.
-    const log = is_root
-      ? console.log.bind(console)
-      : this.LogPipe.logToFile.bind(this.LogPipe);
+    // file logging. In case of a child process log into console, the main
+    // process will take care of that.
+    const log =
+      is_root || this.childProcess
+        ? console.log.bind(console)
+        : this.LogPipe.logToFile.bind(this.LogPipe);
 
     let hasChanged = this.failures.length > fidx || this.core.okCount > ocnt;
 
@@ -785,7 +793,7 @@ class Series {
       .filter(n => n.startsWith('t_'));
   }
 
-  performInChildProcess({ name, path, loader, loader_parent_virtual_folder }) {
+  performInChildProcess({ name, path, loader, loader_virtual_folder }) {
     return new Promise((resolve, reject) => {
       let args = [];
       if (loader) {
@@ -797,12 +805,11 @@ class Series {
         '--input-type=module',
         '--child-process',
         '--root-folder',
-        loader_parent_virtual_folder,
+        loader_virtual_folder,
         ...ProcessArgs.controlArguments,
         path
       );
 
-      let stop_logging = false;
       const cp = spawn(`node`, args);
       cp.on('close', code => {
         if (code != 0) {
@@ -811,15 +818,13 @@ class Series {
         }
         resolve();
       });
-      cp.stdout.on('data', data => {
-        if (!stop_logging) {
-          stop_logging = this.processChildProcessOutput(name, data, (...args) =>
-            console.log(...args)
-          );
-        }
-      });
+      cp.stdout.on('data', data =>
+        this.processChildProcessOutputIfNotYetStarted(name, data, (...args) =>
+          console.log(...args)
+        )
+      );
       cp.stderr.on('data', data =>
-        this.processChildProcessOutput(name, data, (...args) =>
+        this.processChildProcessOutputIfNotYetStarted(name, data, (...args) =>
           console.error(...args)
         )
       );
@@ -827,44 +832,71 @@ class Series {
     });
   }
 
-  processChildProcessOutput(virtual_folder, data, func) {
-    let str = data.toString().slice(0, -1);
-    let lines = str.split('\n');
+  processChildProcessOutputIfNotYetStarted(virtual_folder, data, func) {
+    this.childProcessOutputBuffer.push({
+      data,
+      func,
+    });
 
-    // Suppress writing into a file, because this is a responsibility of a child
-    // process.
-    this.LogPipe.suppress_fstream = true;
-    func(str);
-    this.LogPipe.suppress_fstream = false;
+    if (!this.processChildProcessStarted) {
+      this.processChildProcessStarted = true;
+      this.processChildProcessOutput(virtual_folder).then(() => {
+        this.processChildProcessStarted = false;
+        this.childProcessOutputBuffer = [];
+      });
+    }
+  }
 
-    for (let line of lines) {
-      const { color, msg } = parse(line);
-      switch (color) {
-        case 'completed':
-          // Eat all logs after completed message for the running test, the main
-          // process will take care to represent those.
-          if (msg == virtual_folder) {
-            return true;
-          }
-          break;
-        case 'failure':
-          this.core.failureCount++;
-          break;
-        case 'intermittent':
-          this.core.intermittentCount++;
-          break;
-        case 'ok':
-          this.core.okCount++;
-          break;
-        case 'todo':
-          this.core.todoCount++;
-          break;
-        case 'warning':
-          this.core.warningCount++;
-          break;
+  async processChildProcessOutput(virtual_folder) {
+    for (let { data, func } of this.childProcessOutputBuffer) {
+      let str = data.toString().slice(0, -1);
+      let lines = str.split('\n');
+
+      let log_func = func;
+
+      for (let line of lines) {
+        const { color, msg } = parse(line);
+        switch (color) {
+          case 'started':
+            if (msg.startsWith(virtual_folder)) {
+              await this.LogPipe.attach(msg);
+            }
+            break;
+
+          case 'completed':
+            if (msg.startsWith(virtual_folder)) {
+              await this.LogPipe.release();
+            }
+            break;
+
+          case 'failure':
+            this.core.failureCount++;
+            break;
+          case 'intermittent':
+            this.core.intermittentCount++;
+            break;
+          case 'ok':
+            this.core.okCount++;
+            break;
+          case 'todo':
+            this.core.todoCount++;
+            break;
+          case 'warning':
+            this.core.warningCount++;
+            break;
+
+          case 'intermittents':
+          case 'todos':
+          case 'warnings':
+          case 'failures':
+          case 'success':
+            log_func = this.LogPipe.logToFile.bind(this.LogPipe);
+            break;
+        }
+
+        log_func(line);
       }
     }
-    return false;
   }
 }
 
