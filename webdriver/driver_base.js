@@ -173,6 +173,10 @@ class DriverBase {
     }
   }
 
+  static isStdOutLogging(webdriver) {
+    return webdriver == 'firefox';
+  }
+
   static get Errors() {
     return error;
   }

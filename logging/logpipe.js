@@ -9,11 +9,17 @@ const { log_dir, run } = settings;
  * A single instance of a logpipe writing to std and file streams.
  */
 class LogPipeInstance {
-  attach(invocation, FileStream) {
+  constructor({ FileStream, suppress_logging }) {
     this.FS = FileStream || require('./filestream.js').FileStream;
+    this.suppress_logging = suppress_logging;
+  }
 
+  attach(invocation) {
     this.invocation = invocation;
     this.log_dir = path.join(log_dir, this.invocation);
+    if (this.suppress_logging) {
+      return;
+    }
 
     this.fname = 'log';
     this.fstream = new this.FS(this.log_dir, this.fname);
@@ -48,21 +54,24 @@ class LogPipeInstance {
   }
 
   release() {
-    return this.fstream
-      .end()
-      .then(() => this.fstream.readFile())
-      .then(content =>
-        settings.logger.writeLogFile({
-          run,
-          invocation: this.invocation,
-          name: this.fname,
-          content,
-          zip: true,
+    return (
+      !this.suppress_logging &&
+      this.fstream
+        .end()
+        .then(() => this.fstream.readFile())
+        .then(content =>
+          settings.logger.writeLogFile({
+            run,
+            invocation: this.invocation,
+            name: this.fname,
+            content,
+            zip: true,
+          })
+        )
+        .catch(e => {
+          console.error(`Logging shutdown rejected: ${e}`);
         })
-      )
-      .catch(e => {
-        console.error(`Logging shutdown rejected: ${e}`);
-      });
+    );
   }
 }
 
@@ -71,18 +80,22 @@ class LogPipeInstance {
  * the log server if any.
  */
 class LogPipe {
-  static attach(...args) {
+  static attach(invocation, options = {}) {
     if (!log_dir) {
       return Promise.resolve();
     }
 
-    const pipe = new LogPipeInstance();
+    const pipe = new LogPipeInstance({
+      FileStream: options.FileStream || this.FileStream,
+      suppress_logging: this.suppress_logging,
+    });
+
     this.stack.push(pipe);
 
-    if (this.stack.length == 1) {
+    if (!this.suppress_logging && this.stack.length == 1) {
       this.attachToStdStreams();
     }
-    return pipe.attach(...args);
+    return pipe.attach(invocation);
   }
 
   static logScreenshot(...args) {
@@ -111,6 +124,10 @@ class LogPipe {
     // its release.
     let pipeToRelease = this.stack.pop();
     await pipeToRelease.release(...args);
+
+    if (this.suppress_logging) {
+      return;
+    }
 
     this.suppress_fstream = true;
     console.log(`Logs are written to ${pipeToRelease.fstream.filepath}`);
@@ -166,6 +183,7 @@ class LogPipe {
   }
 }
 
+LogPipe.FileStream = require('./filestream.js').FileStream;
 LogPipe.stack = [];
 
 module.exports = {

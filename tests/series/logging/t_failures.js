@@ -3,7 +3,7 @@
 const {
   completed_checkers,
   MockSeries,
-  LogPipeMockFileStream,
+  createMockLogPipe,
   format_completed,
   format_failure,
   format_failures,
@@ -48,7 +48,7 @@ module.exports.test = async () => {
     },
   };
 
-  const LogPipe = new LogPipeMockFileStream();
+  const LogPipe = createMockLogPipe();
   LogPipe.suppressStdStreams();
   try {
     await MockSeries.run([], { ts, LogPipe });
@@ -56,7 +56,7 @@ module.exports.test = async () => {
     LogPipe.restoreStdStreams();
   }
 
-  const buffers = new Map(LogPipe.MockFileStream.getLoggingBuffers());
+  const buffers = new Map(LogPipe.FileStream.getLoggingBuffers());
 
   let path = `${invocation}`;
   is(

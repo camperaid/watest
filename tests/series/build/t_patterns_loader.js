@@ -57,13 +57,11 @@ module.exports.test = async () => {
             name: 'mac/unit',
             path: 'tests/unit/base',
             loader: v => v.endsWith('tests/unit/meta.mjs'),
-            loader_virtual_folder: 'mac/unit',
           },
           {
             name: 'mac/unit',
             path: 'tests/unit/core',
             loader: v => v.endsWith('tests/unit/meta.mjs'),
-            loader_virtual_folder: 'mac/unit',
           },
         ],
       },

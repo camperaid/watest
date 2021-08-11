@@ -38,6 +38,9 @@ class ProcessArgs {
           obj.rootFolder = process.argv[++i];
           break;
 
+        case '--input-type=module':
+          break;
+
         default:
           obj.patterns.push(arg);
       }

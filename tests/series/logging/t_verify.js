@@ -2,7 +2,7 @@
 
 const {
   MockSeries,
-  LogPipeMockFileStream,
+  createMockLogPipe,
   fail,
   is,
   success,
@@ -40,15 +40,21 @@ module.exports.test = async () => {
     },
   };
 
-  const LogPipe = new LogPipeMockFileStream();
+  const LogPipe = createMockLogPipe();
   LogPipe.suppressStdStreams();
   try {
-    await MockSeries.run([], { ts, LogPipe, invocation: 'mac', verify: true });
+    await MockSeries.run([], {
+      ts,
+      LogPipe,
+      invocation: 'mac',
+      verify: true,
+      suppressChildProcessInitiation: true,
+    });
   } finally {
     LogPipe.restoreStdStreams();
   }
 
-  const buffers = LogPipe.MockFileStream.getLoggingBuffers();
+  const buffers = LogPipe.FileStream.getLoggingBuffers();
   is(
     buffers,
     [

@@ -99,6 +99,7 @@ module.exports.test = async () => {
         ts,
         webdrivers: ['chrome', 'firefox'],
         verify: true,
+        suppressChildProcessInitiation: true,
       }),
     expected_stdout,
     expected_stderr,

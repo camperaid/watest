@@ -5,17 +5,14 @@ const path = require('path');
 const nodepath = path;
 const { spawn } = require('child_process');
 
-const root_dir = path.resolve('.');
-const root_folder = 'tests';
-
+const { DriverBase } = require('../webdriver/driver_base.js');
+const testflow = require('./core.js');
+const { parse, parse_failure } = require('./format.js');
+const { ProcessArgs } = require('./process_args.js');
 const settings = require('./settings.js');
 const { stringify } = require('./util.js');
-const { parse } = require('./format.js');
 
-const testflow = require('./core.js');
 const { assert, fail } = testflow;
-
-const { ProcessArgs } = require('./process_args.js');
 
 const {
   format_started,
@@ -28,6 +25,9 @@ const {
   format_warnings,
   colorify,
 } = require('./format.js');
+
+const root_folder = 'tests';
+const root_dir = path.resolve('.');
 
 process.on('unhandledRejection', error => {
   console.error(error);
@@ -42,6 +42,8 @@ class Series {
     if (!('LogPipe' in options)) {
       options.LogPipe = require('../logging/logpipe.js').LogPipe;
     }
+    options.LogPipe.suppress_logging = options.childProcess;
+
     return settings
       .initialize()
       .then(() => options.LogPipe.attach(''))
@@ -75,6 +77,7 @@ class Series {
       verify,
       childProcess,
       rootFolder,
+      suppressChildProcessInitiation,
       core,
       LogPipe,
       webdrivers = settings.webdrivers,
@@ -87,6 +90,7 @@ class Series {
     this.verify = verify;
     this.childProcess = childProcess;
     this.rootFolder = rootFolder;
+    this.suppressChildProcessInitiation = suppressChildProcessInitiation;
 
     this.fcnt = 0;
     this.failures = [];
@@ -212,7 +216,6 @@ class Series {
               name: virtual_folder,
               path: test_path,
               loader: this.getTestMetaPath(folder),
-              loader_virtual_folder: path.join(virtual_folder),
             });
           }
         }
@@ -506,9 +509,7 @@ class Series {
     const ocnt = this.core.okCount;
 
     // Nested logging.
-    if (!this.childProcess) {
-      await this.LogPipe.attach(folder);
-    }
+    await this.LogPipe.attach(folder);
 
     // Do not report in a child process for anything outside the root folder,
     // the parent prcess is responsible fot that.
@@ -542,7 +543,12 @@ class Series {
         continue;
       }
 
-      if (loader) {
+      if (
+        loader ||
+        (!this.suppressChildProcessInitiation &&
+          !this.childProcess &&
+          DriverBase.isStdOutLogging(webdriver))
+      ) {
         await this.performInChildProcess(test);
         continue;
       }
@@ -604,9 +610,7 @@ class Series {
     }
 
     // Stop nested logging.
-    if (!this.childProcess) {
-      await this.LogPipe.release();
-    }
+    await this.LogPipe.release();
   }
 
   recordStats({ name, init_or_uninit, path, webdriver }) {
@@ -793,7 +797,7 @@ class Series {
       .filter(n => n.startsWith('t_'));
   }
 
-  performInChildProcess({ name, path, loader, loader_virtual_folder }) {
+  performInChildProcess({ name, path, loader }) {
     return new Promise((resolve, reject) => {
       let args = [];
       if (loader) {
@@ -805,93 +809,153 @@ class Series {
         '--input-type=module',
         '--child-process',
         '--root-folder',
-        loader_virtual_folder,
+        name,
         ...ProcessArgs.controlArguments,
         path
       );
 
       const cp = spawn(`node`, args);
-      cp.on('close', code => {
-        if (code != 0) {
-          reject(new Error(`${path} failed, process exited with code ${code}`));
-          return;
-        }
-        resolve();
-      });
+      cp.on('close', () =>
+        Promise.resolve(this.processChildProcessOutputPromise).then(resolve)
+      );
       cp.stdout.on('data', data =>
-        this.processChildProcessOutputIfNotYetStarted(name, data, (...args) =>
-          console.log(...args)
-        )
+        this.bufferizeChildProcesOutput(name, data, true)
       );
       cp.stderr.on('data', data =>
-        this.processChildProcessOutputIfNotYetStarted(name, data, (...args) =>
-          console.error(...args)
-        )
+        this.bufferizeChildProcesOutput(name, data, false)
       );
       cp.on('error', reject);
     });
   }
 
-  processChildProcessOutputIfNotYetStarted(virtual_folder, data, func) {
-    this.childProcessOutputBuffer.push({
-      data,
-      func,
-    });
+  bufferizeChildProcesOutput(virtual_folder, data, is_stdout) {
+    let str_data = data.toString();
 
-    if (!this.processChildProcessStarted) {
-      this.processChildProcessStarted = true;
-      this.processChildProcessOutput(virtual_folder).then(() => {
-        this.processChildProcessStarted = false;
-        this.childProcessOutputBuffer = [];
+    let lastChunk = this.childProcessOutputBuffer[
+      this.childProcessOutputBuffer.length - 1
+    ];
+    if (lastChunk && lastChunk.is_stdout == is_stdout) {
+      lastChunk.str_data += str_data;
+    } else {
+      this.childProcessOutputBuffer.push({
+        str_data,
+        is_stdout,
       });
+    }
+
+    if (!this.processChildProcessOutputPromise) {
+      this.processChildProcessOutputPromise = this.processChildProcessBuffer(
+        virtual_folder
+      ).then(
+        () => {
+          this.processChildProcessOutputPromise = null;
+        },
+        e => {
+          console.error(e);
+          fail(`Failed to process child process output`);
+        }
+      );
     }
   }
 
-  async processChildProcessOutput(virtual_folder) {
-    for (let { data, func } of this.childProcessOutputBuffer) {
-      let str = data.toString().slice(0, -1);
-      let lines = str.split('\n');
+  async processChildProcessBuffer(virtual_folder) {
+    let lastChunk = this.childProcessOutputBuffer[
+      this.childProcessOutputBuffer.length - 1
+    ];
+    if (!lastChunk || !lastChunk.str_data.endsWith('\n')) {
+      return null;
+    }
 
-      let log_func = func;
+    let buffer = this.childProcessOutputBuffer.slice();
+    this.childProcessOutputBuffer = [];
+
+    await this.processChildProcessOutput(virtual_folder, buffer);
+    return this.processChildProcessBuffer(virtual_folder);
+  }
+
+  async processChildProcessOutput(virtual_folder, buffer) {
+    for (let { str_data, is_stdout } of buffer) {
+      let lines = str_data.split('\n');
+
+      let log_func = (...args) =>
+        is_stdout ? console.log(...args) : console.error(...args);
 
       for (let line of lines) {
-        const { color, msg } = parse(line);
-        switch (color) {
-          case 'started':
-            if (msg.startsWith(virtual_folder)) {
-              await this.LogPipe.attach(msg);
-            }
-            break;
+        if (line == '') {
+          continue;
+        }
 
-          case 'completed':
-            if (msg.startsWith(virtual_folder)) {
-              await this.LogPipe.release();
-            }
-            break;
+        if (line.startsWith('console.debug')) {
+          line = line.replace(
+            /console\.debug: "(.+)"/,
+            (match, p) => `[DEBUG] ${p}`
+          );
+        } else if (line.startsWith('console.log')) {
+          line = line.replace(
+            /console\.log: "(.+)"/,
+            (match, p) => `[INFO] ${p}`
+          );
+        } else if (line.startsWith('console.assert')) {
+          line = line.replace(
+            /console\.assert: "(.+)"/,
+            (match, p) => `[SEVERE] ${p}`
+          );
+        } else if (line.startsWith('console.error')) {
+          line = line.replace(
+            /console\.error: "(.+)"/,
+            (match, p) => `[SEVERE] ${p}`
+          );
+        } else if (line.startsWith('data:text/html,')) {
+          line = line.replace(/\S*/, '@dataurl_placeholder');
+        } else {
+          const { color, msg } = parse(line);
+          switch (color) {
+            case 'started':
+              if (msg.startsWith(virtual_folder)) {
+                await this.LogPipe.attach(msg);
+              }
+              break;
 
-          case 'failure':
-            this.core.failureCount++;
-            break;
-          case 'intermittent':
-            this.core.intermittentCount++;
-            break;
-          case 'ok':
-            this.core.okCount++;
-            break;
-          case 'todo':
-            this.core.todoCount++;
-            break;
-          case 'warning':
-            this.core.warningCount++;
-            break;
+            case 'completed':
+              if (msg.startsWith(virtual_folder)) {
+                await this.LogPipe.release();
+              }
+              break;
 
-          case 'intermittents':
-          case 'todos':
-          case 'warnings':
-          case 'failures':
-          case 'success':
-            log_func = this.LogPipe.logToFile.bind(this.LogPipe);
-            break;
+            case 'failure':
+              {
+                let { name, count } = parse_failure(line) || {};
+                if (name) {
+                  this.failures.push({
+                    name,
+                    count,
+                  });
+                } else {
+                  this.core.failureCount++;
+                }
+              }
+              break;
+            case 'intermittent':
+              this.core.intermittentCount++;
+              break;
+            case 'ok':
+              this.core.okCount++;
+              break;
+            case 'todo':
+              this.core.todoCount++;
+              break;
+            case 'warning':
+              this.core.warningCount++;
+              break;
+
+            case 'intermittents':
+            case 'todos':
+            case 'warnings':
+            case 'failures':
+            case 'success':
+              log_func = this.LogPipe.logToFile.bind(this.LogPipe);
+              break;
+          }
         }
 
         log_func(line);

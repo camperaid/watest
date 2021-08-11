@@ -46,26 +46,32 @@ const getMockFileStreamCtor = () =>
 
 /**
  * LogPipe with mock FileStream attached.
+ * Note: it cannot be inherited from LogPipe, because of
+ * LogPipe::attachToStdStreams implementation, which depends on bound |this|.
  */
-class LogPipeMockFileStream {
-  constructor() {
-    this.MockFileStream = getMockFileStreamCtor();
+class MockLogPipe {
+  static attach(invocation) {
+    return LogPipe.attach(invocation, {
+      FileStream: this.FileStream,
+    });
   }
-  attach(...args) {
-    return LogPipe.attach(...args, this.MockFileStream);
-  }
-  release() {
+  static release() {
     return LogPipe.release();
   }
-  logToFile(...args) {
+  static logToFile(...args) {
     return LogPipe.logToFile(...args);
   }
-  suppressStdStreams() {
+  static suppressStdStreams() {
     LogPipe.suppressStdStreams();
   }
-  restoreStdStreams() {
+  static restoreStdStreams() {
     LogPipe.restoreStdStreams();
   }
+}
+
+function createMockLogPipe() {
+  MockLogPipe.FileStream = getMockFileStreamCtor();
+  return MockLogPipe;
 }
 
 /**
@@ -101,6 +107,6 @@ class MockSeries extends Series {
 }
 
 module.exports = {
+  createMockLogPipe,
   MockSeries,
-  LogPipeMockFileStream,
 };

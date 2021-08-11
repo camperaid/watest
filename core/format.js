@@ -29,7 +29,7 @@ function colorify(color, label, msg) {
 // Parses the given message.
 function parse(str) {
   // eslint-disable-next-line no-control-regex
-  const re = /^\x1b\[([0-9;]+)m(.+?)\x1b\[0m(.+)?$/;
+  const re = /^\x1b\[([0-9;]+(?:m\x1b\[\d+)?)m(.+?)\x1b\[0m(.+)?$/;
   const m = str.match(re);
   if (!m) {
     return {};
@@ -42,9 +42,21 @@ function parse(str) {
   };
 }
 
+function parse_failure(str) {
+  let { label, msg } = parse(str);
+  if (label.startsWith('>')) {
+    return {
+      name: label.substring(1),
+      count: msg.replace(/.*(\d+).*/, (match, p) => p),
+    };
+  }
+  return null;
+}
+
 module.exports = {
   colorify,
   parse,
+  parse_failure,
 
   format_started(msg) {
     return colorify('started', 'Started', msg);
