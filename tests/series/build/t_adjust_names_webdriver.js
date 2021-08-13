@@ -34,7 +34,7 @@ module.exports.test = async () => {
     patterns: [
       {
         path: 'tests/webdriver/end-to-end/sharing/t_shared_editing.js',
-        webdriver: 'firefox',
+        webdriver: 'chrome',
       },
     ],
     folder: 'tests',
@@ -51,24 +51,24 @@ module.exports.test = async () => {
         path: 'tests/webdriver/',
         subtests: [
           {
-            name: 'mac/webdriver/firefox',
+            name: 'mac/webdriver/chrome',
             path: 'tests/webdriver/',
             subtests: [
               {
-                name: 'mac/webdriver/firefox/end-to-end',
+                name: 'mac/webdriver/chrome/end-to-end',
                 path: 'tests/webdriver/end-to-end/',
                 subtests: [
                   {
-                    name: 'mac/webdriver/firefox/end-to-end/sharing2',
+                    name: 'mac/webdriver/chrome/end-to-end/sharing2',
                     path: 'tests/webdriver/end-to-end/sharing/',
                     subtests: [
                       {
                         name:
-                          'mac/webdriver/firefox/end-to-end/sharing2/t_shared_editing.js',
+                          'mac/webdriver/chrome/end-to-end/sharing2/t_shared_editing.js',
                         path:
                           'tests/webdriver/end-to-end/sharing/t_shared_editing.js',
                         func: test,
-                        webdriver: 'firefox',
+                        webdriver: 'chrome',
                         failures_info: [],
                       },
                     ],

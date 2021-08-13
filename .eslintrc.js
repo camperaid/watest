@@ -22,5 +22,24 @@ module.exports = {
         'no-process-exit': 'off',
       },
     },
+    {
+      files: ['tests/e2e/samples/**'],
+      settings: {
+        node: {
+          allowModules: ['watest'],
+        },
+      },
+      parserOptions: {
+        sourceType: 'module',
+      },
+      rules: {
+        'node/no-unsupported-features/es-syntax': [
+          'error',
+          {
+            ignores: ['modules'],
+          },
+        ],
+      },
+    },
   ],
 };

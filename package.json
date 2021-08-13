@@ -1,6 +1,6 @@
 {
   "name": "@camperaid/watest",
-  "version": "2.1.5",
+  "version": "2.2.0",
   "description": "Web Application Testsuite",
   "engines": {
     "node": ">=14.15.1"
@@ -11,6 +11,7 @@
     "watest": "./bin/watest.js"
   },
   "scripts": {
+    "postinstall": "bash tests/install.sh",
     "lint": "eslint '**/*.js'",
     "lint:staged": "eslint --",
     "pretty": "prettier --write",

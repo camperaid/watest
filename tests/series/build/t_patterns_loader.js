@@ -51,19 +51,17 @@ module.exports.test = async () => {
     [
       {
         name: 'mac/unit',
-        path: 'tests/unit/',
-        subtests: [
-          {
-            name: 'mac/unit',
-            path: 'tests/unit/base',
-            loader: v => v.endsWith('tests/unit/meta.mjs'),
-          },
-          {
-            name: 'mac/unit',
-            path: 'tests/unit/core',
-            loader: v => v.endsWith('tests/unit/meta.mjs'),
-          },
-        ],
+        path: 'tests/unit/base',
+        loader: v => v.endsWith('tests/unit/meta.mjs'),
+        webdriver: '',
+        run_in_child_process: true,
+      },
+      {
+        name: 'mac/unit',
+        path: 'tests/unit/core',
+        loader: v => v.endsWith('tests/unit/meta.mjs'),
+        webdriver: '',
+        run_in_child_process: true,
       },
     ],
     'pattern'

@@ -1,13 +1,18 @@
 'use strict';
 
 const path = require('path');
-const rc = require(path.resolve('.', './.watestrc.js'));
+
+let rc = null;
+try {
+  rc = require(path.resolve('.', './.watestrc.js'));
+} catch (e) {
+  rc = require(path.resolve('.', './.watestrc.cjs'));
+}
 
 class Settings {
   constructor() {
     this.log_dir = '';
     this.run = '';
-    this.invocation = '';
     this.tmp_storage_dir = '';
     this.logger = null;
     this.servicer = null;
@@ -25,6 +30,20 @@ class Settings {
     this.servicer = (
       await import(rc.servicer || '../interfaces/servicer.js')
     ).default;
+  }
+
+  get invocation() {
+    if (!this.i_nvocation) {
+      let platform = process.platform;
+      switch (platform) {
+        case 'darwin':
+          platform = 'mac';
+          break;
+      }
+
+      this._invocation = rc.invocation || `${platform}`;
+    }
+    return this._invocation;
   }
 
   get debunkLimit() {
@@ -50,29 +69,27 @@ class Settings {
       return;
     }
 
-    let platform = process.platform;
-    switch (platform) {
-      case 'darwin':
-        platform = 'mac';
-        break;
-    }
-
     this.run = rc.run || `${parseInt(Date.now() / 1000)}`;
-    this.invocation = rc.invocation || `${platform}`;
 
     this.log_dir = path.join(log_dir, this.run);
     console.log(`Settings: logging into ${log_dir}`);
   }
 
   setupWebdrivers() {
-    try {
-      this.webdrivers = rc.webdrivers && JSON.parse(rc.webdrivers);
-    } catch (e) {
-      console.log(`Settings: failed to parse webdrivers '${rc.webdrivers}'`);
+    this.webdrivers = rc.webdrivers;
+    if (typeof rc.webdrivers == 'string') {
+      try {
+        this.webdrivers = JSON.parse(rc.webdrivers);
+      } catch (e) {
+        console.error(
+          `Settings: failed to parse webdrivers '${rc.webdrivers}'`
+        );
+      }
     }
 
     this.webdriver = null;
-    this.webdriver_headless = rc.webdriver_headless == 'true';
+    this.webdriver_headless =
+      rc.webdriver_headless == true || rc.webdriver_headless == 'true';
     this.webdriver_loglevel = rc.webdriver_loglevel;
 
     if (this.webdrivers) {

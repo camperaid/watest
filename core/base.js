@@ -565,4 +565,5 @@ module.exports = {
 
   capture_output,
   capture_test_output,
+  format_test_output,
 };

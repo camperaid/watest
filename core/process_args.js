@@ -41,6 +41,10 @@ class ProcessArgs {
         case '--input-type=module':
           break;
 
+        case '--webdriver':
+          obj.webdriver = process.argv[++i];
+          break;
+
         default:
           obj.patterns.push(arg);
       }

@@ -50,16 +50,10 @@ module.exports.test = async () => {
       },
       {
         name: 'e2e/firefox',
-        path: 'e2e/',
-        subtests: [
-          {
-            name: 'e2e/firefox/t_testo.js',
-            path: 'e2e/t_testo.js',
-            func: test,
-            webdriver: 'firefox',
-            failures_info: [],
-          },
-        ],
+        path: 'e2e/t_testo.js',
+        webdriver: 'firefox',
+        loader: undefined,
+        run_in_child_process: true,
       },
     ],
     'pattern'

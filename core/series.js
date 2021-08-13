@@ -3,13 +3,13 @@
 const fs = require('fs');
 const path = require('path');
 const nodepath = path;
-const { spawn } = require('child_process');
 
 const { DriverBase } = require('../webdriver/driver_base.js');
 const testflow = require('./core.js');
 const { parse, parse_failure } = require('./format.js');
 const { ProcessArgs } = require('./process_args.js');
 const settings = require('./settings.js');
+const { spawn } = require('./spawn');
 const { stringify } = require('./util.js');
 
 const { assert, fail } = testflow;
@@ -80,6 +80,7 @@ class Series {
       suppressChildProcessInitiation,
       core,
       LogPipe,
+      webdriver,
       webdrivers = settings.webdrivers,
     }
   ) {
@@ -108,6 +109,7 @@ class Series {
     this.core.clearStats();
 
     this.LogPipe = LogPipe;
+    this.webdriver = webdriver || '';
     this.webdrivers = webdrivers;
   }
 
@@ -121,7 +123,7 @@ class Series {
     await this.runFor(
       this.patterns.map(pattern => ({
         path: pattern,
-        webdriver: '',
+        webdriver: this.webdriver,
       }))
     );
 
@@ -192,33 +194,19 @@ class Series {
         throw new Error(`No tests found in ${folder}`);
       }
 
-      if (!this.childProcess && test_module.loader) {
-        let matched_patterns = [
-          {
-            path: folder,
-          },
-        ];
-        if (patterns.length > 0) {
-          matched_patterns = this.matchedPatterns({
-            path: folder,
-            webdriver,
-            patterns,
-            path_is_not_final: true,
-          });
-        }
-        if (matched_patterns.length > 0) {
-          for (let matched_pattern of matched_patterns) {
-            let test_path = folder;
-            if (matched_pattern.path.startsWith(folder)) {
-              test_path = matched_pattern.path;
-            }
-            tests.push({
-              name: virtual_folder,
-              path: test_path,
-              loader: this.getTestMetaPath(folder),
-            });
-          }
-        }
+      if (
+        !this.childProcess &&
+        !this.suppressChildProcessInitiation &&
+        test_module.loader
+      ) {
+        this.buildChildProcessTests({
+          tests,
+          folder,
+          virtual_folder,
+          patterns,
+          loader: this.getTestMetaPath(folder),
+          webdriver,
+        });
         return tests;
       }
 
@@ -243,15 +231,35 @@ class Series {
       }
 
       // A separate folder for the webdriver tests.
-      assert(this.webdrivers instanceof Array, `Webdrivers are misconfigured`);
+      assert(
+        this.webdrivers instanceof Array,
+        `Webdrivers are misconfigured, got: ${JSON.stringify(this.webdrivers)}`
+      );
 
       // Build the tests for webdrivers. Filter the list according traversed
       // webdriver.
       for (let webdriver of this.webdrivers) {
+        let wd_virtual_folder = `${virtual_folder}/${webdriver}`;
+
+        if (
+          !this.childProcess &&
+          !this.suppressChildProcessInitiation &&
+          DriverBase.isStdOutLogging(webdriver)
+        ) {
+          this.buildChildProcessTests({
+            tests,
+            folder,
+            virtual_folder: wd_virtual_folder,
+            patterns,
+            webdriver,
+          });
+          continue;
+        }
+
         let wdtests = await this.buildTests({
           tests: [],
           folder,
-          virtual_folder: `${virtual_folder}/${webdriver}`,
+          virtual_folder: wd_virtual_folder,
           testfiles,
           test_module,
           webdriver,
@@ -259,14 +267,14 @@ class Series {
           subtests: await this.buildSubtests({
             patterns,
             folder,
-            virtual_folder: `${virtual_folder}/${webdriver}`,
+            virtual_folder: wd_virtual_folder,
             subfolders,
             webdriver,
           }),
         });
         if (wdtests.length > 0) {
           tests.push({
-            name: `${virtual_folder}/${webdriver}`,
+            name: wd_virtual_folder,
             path: `${folder}/`,
             subtests: wdtests,
           });
@@ -286,6 +294,45 @@ class Series {
     }
 
     return tests;
+  }
+
+  buildChildProcessTests({
+    folder,
+    virtual_folder,
+    tests,
+    patterns,
+    loader,
+    webdriver,
+  }) {
+    let matched_patterns = [
+      {
+        path: `${folder}/`,
+        webdriver,
+      },
+    ];
+    if (patterns.length > 0) {
+      matched_patterns = this.matchedPatterns({
+        path: folder,
+        webdriver,
+        patterns,
+        path_is_not_final: true,
+      });
+    }
+    if (matched_patterns.length > 0) {
+      for (let matched_pattern of matched_patterns) {
+        let test_path = folder;
+        if (matched_pattern.path.startsWith(folder)) {
+          test_path = matched_pattern.path;
+        }
+        tests.push({
+          name: virtual_folder,
+          path: test_path,
+          loader,
+          webdriver: matched_pattern.webdriver || webdriver,
+          run_in_child_process: true,
+        });
+      }
+    }
   }
 
   async buildSubtests({
@@ -314,12 +361,18 @@ class Series {
     );
 
     return subtests_for_subfolders
-      .map(({ subfolder, subtests }) => ({
-        name: `${virtual_folder}/${subfolder}`,
-        path: `${folder}/${subfolder}/`,
-        subtests,
-      }))
-      .filter(t => t.subtests.length > 0);
+      .flatMap(({ subfolder, subtests }) => {
+        // Case: no substests for a loader test running in a child process.
+        if (subtests.every(t => t.loader)) {
+          return subtests;
+        }
+        return {
+          name: `${virtual_folder}/${subfolder}`,
+          path: `${folder}/${subfolder}/`,
+          subtests,
+        };
+      })
+      .filter(t => t.run_in_child_process || t.subtests.length > 0);
   }
 
   async buildTests({
@@ -532,7 +585,7 @@ class Series {
         webdriver,
         failures_info,
         skip_on_fail,
-        loader,
+        run_in_child_process,
         init_or_uninit,
       } = test;
 
@@ -543,12 +596,7 @@ class Series {
         continue;
       }
 
-      if (
-        loader ||
-        (!this.suppressChildProcessInitiation &&
-          !this.childProcess &&
-          DriverBase.isStdOutLogging(webdriver))
-      ) {
+      if (run_in_child_process) {
         await this.performInChildProcess(test);
         continue;
       }
@@ -797,93 +845,44 @@ class Series {
       .filter(n => n.startsWith('t_'));
   }
 
-  performInChildProcess({ name, path, loader }) {
-    return new Promise((resolve, reject) => {
-      let args = [];
-      if (loader) {
-        args.push('--experimental-loader', loader);
-      }
-      const watest_bin = nodepath.join(__dirname, '../bin/watest.js');
-      args.push(
-        watest_bin,
-        '--input-type=module',
-        '--child-process',
-        '--root-folder',
-        name,
-        ...ProcessArgs.controlArguments,
-        path
-      );
+  performInChildProcess({ name, path, loader, webdriver }) {
+    let args = [];
+    if (loader) {
+      args.push('--loader', loader);
+    }
+    const watest_bin = nodepath.join(__dirname, '../bin/watest.js');
+    args.push(
+      watest_bin,
+      '--input-type=module',
+      '--child-process',
+      '--root-folder',
+      nodepath.join(name, '../'),
+      ...ProcessArgs.controlArguments,
+      path
+    );
+    if (webdriver) {
+      args.push('--webdriver', webdriver);
+    }
 
-      const cp = spawn(`node`, args);
-      cp.on('close', () =>
-        Promise.resolve(this.processChildProcessOutputPromise).then(resolve)
-      );
-      cp.stdout.on('data', data =>
-        this.bufferizeChildProcesOutput(name, data, true)
-      );
-      cp.stderr.on('data', data =>
-        this.bufferizeChildProcesOutput(name, data, false)
-      );
-      cp.on('error', reject);
+    return spawn('node', args, {}, buffer =>
+      this.processChildProcessOutput(name, buffer)
+    ).catch(e => {
+      console.error(e);
+      fail(`Failed to process child process output`);
     });
-  }
-
-  bufferizeChildProcesOutput(virtual_folder, data, is_stdout) {
-    let str_data = data.toString();
-
-    let lastChunk = this.childProcessOutputBuffer[
-      this.childProcessOutputBuffer.length - 1
-    ];
-    if (lastChunk && lastChunk.is_stdout == is_stdout) {
-      lastChunk.str_data += str_data;
-    } else {
-      this.childProcessOutputBuffer.push({
-        str_data,
-        is_stdout,
-      });
-    }
-
-    if (!this.processChildProcessOutputPromise) {
-      this.processChildProcessOutputPromise = this.processChildProcessBuffer(
-        virtual_folder
-      ).then(
-        () => {
-          this.processChildProcessOutputPromise = null;
-        },
-        e => {
-          console.error(e);
-          fail(`Failed to process child process output`);
-        }
-      );
-    }
-  }
-
-  async processChildProcessBuffer(virtual_folder) {
-    let lastChunk = this.childProcessOutputBuffer[
-      this.childProcessOutputBuffer.length - 1
-    ];
-    if (!lastChunk || !lastChunk.str_data.endsWith('\n')) {
-      return null;
-    }
-
-    let buffer = this.childProcessOutputBuffer.slice();
-    this.childProcessOutputBuffer = [];
-
-    await this.processChildProcessOutput(virtual_folder, buffer);
-    return this.processChildProcessBuffer(virtual_folder);
   }
 
   async processChildProcessOutput(virtual_folder, buffer) {
     for (let { str_data, is_stdout } of buffer) {
       let lines = str_data.split('\n');
 
-      let log_func = (...args) =>
-        is_stdout ? console.log(...args) : console.error(...args);
-
       for (let line of lines) {
         if (line == '') {
           continue;
         }
+
+        let log_func = msg =>
+          is_stdout ? console.log(msg) : console.error(msg);
 
         if (line.startsWith('console.debug')) {
           line = line.replace(
@@ -911,16 +910,14 @@ class Series {
           const { color, msg } = parse(line);
           switch (color) {
             case 'started':
-              if (msg.startsWith(virtual_folder)) {
-                await this.LogPipe.attach(msg);
-              }
-              break;
+              await this.LogPipe.attach(msg);
+              log_func(line);
+              continue;
 
             case 'completed':
-              if (msg.startsWith(virtual_folder)) {
-                await this.LogPipe.release();
-              }
-              break;
+              log_func(line);
+              await this.LogPipe.release();
+              continue;
 
             case 'failure':
               {

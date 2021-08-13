@@ -104,28 +104,9 @@ module.exports.test = async () => {
           {
             name: 'mac/e2e/firefox',
             path: 'tests/e2e/',
-            subtests: [
-              {
-                name: 'mac/e2e/firefox/t_presto.js',
-                path: 'tests/e2e/t_presto.js',
-                func,
-                webdriver: 'firefox',
-                failures_info: [],
-              },
-              {
-                name: 'mac/e2e/firefox/controls',
-                path: 'tests/e2e/controls/',
-                subtests: [
-                  {
-                    name: 'mac/e2e/firefox/controls/t_input.js',
-                    path: 'tests/e2e/controls/t_input.js',
-                    func,
-                    webdriver: 'firefox',
-                    failures_info: [],
-                  },
-                ],
-              },
-            ],
+            loader: undefined,
+            webdriver: 'firefox',
+            run_in_child_process: true,
           },
         ],
       },

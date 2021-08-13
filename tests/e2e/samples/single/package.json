@@ -1,0 +1,12 @@
+{
+  "name": "@camperaid/watest/e2e/single",
+  "version": "0.0.1",
+  "description": "Watest E2E Test",
+  "type": "module",
+  "scripts": {
+    "test": "watest"
+  },
+  "devDependencies": {
+    "watest": "file:../../../../"
+  }
+}
