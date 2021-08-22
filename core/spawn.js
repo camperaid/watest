@@ -11,21 +11,22 @@ class ChildProcess {
   spawn(cmd, args, options) {
     return new Promise((resolve, reject) => {
       const cp = spawn(cmd, args, options);
-      cp.on('close', code =>
-        Promise.resolve(this.processChildProcessOutputPromise).then(
-          () => resolve(code),
-          () => reject(code)
+      cp.on('close', (code, signal) =>
+        Promise.resolve(this.processChildProcessOutputPromise).then(() =>
+          signal == 'SIGUSR1' ? reject(code) : resolve(code)
         )
       );
-      cp.stdout.on('data', data => this.bufferizeChildProcesOutput(data, true));
+      cp.stdout.on('data', data =>
+        this.bufferizeChildProcesOutput(cp, data, true)
+      );
       cp.stderr.on('data', data =>
-        this.bufferizeChildProcesOutput(data, false)
+        this.bufferizeChildProcesOutput(cp, data, false)
       );
       cp.on('error', reject);
     });
   }
 
-  bufferizeChildProcesOutput(data, is_stdout) {
+  bufferizeChildProcesOutput(cp, data, is_stdout) {
     let str_data = data.toString();
 
     let lastChunk = this.childProcessOutputBuffer[
@@ -41,11 +42,15 @@ class ChildProcess {
     }
 
     if (!this.processChildProcessOutputPromise) {
-      this.processChildProcessOutputPromise = this.processChildProcessBuffer().then(
-        () => {
+      this.processChildProcessOutputPromise = this.processChildProcessBuffer()
+        .catch(e => {
+          console.error(`Unexpected error when parsing a child process output`);
+          console.error(e);
+          cp.kill('SIGUSR1');
+        })
+        .then(() => {
           this.processChildProcessOutputPromise = null;
-        }
-      );
+        });
     }
   }
 
