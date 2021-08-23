@@ -140,8 +140,8 @@ module.exports.test = async () => {
       ),
     [],
     [
-      `Failed: TstMsg: 'f1' field was not expected`,
-      `Failed: TstMsg: 'f2->f21' field was not expected`,
+      `Failed: TstMsg: 'f1' field was not expected, got: 'f1'`,
+      `Failed: TstMsg: 'f2->f21' field was not expected, got: 'f21'`,
       `Failed: TstMsg`,
     ],
     `failure: class mismatch`

@@ -357,7 +357,11 @@ Expected: ${stringify(expected)}`
           success_,
         }) && isok;
     } else if (!ignore_unexpected) {
-      fail_(`${msg} '${fpath}' field was not expected`);
+      fail_(
+        `${msg} '${fpath}' field was not expected, got: ${stringify(
+          got[field]
+        )}`
+      );
       isok = false;
     }
   }
