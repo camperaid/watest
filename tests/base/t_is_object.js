@@ -115,6 +115,26 @@ module.exports.test = async () => {
     `failure: value mismatch (strings)`
   );
 
+  // failure: not enumerable property value mismatch
+  await is_output(
+    () =>
+      is_object(
+        new (class {
+          get field() {
+            return 'hey';
+          }
+        })(),
+        { field: 'pey' },
+        'TstMsg'
+      ),
+    [],
+    [
+      `Failed: TstMsg: 'field' field value mismatch;\ngot:\nhey\nexpected:\npey\nunexpected character: 'h' at 0 pos, expected: 'p' at '' line`,
+      `Failed: TstMsg`,
+    ],
+    `failure: not enumerable property value mismatch`
+  );
+
   // failure: primitive
   await is_output(
     () => is_object(null, {}, 'TstMsg'),

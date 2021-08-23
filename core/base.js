@@ -346,9 +346,23 @@ Expected: ${stringify(expected)}`
 
   // Object properties.
   let isok = true;
-  for (let field in got) {
+  if (!ignore_unexpected) {
+    for (let field in got) {
+      if (!(field in expected)) {
+        let fpath = (fieldpath && `${fieldpath}->${field}`) || field;
+        fail_(
+          `${msg} '${fpath}' field was not expected, got: ${stringify(
+            got[field]
+          )}`
+        );
+        isok = false;
+      }
+    }
+  }
+
+  for (let field in expected) {
     let fpath = (fieldpath && `${fieldpath}->${field}`) || field;
-    if (field in expected) {
+    if (field in got) {
       isok =
         is_object_impl(got[field], expected[field], msg, fpath, {
           ignore_unexpected,
@@ -356,24 +370,12 @@ Expected: ${stringify(expected)}`
           fail_,
           success_,
         }) && isok;
-    } else if (!ignore_unexpected) {
-      fail_(
-        `${msg} '${fpath}' field was not expected, got: ${stringify(
-          got[field]
-        )}`
-      );
-      isok = false;
-    }
-  }
-
-  // Missing object properties.
-  for (let field in expected) {
-    if (!(field in got)) {
-      let fpath = (fieldpath && `${fieldpath}->${field}`) || field;
+    } else {
       fail_(`${msg} '${fpath}' field was expected but not present`);
       isok = false;
     }
   }
+
   return isok;
 }
 
