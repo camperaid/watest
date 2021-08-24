@@ -766,10 +766,16 @@ class Driver extends DriverBase {
 
     // ctlr+A doens't work OS X in Chrome.
     let script = `
-let r = document.createRange();
-r.selectNodeContents(document.querySelector('${selector}'));
-window.getSelection().removeAllRanges();
-window.getSelection().addRange(r);
+let el = document.querySelector('${selector}');
+if (el instanceof HTMLInputElement) {
+  el.select();
+}
+else {
+  let r = document.createRange();
+  r.selectNodeContents(el);
+  window.getSelection().removeAllRanges();
+  window.getSelection().addRange(r);
+}
 `;
     return this.run(() => this.dvr.executeScript(script), msg);
   }
