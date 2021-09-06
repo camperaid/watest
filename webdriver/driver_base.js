@@ -867,7 +867,11 @@ class DriverBase {
   }
 
   wrapScript(func) {
-    return `Promise.resolve(${func}).then(arguments[arguments.length - 1])`;
+    return `
+      new Promise(resolve => Promise.resolve(${func}).then(resolve))
+      .catch(e => console.error(e))
+      .then(arguments[arguments.length - 1])
+    `;
   }
 
   /**
