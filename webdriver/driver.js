@@ -194,7 +194,7 @@ class Driver extends DriverBase {
       selector,
       attr,
       msg,
-      test: got => got.includes(value),
+      test: got => got && got.includes(value),
       expected_stringified: `contains '${value}'`,
     });
   }
@@ -216,7 +216,7 @@ class Driver extends DriverBase {
       test: got =>
         test_is(
           got,
-          values.map(value => got => got.includes(value))
+          values.map(value => got => got && got.includes(value))
         ),
       expected_stringified: stringify(values),
     });
