@@ -24,7 +24,8 @@ function stringify(obj, traces = new Set()) {
   }
 
   if (typeof obj == 'string') {
-    return `'${obj}'`;
+    const limit = 1024;
+    return `'${obj.length > limit ? obj.substring(0, limit) + '…' : obj}'`;
   }
   if (obj instanceof Array) {
     return `[${obj.map(i => stringify(i, traces)).join(', ')}]`;
