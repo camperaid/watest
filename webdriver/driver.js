@@ -324,7 +324,7 @@ class Driver extends DriverBase {
   }
 
   /**
-   * Checks element's text whether it starts from the given text.
+   * Checks element's text whether it starts with the given text.
    */
   textStartsWith(selector, text, msg) {
     assert(selector, `textStartsWith: no selector`);
@@ -337,6 +337,23 @@ class Driver extends DriverBase {
       msg,
       test: got => got.startsWith(text),
       expected_stringified: `starts with '${text}'`,
+    });
+  }
+
+  /**
+   * Checks element's text whether it ends with the given text.
+   */
+  textEndsWith(selector, text, msg) {
+    assert(selector, `textEndsWith: no selector`);
+    assert(text, `textEndsWith: no text`);
+    assert(msg, `textEndsWith: no msg`);
+
+    return this.matchText({
+      selector,
+      text,
+      msg,
+      test: got => got.endsWith(text),
+      expected_stringified: `ends with '${text}'`,
     });
   }
 
