@@ -125,20 +125,30 @@ class Driver extends DriverBase {
     });
   }
 
+  async flush() {
+    let link;
+    do {
+      link = this.dvr.lastChainLink;
+      await link;
+    } while (link != this.dvr.lastChainLink);
+  }
+
   /**
    * Quits.
    */
   quit() {
-    return this.browserLogs().then(() =>
-      this.dvr.quit().then(() => console.log(`Driver has quit`))
-    );
+    return this.flush()
+      .then(() => this.browserLogs())
+      .then(() => this.dvr.quit().then(() => console.log(`Driver has quit`)));
   }
 
   /**
    * Closes currently focused window.
    */
   close() {
-    return this.browserLogs().then(() => this.dvr.close());
+    return this.flush()
+      .then(() => this.browserLogs())
+      .then(() => this.dvr.close());
   }
 
   //

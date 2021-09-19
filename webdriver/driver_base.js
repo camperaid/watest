@@ -859,11 +859,26 @@ class DriverBase {
    * Chains a function to the execution flow.
    */
   chain(link) {
-    return new this.constructor.CtorPromise(
+    let chainLink = new this.constructor.CtorPromise(
       this.p.then(link),
       this.dvr,
       this.options
     );
+
+    this.dvr.lastChainLink = chainLink;
+    chainLink.then(
+      () => {
+        if (this.dvr.lastChainLink == chainLink) {
+          this.dvr.lastChainLink = null;
+        }
+      },
+      () => {
+        if (this.dvr.lastChainLink == chainLink) {
+          this.dvr.lastChainLink = null;
+        }
+      }
+    );
+    return chainLink;
   }
 
   wrapScript(func) {
