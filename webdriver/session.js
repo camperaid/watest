@@ -3,6 +3,8 @@
 const { assert, group, info } = require('../core/core.js');
 const { Driver } = require('./driver.js');
 
+const { fail } = require('../core/core.js');
+
 let active_sessions = [];
 
 /**
@@ -23,10 +25,10 @@ class Session {
     return session;
   }
 
-  constructor(d) {
-    assert(d, `Session: no driver`);
+  constructor(driver) {
+    assert(driver, `Session: no driver`);
     this.session_id = Math.floor(Math.random() * Math.pow(10, 8));
-    this.driver = d;
+    this.driver = driver;
     info(`Session ${this.session_id} open`);
   }
 
@@ -162,6 +164,9 @@ const scope = (arg1, arg2, arg3) => async () => {
       session = await start_session(url_or_snippet, libs);
     }
     await tests(session);
+  } catch (e) {
+    console.error(e);
+    fail(e.message);
   } finally {
     console.log(`Quit ${active_sessions.length} wd session(s)`);
 
