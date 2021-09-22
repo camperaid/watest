@@ -62,7 +62,12 @@ module.exports.is_ok_output = (func, out, err, msg) => {
   return is_output(eat_ok(func), out, err, msg);
 };
 
-module.exports.is_failure_output = (func, out, err, msg) => {
+module.exports.is_failure_output = (driver, func, out, err, msg) => {
+  // Tests in Firefox are running in a child process, which doesn't use stderr.
+  if (driver.firefox) {
+    out.push(...err);
+    err = [];
+  }
   out.push(`Sleeping for 1 ms`);
   return is_output(eat_failure(func), out, err, msg);
 };

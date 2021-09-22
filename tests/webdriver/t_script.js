@@ -32,6 +32,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
 
   // scriptRetvalIs: failure
   await is_failure_output(
+    driver,
     () => driver.scriptRetvalIs('window.getValue()', 'heo', `scriptRetvalIs`),
     [`Test: scriptRetvalIs. Expected: 'heo'`],
     [
@@ -66,6 +67,7 @@ unexpected character: 'y' at 2 pos, expected: 'o' at '' line`,
 
   // scriptRetvalContains: failure
   await is_failure_output(
+    driver,
     () =>
       driver.scriptRetvalContains(
         'window.getValues()',

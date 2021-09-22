@@ -30,6 +30,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
 
   // attributeContainsAll: failure
   await is_failure_output(
+    driver,
     () =>
       driver.attributeContainsAll(
         'input',

@@ -23,6 +23,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
 
   // attributeIs: failure
   await is_failure_output(
+    driver,
     () => driver.attributeIs('#input', 'value', 'he', `attributeIs`),
     [`Test: attributeIs. Expected: 'he'. Selector: '#input'`],
     [

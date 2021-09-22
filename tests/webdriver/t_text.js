@@ -42,6 +42,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
 
   // textIs: failure
   await is_failure_output(
+    driver,
     () => driver.textIs('#p', 'Para', `textIs`),
     [`Test: textIs. Expected: 'Para'. Selector: '#p'`],
     [
@@ -54,6 +55,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
 
   // textIs: ambigious
   await is_failure_output(
+    driver,
     () => driver.textIs('p', 'Para', `textIs`),
     [`Test: textIs. Expected: 'Para'. Selector: 'p'`],
     [
@@ -65,6 +67,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
 
   // textIs: no elements
   await is_failure_output(
+    driver,
     () => driver.textIs('#p-not-exists', 'Para', `textIs`),
     [`Test: textIs. Expected: 'Para'. Selector: '#p-not-exists'`],
     [
@@ -112,6 +115,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
 
   // textStartsWith: failure
   await is_failure_output(
+    driver,
     () => driver.textStartsWith('#p', 'Mara', `textStartsWith`),
     [`Test: textStartsWith. Expected: starts with 'Mara'. Selector: '#p'`],
     [

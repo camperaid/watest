@@ -27,6 +27,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
 
   // textSelected:failure
   await is_failure_output(
+    driver,
     () => driver.textSelected('#unselected-input', `textSelected`),
     [
       `Test: textSelected. Expected: text should be selected. Selector: '#unselected-input'`,

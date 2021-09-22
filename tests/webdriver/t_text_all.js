@@ -24,6 +24,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
 
   // textIs: failure
   await is_failure_output(
+    driver,
     () => driver.textIsAll('p', ['Para', 'Mara'], `textIsAll`),
     [`Test: textIsAll. Expected: ['Para', 'Mara']. Selector: 'p'`],
     [
@@ -37,6 +38,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
 
   // textIs: ambigious
   await is_failure_output(
+    driver,
     () => driver.textIsAll('p', ['Para'], `textIsAll`),
     [`Test: textIsAll. Expected: ['Para']. Selector: 'p'`],
     [
@@ -48,6 +50,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
 
   // textIs: no elements
   await is_failure_output(
+    driver,
     () => driver.textIs('#p-not-exists', ['Para'], `textIsAll`),
     [`Test: textIsAll. Expected: ['Para']. Selector: '#p-not-exists'`],
     [

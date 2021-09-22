@@ -44,6 +44,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
 
   // classNameStateIs: failure
   await is_failure_output(
+    driver,
     () =>
       driver.classNameStateIs(
         '#input',
@@ -74,6 +75,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
 
   // innerHTMLIs: failure
   await is_failure_output(
+    driver,
     () => driver.innerHTMLIs('#button', 'button', `innerHTMLIs`),
     [`Test: innerHTMLIs. Selector: '#button'`],
     [
@@ -103,6 +105,7 @@ unexpected character: '<' at 0 pos, expected: 'b' at '' line`,
 
   // propertyIs: failure
   await is_failure_output(
+    driver,
     () => driver.propertyIs('#button', 'id', 'button2', `propertyIs`),
     [`Test: propertyIs. Selector: '#button'`],
     [
