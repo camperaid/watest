@@ -1,16 +1,12 @@
 'use strict';
 
-const { is_mac, stringify } = require('../core/util.js');
-
-const { getTimeout, DriverBase } = require('./driver_base.js');
-
 const { By, Condition, Key, until } = require('selenium-webdriver');
 
-const { assert } = require('../core/core.js');
-
 const { test_is, test_contains, is, contains, ok } = require('../core/base.js');
-
-const { toDataURL } = require('../core/util.js');
+const { assert } = require('../core/core.js');
+const { is_mac, stringify, toDataURL } = require('../core/util.js');
+const { log } = require('../logging/logging.js');
+const { getTimeout, DriverBase } = require('./driver_base.js');
 
 /**
  * A chainable web driver providing a number of handy methods to navigate
@@ -120,7 +116,7 @@ class Driver extends DriverBase {
    */
   sleep(sec) {
     return this.chain(() => {
-      console.log(`Sleeping ${sec} sec(s)`);
+      log(`Sleeping ${sec} sec(s)`);
       return this.dvr.sleep(1000 * sec);
     });
   }
@@ -139,7 +135,7 @@ class Driver extends DriverBase {
   quit() {
     return this.flush()
       .then(() => this.browserLogs())
-      .then(() => this.dvr.quit().then(() => console.log(`Driver has quit`)));
+      .then(() => this.dvr.quit().then(() => log(`Driver has quit`)));
   }
 
   /**

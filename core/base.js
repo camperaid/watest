@@ -2,8 +2,9 @@
 
 const core = require('./core.js');
 const { success, fail, failed } = core;
-const { format_failure } = require('./format.js');
 
+const { log, log_error } = require('../logging/logging.js');
+const { format_failure } = require('./format.js');
 const { stringify } = require('./util.js');
 
 const limit = 100;
@@ -411,12 +412,12 @@ async function is_test_output(func, out, err, msg) {
   if (!stdout_matched || !stderr_matched) {
     let formatted = format_test_output({ stdout, stderr });
     if (!stdout_matched) {
-      console.log(`Test ready stdout for '${msg}':`);
-      console.log(formatted.stdout);
+      log(`Test ready stdout for '${msg}':`);
+      log(formatted.stdout);
     }
     if (!stderr_matched) {
-      console.log(`Test ready stderr for '${msg}':`);
-      console.log(formatted.stderr);
+      log(`Test ready stderr for '${msg}':`);
+      log(formatted.stderr);
     }
   }
 }
@@ -508,7 +509,7 @@ function is_out(got, expected, msg) {
 
     if (typeof exp_i == 'function') {
       if (!exp_i(got_i)) {
-        console.error(
+        log_error(
           format_failure(
             `got: ${stringify(got_i)}, expected: ${exp_i}`,
             `Unexpected output at index ${i},`
@@ -522,7 +523,7 @@ function is_out(got, expected, msg) {
       continue;
     }
 
-    console.error(
+    log_error(
       format_failure(
         `got: ${stringify(got_i)}, expected: ${exp_i}, got len: ${
           got_i.length
@@ -530,23 +531,23 @@ function is_out(got, expected, msg) {
         `Unexpected output at index ${i},`
       )
     );
-    console.error(
+    log_error(
       `index\tgot\texpected\tequal ${Math.min(got_i.length, exp_i.length)}`
     );
 
     let min = Math.min(got_i.length, exp_i.length);
     for (let j = 0; j < min; j++) {
-      console.error(
+      log_error(
         `${j}\t'${got_i[j]}'\t'${exp_i[j]}'\t${exp_i[j] == got_i[j]}`
       );
     }
 
     for (let j = min; j < got_i.length; j++) {
-      console.error(`${j}\t'${got_i[j]}'`);
+      log_error(`${j}\t'${got_i[j]}'`);
     }
 
     for (let j = min; j < exp_i.length; j++) {
-      console.error(`${j}\t\t'${exp_i[j]}'`);
+      log_error(`${j}\t\t'${exp_i[j]}'`);
     }
   }
   return false;

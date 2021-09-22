@@ -1,13 +1,14 @@
 'use strict';
 
 const fs = require('fs');
+const { log } = require('../logging/logging.js');
 const cfg = require('./settings.js');
 
 /**
  * Logs object in console colored.
  */
 function inspect(obj) {
-  console.log(
+  log(
     require('util').inspect(obj, false, null, true /* enable colors */)
   );
 }

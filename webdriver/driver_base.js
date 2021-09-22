@@ -2,6 +2,7 @@
 
 const settings = require('../core/settings.js');
 
+const { is } = require('../core/base.js');
 const {
   core,
   fail,
@@ -13,11 +14,9 @@ const {
 } = require('../core/core.js');
 
 const { stringify } = require('../core/util.js');
-
-const { is } = require('../core/base.js');
-
-const { define_class_promise } = require('./util.js');
+const { log, log_error } = require('../logging/logging.js');
 const { LogPipe } = require('../logging/logpipe.js');
+const { define_class_promise } = require('./util.js');
 
 const {
   Browser,
@@ -75,7 +74,7 @@ class DriverBase {
    * Creates an instance of web driver.
    */
   static async build() {
-    console.log(`Build WebDriver for '${settings.webdriver}'`);
+    log(`Build WebDriver for '${settings.webdriver}'`);
 
     switch (settings.webdriver) {
       case 'chrome': {
@@ -767,7 +766,7 @@ class DriverBase {
         /(data:\S+?)(\s|:)(\d+):(\d+)/g,
         (match, p1, p2, p3, p4) => `dataurl-placeholder:${p3}:${p4}`
       );
-      console.log(`[${entry.level.name}] ${message}`);
+      log(`[${entry.level.name}] ${message}`);
     }
 
     let errors = entries.filter(entry => entry.level.name == 'SEVERE');
@@ -805,7 +804,7 @@ class DriverBase {
     return this.chain(() =>
       Promise.resolve()
         .then(() =>
-          console.log(`Test: ${msg}${(details && `. ${details}`) || ''}`)
+          log(`Test: ${msg}${(details && `. ${details}`) || ''}`)
         )
         .then(() => chain())
         .then(v => this.browserLogs().then(() => v))
@@ -834,14 +833,14 @@ class DriverBase {
             })
             .then(() => this.captureScreenshot())
             .catch(e => {
-              console.error(e);
+              log_error(e);
               fail(e.message);
             })
             .then(() => {
               let timeoutOnFailure = getTimeoutOnFailure();
               let promise = Promise.resolve();
               if (timeoutOnFailure > 0) {
-                console.log(`Sleeping for ${timeoutOnFailure} ms`);
+                log(`Sleeping for ${timeoutOnFailure} ms`);
                 promise = this.dvr.sleep(timeoutOnFailure);
               }
               return promise.then(() => {

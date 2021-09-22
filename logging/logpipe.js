@@ -3,6 +3,7 @@
 const path = require('path');
 
 const settings = require('../core/settings.js');
+const { log, log_error } = require('./logging.js');
 const { log_dir, run } = settings;
 
 /**
@@ -25,8 +26,8 @@ class LogPipeInstance {
     this.fstream = new this.FS(this.log_dir, this.fname);
 
     this.fstream.on('error', e => {
-      console.error(`Failed to write to ${this.fstream.filepath}`);
-      console.error(e);
+      log_error(`Failed to write to ${this.fstream.filepath}`);
+      log_error(e);
     });
 
     return settings.logger.testRunStarted({ run, invocation });
@@ -39,7 +40,7 @@ class LogPipeInstance {
     let stream = new this.FS(this.log_dir, name);
     stream.write(content);
     await stream.end();
-    console.log(`Screenshot is captured and written to ${stream.filepath}`);
+    log(`Screenshot is captured and written to ${stream.filepath}`);
 
     await settings.logger.writeLogFile({
       run,
@@ -69,7 +70,7 @@ class LogPipeInstance {
           })
         )
         .catch(e => {
-          console.error(`Logging shutdown rejected: ${e}`);
+          log_error(`Logging shutdown rejected: ${e}`);
         })
     );
   }
@@ -130,7 +131,7 @@ class LogPipe {
     }
 
     this.suppress_fstream = true;
-    console.log(`Logs are written to ${pipeToRelease.fstream.filepath}`);
+    log(`Logs are written to ${pipeToRelease.fstream.filepath}`);
     this.suppress_fstream = false;
 
     if (this.stack.length == 0) {

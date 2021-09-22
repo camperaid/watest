@@ -2,6 +2,8 @@
 
 const { spawn } = require('child_process');
 
+const { log_error } = require('../logging/logging.js');
+
 class ChildProcess {
   constructor(on_output) {
     this.on_output = on_output;
@@ -44,8 +46,8 @@ class ChildProcess {
     if (!this.processChildProcessOutputPromise) {
       this.processChildProcessOutputPromise = this.processChildProcessBuffer()
         .catch(e => {
-          console.error(`Unexpected error when parsing a child process output`);
-          console.error(e);
+          log_error(`Unexpected error when parsing a child process output`);
+          log_error(e);
           cp.kill('SIGUSR1');
         })
         .then(() => {

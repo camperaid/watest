@@ -1,5 +1,6 @@
 'use strict';
 
+const { log, log_error, log_trace } = require('../logging/logging.js');
 const {
   format_failure,
   format_intermittent,
@@ -29,29 +30,29 @@ class Core {
   }
 
   info(msg) {
-    console.log(`Info: ${msg}`);
+    log(`Info: ${msg}`);
   }
 
   assert(cond, msg) {
     if (!cond) {
-      console.trace(msg);
+      log_trace(msg);
       this.fail(msg);
     }
   }
 
   not_reached(msg) {
-    console.trace(msg);
+    log_trace(msg);
     this.fail(msg);
   }
 
   group(msg, label) {
     this.currgroup = msg;
     label = label || 'Group';
-    console.log(colorify('group', `${label}:`, msg));
+    log(colorify('group', `${label}:`, msg));
   }
 
   success(msg) {
-    console.log(format_ok(msg));
+    log(format_ok(msg));
     this.kcnt++;
   }
 
@@ -86,22 +87,22 @@ class Core {
   }
 
   unconditional_fail(msg) {
-    console.error(format_failure(msg));
+    log_error(format_failure(msg));
     this.fcnt++;
   }
 
   intermittent(msg) {
-    console.log(format_intermittent(msg));
+    log(format_intermittent(msg));
     this.intermittentcnt++;
   }
 
   todo(msg) {
-    console.log(colorify('todo', 'Todo:', msg));
+    log(colorify('todo', 'Todo:', msg));
     this.todocnt++;
   }
 
   warn(msg) {
-    console.log(format_warning(msg));
+    log(format_warning(msg));
     this.warningcnt++;
   }
 

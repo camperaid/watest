@@ -1,9 +1,8 @@
 'use strict';
 
-const { assert, group, info } = require('../core/core.js');
+const { assert, group, fail, info } = require('../core/core.js');
+const { log, log_error } = require('../logging/logging.js');
 const { Driver } = require('./driver.js');
-
-const { fail } = require('../core/core.js');
 
 let active_sessions = [];
 
@@ -36,11 +35,11 @@ class Session {
    * Denotes a test task in console, a number of logically grouped test actions.
    */
   task(msg) {
-    console.log(`\x1b[34mTask:\x1b[0m ${msg}`);
+    log(`\x1b[34mTask:\x1b[0m ${msg}`);
   }
 
   subtask(msg) {
-    console.log(`\x1b[34mSubtask:\x1b[0m ${msg}`);
+    log(`\x1b[34mSubtask:\x1b[0m ${msg}`);
   }
 
   /**
@@ -165,10 +164,10 @@ const scope = (arg1, arg2, arg3) => async () => {
     }
     await tests(session);
   } catch (e) {
-    console.error(e);
+    log_error(e);
     fail(e.message);
   } finally {
-    console.log(`Quit ${active_sessions.length} wd session(s)`);
+    log(`Quit ${active_sessions.length} wd session(s)`);
 
     while (active_sessions.length > 1) {
       await active_sessions[1].close();

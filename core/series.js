@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const nodepath = path;
 
+const { log, log_error } = require('../logging/logging.js');
 const { DriverBase } = require('../webdriver/driver_base.js');
 const testflow = require('./core.js');
 const { parse, parse_failure } = require('./format.js');
@@ -30,7 +31,7 @@ const root_folder = 'tests';
 const root_dir = path.resolve('.');
 
 process.on('unhandledRejection', error => {
-  console.error(error);
+  log_error(error);
   fail(`Unhandled Promise rejection`);
 });
 
@@ -60,7 +61,7 @@ class Series {
             e => {
               let failures = series.shutdown();
               fail(e.message);
-              console.error(e);
+              log_error(e);
               return failures;
             }
           );
@@ -144,7 +145,7 @@ class Series {
 
     await settings.servicer.shutdown();
 
-    console.log(`Elapsed: ${Date.now() - start_time}ms`);
+    log(`Elapsed: ${Date.now() - start_time}ms`);
   }
 
   /**
@@ -163,7 +164,7 @@ class Series {
     }
 
     if (tests.length == 0) {
-      console.log(
+      log(
         colorify(
           'failures',
           '!Failed:',
@@ -285,7 +286,7 @@ class Series {
         name: virtual_folder,
         path: folder,
         func: () => {
-          console.error(e);
+          log_error(e);
           fail(`Failed to process tests in '${folder}' folder`);
         },
         failures_info: [],
@@ -572,7 +573,7 @@ class Series {
       !this.rootFolder.startsWith(folder);
 
     if (should_report) {
-      console.log(format_started(folder));
+      log(format_started(folder));
     }
 
     let stop = false;
@@ -590,7 +591,7 @@ class Series {
       } = test;
 
       if (stop && !name.endsWith('uninit')) {
-        console.log(
+        log(
           `\x1b[31m!Skipped:\x1b[0m ${name}, because of previous failures\n`
         );
         continue;
@@ -613,7 +614,7 @@ class Series {
       }
 
       // Invoke a test.
-      console.log(`\n!Running: ${name}, path: ${path}\n`);
+      log(`\n!Running: ${name}, path: ${path}\n`);
       let start_time = new Date();
       try {
         this.core.setExpectedFailures(failures_info);
@@ -621,7 +622,7 @@ class Series {
       } catch (e) {
         let failmsg = e;
         if (e instanceof Error) {
-          console.error(e);
+          log_error(e);
           failmsg = e.message;
         }
         fail(failmsg);
@@ -640,7 +641,7 @@ class Series {
           stop = true; // print skipped tests
         }
 
-        console.log(`>${name} completed in ${new Date() - start_time}ms\n`);
+        log(`>${name} completed in ${new Date() - start_time}ms\n`);
       }
     }
 
@@ -654,7 +655,7 @@ class Series {
         wcnt,
         ocnt,
       });
-      console.log(format_completed(folder));
+      log(format_completed(folder));
     }
 
     // Stop nested logging.
@@ -668,7 +669,7 @@ class Series {
     // Record intermittents.
     let delta = this.core.intermittentCount - this.icnt;
     if (delta > 0) {
-      console.log(`>${name} has ${delta} intermittent(s)`);
+      log(`>${name} has ${delta} intermittent(s)`);
       this.icnt = this.core.intermittentCount;
       hasChanged = true;
     }
@@ -676,7 +677,7 @@ class Series {
     // Record todos.
     delta = this.core.todoCount - this.tcnt;
     if (delta > 0) {
-      console.log(`>${name} has ${delta} todo(s)`);
+      log(`>${name} has ${delta} todo(s)`);
       this.tcnt = this.core.todoCount;
       hasChanged = true;
     }
@@ -684,7 +685,7 @@ class Series {
     // Record warnings.
     delta = this.core.warningCount - this.wcnt;
     if (delta > 0) {
-      console.log(`>${name} has ${delta} warnings(s)`);
+      log(`>${name} has ${delta} warnings(s)`);
       this.wcnt = this.core.warningCount;
       hasChanged = true;
     }
@@ -707,7 +708,7 @@ class Series {
 
     // Record failures.
     if (delta > 0) {
-      console.error(format_failure(`has ${delta} failure(s)`, `>${name}`));
+      log_error(format_failure(`has ${delta} failure(s)`, `>${name}`));
       this.failures.push({
         name,
         path,
@@ -727,28 +728,28 @@ class Series {
     // Do not log interim test results into console to reduce noice. Keep
     // file logging. In case of a child process log into console, the main
     // process will take care of that.
-    const log =
+    const log_func =
       is_root || this.childProcess
-        ? console.log.bind(console)
+        ? log
         : this.LogPipe.logToFile.bind(this.LogPipe);
 
     let hasChanged = this.failures.length > fidx || this.core.okCount > ocnt;
 
     let delta = this.core.warningCount - wcnt;
     if (delta > 0) {
-      log(format_warnings(delta, is_root ? '' : folder));
+      log_func(format_warnings(delta, is_root ? '' : folder));
       hasChanged = true;
     }
 
     delta = this.core.intermittentCount - icnt;
     if (delta > 0) {
-      log(format_intermittents(delta, is_root ? '' : folder));
+      log_func(format_intermittents(delta, is_root ? '' : folder));
       hasChanged = true;
     }
 
     delta = this.core.todoCount - tcnt;
     if (delta > 0) {
-      log(format_todos(delta, is_root ? '' : folder));
+      log_func(format_todos(delta, is_root ? '' : folder));
       hasChanged = true;
     }
 
@@ -765,9 +766,9 @@ class Series {
     if (this.failures.length > fidx) {
       for (let i = fidx; i < this.failures.length; i++) {
         let f = this.failures[i];
-        log(format_failures(f.count, f.name));
+        log_func(format_failures(f.count, f.name));
       }
-      log(
+      log_func(
         format_failures(
           this.core.failureCount - fcnt,
           this.core.okCount - ocnt,
@@ -775,7 +776,7 @@ class Series {
         )
       );
     } else {
-      log(format_success(this.core.okCount - ocnt, !is_root && folder));
+      log_func(format_success(this.core.okCount - ocnt, !is_root && folder));
     }
   }
 
@@ -825,7 +826,7 @@ class Series {
         return test_module.test;
       },
       e => {
-        console.error(e);
+        log_error(e);
         throw new Error(`Failed to load test: ${test_path}`);
       }
     );
@@ -867,7 +868,7 @@ class Series {
     return spawn('node', args, {}, buffer =>
       this.processChildProcessOutput(name, buffer)
     ).catch(e => {
-      console.error(e);
+      log_error(e);
       fail(`Failed to process child process output`);
     });
   }
@@ -882,7 +883,7 @@ class Series {
         }
 
         let log_func = msg =>
-          is_stdout ? console.log(msg) : console.error(msg);
+          is_stdout ? log(msg) : log_error(msg);
 
         if (line.startsWith('console.debug')) {
           line = line.replace(
