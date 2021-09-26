@@ -11,6 +11,7 @@ const scripts = [
   '../../core/core.js',
   '../../core/base.js',
   '../../webdriver/app_driver.js',
+  '../../webdriver/control_driver.js',
 ];
 for (let script of scripts) {
   let script_exports = require(script);

@@ -157,27 +157,6 @@ class AppDriver {
   }
 }
 
-/**
- * Control driver base.
- */
-class ControlDriver extends AppDriver {
-  static get(session, selector, p) {
-    assert(selector, `No selector for ${this.name}`);
-    return this._get(
-      {
-        session,
-        selector,
-      },
-      p
-    );
-  }
-
-  get Self() {
-    return this.selector;
-  }
-}
-
 module.exports = {
   AppDriver,
-  ControlDriver,
 };

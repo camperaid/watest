@@ -26,7 +26,8 @@ const { inspect } = require('./core/util.js');
 
 const { tmp_storage_dir } = require('./core/settings.js');
 
-const { AppDriver, ControlDriver } = require('./webdriver/app_driver.js');
+const { AppDriver } = require('./webdriver/app_driver.js');
+const { ControlDriver } = require('./webdriver/control_driver.js');
 const { start_session, scope } = require('./webdriver/session.js');
 
 module.exports = {
