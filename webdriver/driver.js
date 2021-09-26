@@ -790,7 +790,7 @@ class Driver extends DriverBase {
     // ctlr+A doens't work OS X in Chrome.
     let script = `
 let el = document.querySelector('${selector}');
-if (el instanceof HTMLInputElement) {
+if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
   el.select();
 }
 else {
