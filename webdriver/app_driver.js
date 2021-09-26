@@ -74,6 +74,9 @@ class AppDriver {
   type(selector, value, field) {
     return this.chain(() =>
       this.action(`${this.uiname}.type into ${field}`)
+        .sendKeys(selector, '', `Focus`)
+        .elementFocused(selector, 'Focused')
+        .selectAll(selector, `Select all text`)
         .sendKeys(selector, value, `Type into ${field}`)
         .textIs(selector, value, `Check ${field} text`)
     );
