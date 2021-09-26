@@ -18,6 +18,10 @@ class ControlDriver extends AppDriver {
     );
   }
 
+  get uiname() {
+    return `${super.uiname}@selector='${this.Self}'`;
+  }
+
   get Self() {
     return this.selector;
   }
