@@ -185,7 +185,13 @@ class Series {
   /**
    * Returns tests as an array of { name, func, ... } objects.
    */
-  async build({ patterns, folder, virtual_folder, webdriver = '' }) {
+  async build({
+    patterns,
+    folder,
+    virtual_folder,
+    webdriver = '',
+    inherited_expected_failures = [],
+  }) {
     let tests = [];
     try {
       let test_module = await this.loadTestMeta(folder);
@@ -193,6 +199,12 @@ class Series {
       let testfiles = test_module.list || (await this.getTestFileList(folder));
       if (!subfolders && testfiles.length == 0) {
         throw new Error(`No tests found in ${folder}`);
+      }
+
+      if (test_module.expected_failures) {
+        inherited_expected_failures = inherited_expected_failures.concat(
+          test_module.expected_failures.filter(v => v[0] == '**')
+        );
       }
 
       if (
@@ -227,7 +239,9 @@ class Series {
             virtual_folder,
             subfolders,
             webdriver,
+            inherited_expected_failures,
           }),
+          inherited_expected_failures,
         });
       }
 
@@ -271,7 +285,9 @@ class Series {
             virtual_folder: wd_virtual_folder,
             subfolders,
             webdriver,
+            inherited_expected_failures,
           }),
+          inherited_expected_failures,
         });
         if (wdtests.length > 0) {
           tests.push({
@@ -342,6 +358,7 @@ class Series {
     virtual_folder,
     subfolders,
     webdriver,
+    inherited_expected_failures,
   }) {
     if (!subfolders) {
       return [];
@@ -354,6 +371,7 @@ class Series {
           folder: `${folder}/${subfolder}`,
           virtual_folder: `${virtual_folder}/${subfolder}`,
           webdriver,
+          inherited_expected_failures,
         }).then(subtests => ({
           subfolder,
           subtests,
@@ -385,6 +403,7 @@ class Series {
     patterns,
     webdriver,
     subtests,
+    inherited_expected_failures,
   }) {
     const { include_list, exclude_list } = test_module;
     let list = this.buildList({
@@ -402,7 +421,9 @@ class Series {
       return tests;
     }
 
-    const expected_failures = test_module.expected_failures || [];
+    const expected_failures = inherited_expected_failures.concat(
+      test_module.expected_failures || []
+    );
 
     // Initialize
     if (test_module.services || test_module.init) {
@@ -591,9 +612,7 @@ class Series {
       } = test;
 
       if (stop && !name.endsWith('uninit')) {
-        log(
-          `\x1b[31m!Skipped:\x1b[0m ${name}, because of previous failures\n`
-        );
+        log(`\x1b[31m!Skipped:\x1b[0m ${name}, because of previous failures\n`);
         continue;
       }
 
@@ -782,7 +801,7 @@ class Series {
 
   static failuresInfo({ failures, webdriver, platform, testname }) {
     let filtered_failures = failures.filter(
-      v => testname.includes(v[0]) || v[0] == '*'
+      v => testname.includes(v[0]) || v[0] == '*' || v[0] == '**'
     );
 
     return (
@@ -882,8 +901,7 @@ class Series {
           continue;
         }
 
-        let log_func = msg =>
-          is_stdout ? log(msg) : log_error(msg);
+        let log_func = msg => (is_stdout ? log(msg) : log_error(msg));
 
         if (line.startsWith('console.debug')) {
           line = line.replace(
