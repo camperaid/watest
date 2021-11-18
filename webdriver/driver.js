@@ -316,9 +316,9 @@ class Driver extends DriverBase {
    * Checks elements text whether it matches the given text.
    */
   textIsAll(selector, text, msg) {
-    assert(selector, `textIs: no selector`);
-    assert(text instanceof Array, `textIs: no text`);
-    assert(msg, `textIs: no msg`);
+    assert(selector, `textIsAll: no selector`);
+    assert(text instanceof Array, `textIsAll: no text`);
+    assert(msg, `textIsAll: no msg`);
 
     return this.matchTextAll({
       selector,
