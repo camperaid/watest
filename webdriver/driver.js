@@ -3,7 +3,7 @@
 const { By, Condition, Key, until } = require('selenium-webdriver');
 
 const { test_is, test_contains, is, contains, ok } = require('../core/base.js');
-const { assert } = require('../core/core.js');
+const { assert, fail } = require('../core/core.js');
 const { is_mac, stringify, toDataURL } = require('../core/util.js');
 const { log } = require('../logging/logging.js');
 const { getTimeout, DriverBase } = require('./driver_base.js');
@@ -789,7 +789,7 @@ class Driver extends DriverBase {
 
     // ctlr+A doens't work OS X in Chrome.
     let script = `
-let el = document.querySelector('${selector}');
+let el = document.querySelector(\`${selector}\`);
 if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
   el.select();
 }
@@ -800,7 +800,10 @@ else {
   window.getSelection().addRange(r);
 }
 `;
-    return this.run(() => this.dvr.executeScript(script), msg);
+    return this.run(() => this.dvr.executeScript(script).catch(e => {
+      fail(`Failed to execute selectAll script: ${script}`);
+      throw e;
+    }), msg);
   }
 
   /**
