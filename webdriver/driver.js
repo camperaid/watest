@@ -190,6 +190,29 @@ class Driver extends DriverBase {
   /**
    * Waits untils an element defined by a selector has attribute of a given value.
    */
+  attributeIsAll(selector, attr, values, msg) {
+    assert(selector, `attributeIsAll: no selector`);
+    assert(attr, `attributeIsAll: no attr`);
+    assert(values, `attributeIsAll: no values`);
+    assert(msg, `attributeIsAll: no msg`);
+
+    return this.matchAttributeAll({
+      selector,
+      attr,
+      values,
+      msg,
+      test: got =>
+        test_is(
+          got,
+          values.map(value => got => got == value)
+        ),
+      expected_stringified: stringify(values),
+    });
+  }
+
+  /**
+   * Waits untils an element defined by a selector has attribute of a given value.
+   */
   attributeContains(selector, attr, value, msg) {
     assert(selector, `attributeContains: no selector`);
     assert(attr, `attributeContains: no attr`);
@@ -800,10 +823,14 @@ else {
   window.getSelection().addRange(r);
 }
 `;
-    return this.run(() => this.dvr.executeScript(script).catch(e => {
-      fail(`Failed to execute selectAll script: ${script}`);
-      throw e;
-    }), msg);
+    return this.run(
+      () =>
+        this.dvr.executeScript(script).catch(e => {
+          fail(`Failed to execute selectAll script: ${script}`);
+          throw e;
+        }),
+      msg
+    );
   }
 
   /**
