@@ -112,7 +112,9 @@ class AppDriver {
   // Returns a name for the tested class. Typically the name convension for
   // UI drivers is a test class name postixed by Driver.
   get uiname() {
-    return this.constructor.name.replace(/Driver$/, '');
+    let o = this;
+    while ((o = Object.getPrototypeOf(o)) && o.constructor.name == '');
+    return o.constructor.name.replace(/Driver$/, '');
   }
 
   defineSelectors(context, selectors) {
