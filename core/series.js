@@ -637,7 +637,23 @@ class Series {
       let start_time = new Date();
       try {
         this.core.setExpectedFailures(failures_info);
-        await func(); // execute the test
+
+        // If timeout is given then race it against the test.
+        if (settings.timeout) {
+          let kungFuDeathGripTimer = 0;
+          let kungFuDeathGrip = new Promise(r => {
+            kungFuDeathGripTimer = setTimeout(r, settings.timeout);
+          }).then(() =>
+            fail(
+              `Test ${name} takes longer than ${settings.timeout}ms. It's either slow or never ends.`
+            )
+          );
+
+          await Promise.race([func(), kungFuDeathGrip]);
+          clearTimeout(kungFuDeathGripTimer);
+        } else {
+          await func(); // execute the test
+        }
       } catch (e) {
         let failmsg = e;
         if (e instanceof Error) {

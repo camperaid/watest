@@ -50,6 +50,10 @@ class Settings {
     return parseInt(rc.debunk_limit) || 5;
   }
 
+  get timeout() {
+    return parseInt(rc.timeout) || 0;
+  }
+
   setupTmpStorageDir() {
     if (!rc.tmp_dir) {
       console.log(`Settings: no temporary storage dir`);
