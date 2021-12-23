@@ -21,6 +21,7 @@ module.exports.test = () => {
   is(stringify(new Set(['v1', 'v2'])), `Set['v1', 'v2']`, 'set');
   is(stringify(new Map([['key', 'value']])), `Map{key: 'value'}`, 'map');
   is(stringify(/\d+/), `/\\d+/`, 'regexp');
+  is(stringify(new Date('2022-01-01')), '2022-01-01T00:00:00.000Z', `Date`);
 
   // functions
   is(

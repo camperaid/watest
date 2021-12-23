@@ -8,9 +8,7 @@ const cfg = require('./settings.js');
  * Logs object in console colored.
  */
 function inspect(obj) {
-  log(
-    require('util').inspect(obj, false, null, true /* enable colors */)
-  );
+  log(require('util').inspect(obj, false, null, true /* enable colors */));
 }
 
 /**
@@ -30,6 +28,9 @@ function stringify(obj, traces = new Set()) {
   }
   if (obj instanceof Array) {
     return `[${obj.map(i => stringify(i, traces)).join(', ')}]`;
+  }
+  if (obj instanceof Date) {
+    return obj.toISOString();
   }
   if (obj instanceof Set) {
     let values = Array.from(obj.values());

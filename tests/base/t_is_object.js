@@ -27,6 +27,25 @@ module.exports.test = async () => {
     `types: Map`
   );
 
+  // types: Date success
+  await is_output(
+    () => is_object(new Date('2022-01-01'), new Date('2022-01-01'), 'TstMsg'),
+    [`Ok: TstMsg, got: 2022-01-01T00:00:00.000Z`],
+    [],
+    `types: Date sucess`
+  );
+
+  // types: Date failure
+  await is_output(
+    () => is_object(new Date('2022-01-01'), new Date('2023-02-02'), 'TstMsg'),
+    [],
+    [
+      `Failed: TstMsg: unexpected value: 2022-01-01T00:00:00.000Z, expected: 2023-02-02T00:00:00.000Z`,
+      `Failed: TstMsg`,
+    ],
+    `types: Date failure`
+  );
+
   // function sucess
   await is_output(
     () => is_object({ field: 'hey' }, () => true, 'TstMsg'),

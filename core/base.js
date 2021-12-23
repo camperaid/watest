@@ -324,6 +324,17 @@ function is_object_impl(
     return false;
   }
 
+  // Date
+  if (got instanceof Date) {
+    if (got.valueOf() == expected.valueOf()) {
+      return true;
+    }
+    let got_str = stringify(got);
+    let expected_str = `expected: ${stringify(expected)}`;
+    fail_(`${contextmsg} unexpected value: ${got_str}, ${expected_str}`);
+    return false;
+  }
+
   // Convert Set and Map to Arrays.
   if (got instanceof Set) {
     got = Array.from(got.values());
@@ -537,9 +548,7 @@ function is_out(got, expected, msg) {
 
     let min = Math.min(got_i.length, exp_i.length);
     for (let j = 0; j < min; j++) {
-      log_error(
-        `${j}\t'${got_i[j]}'\t'${exp_i[j]}'\t${exp_i[j] == got_i[j]}`
-      );
+      log_error(`${j}\t'${got_i[j]}'\t'${exp_i[j]}'\t${exp_i[j] == got_i[j]}`);
     }
 
     for (let j = min; j < got_i.length; j++) {
