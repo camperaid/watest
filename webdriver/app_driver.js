@@ -108,12 +108,19 @@ class AppDriver {
 
   uncheck(selector, field) {
     return this.chain(() =>
-      this.action(`${this.constructor.name}.uncheck ${field}`)
+      this.action(`${this.uiname}.uncheck ${field}`)
         .click(selector, `Click at ${field}`)
         .hasElements(
           `${selector}:not(:checked)`,
           `${field} should be unchecked`
         )
+    );
+  }
+
+  execute(script, descr) {
+    return this.chain(() =>
+      this.action(`${this.uiname}.execute ${descr}`)
+        .executeScript(script, `Execute script`)
     );
   }
 
