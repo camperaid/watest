@@ -57,11 +57,16 @@ class Core {
   }
 
   fail(msg) {
-    const m = msg;
+    if (typeof msg == 'object') {
+      inspect(msg);
+      this.unconditional_fail('Unexpected exception');
+      return;
+    }
+
     for (let v of this.expectedFailures) {
       if (v.group == '*' || v.group == this.currgroup) {
         let f = v.list.find(f => f[1] == 0 || f[0] == '*');
-        if (f && (f[0] == '*' || m.includes(f[0]))) {
+        if (f && (f[0] == '*' || msg.includes(f[0]))) {
           f[1]++;
           this.warn(msg);
 
@@ -76,11 +81,6 @@ class Core {
           return;
         }
       }
-    }
-
-    if (typeof msg == 'object') {
-      inspect(msg);
-      msg = 'Unexpected exception';
     }
 
     this.unconditional_fail(msg);
