@@ -170,12 +170,46 @@ class Driver extends DriverBase {
   }
 
   /**
+   * Waits untils an element defined by a selector has attribute.
+   */
+  hasAttribute(selector, attr, msg) {
+    assert(selector, `hasAttribute: no selector`);
+    assert(attr, `hasAttribute: no attr`);
+    assert(msg, `hasAttribute: no msg`);
+
+    return this.matchAttribute({
+      selector,
+      attr,
+      msg,
+      test: got => got !== null,
+      expected_stringified: stringify(null),
+    });
+  }
+
+  /**
+   * Waits untils an element defined by a selector has no attribute.
+   */
+  noAttribute(selector, attr, msg) {
+    assert(selector, `noAttribute: no selector`);
+    assert(attr, `noAttribute: no attr`);
+    assert(msg, `noAttribute: no msg`);
+
+    return this.matchAttribute({
+      selector,
+      attr,
+      msg,
+      test: got => got === null,
+      expected_stringified: stringify(null),
+    });
+  }
+
+  /**
    * Waits untils an element defined by a selector has attribute of a given value.
    */
   attributeIs(selector, attr, value, msg) {
     assert(selector, `attributeIs: no selector`);
     assert(attr, `attributeIs: no attr`);
-    assert(value != undefined, `attributeIs: no value`);
+    assert(value !== undefined, `attributeIs: no value`);
     assert(msg, `attributeIs: no msg`);
 
     return this.matchAttribute({
