@@ -11,7 +11,7 @@
     "watest": "./bin/watest.js"
   },
   "scripts": {
-    "prepare": "bash tests/install.sh",
+    "postprepare": "bash tests/install.sh",
     "lint": "eslint '**/*.js'",
     "lint:staged": "eslint --",
     "pretty": "prettier --write",
