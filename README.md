@@ -49,6 +49,19 @@ Pre-defined webdrivers:
 - `firefox` to run tests in Firefox
 - `safari` to run tests in Safari
 
+You can create `.env` file in the root directory to
+define enviropment variables used for configuration.
+Here's an example of `.env` file:
+
+```
+WATEST_DEBUNK_LIMIT=5
+WATEST_LOG_DIR=/tmp
+WATEST_TIMEOUT=3000
+WATEST_WEBDRIVERS=["chrome", "firefox"]
+WATEST_WEBDRIVER_HEADLESS=true
+WATEST_WEBDRIVER_LOGLEVEL=info
+```
+
 ## Unit testing
 
 The testsuite has basic functions:
