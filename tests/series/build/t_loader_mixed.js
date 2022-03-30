@@ -54,7 +54,7 @@ module.exports.test = async () => {
       {
         name: 'mac/ui',
         path: 'tests/ui/',
-        loader: '/Users/me/projects/camperaid/watest/tests/ui/meta.mjs',
+        loader: v => v.endsWith('tests/ui/meta.mjs'),
         webdriver: '',
         run_in_child_process: true,
       },
