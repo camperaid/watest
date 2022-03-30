@@ -311,7 +311,8 @@ function is_object_impl(
   // allowed to be an Object or in case of Set and Map it can be an Array.
   if (
     got instanceof Object &&
-    !(expected instanceof got.constructor) &&
+    (!(got.constructor instanceof Function) ||
+      !(expected instanceof got.constructor)) &&
     (!expected ||
       (expected.constructor != Object &&
         (expected.constructor != Array ||
