@@ -65,6 +65,26 @@ function warn_if_stale(e, msg) {
 
 class TestExecutionError extends Error {}
 
+class CriteriaTimeoutError extends Error {
+  constructor() {
+    super(`timeout while waiting to meet criteria`);
+  }
+}
+
+class NoElementsError extends Error {
+  constructor(selector) {
+    super(`no elements matching '${selector}' selector`);
+  }
+}
+
+class UnexpectedElementCountError extends Error {
+  constructor(selector, gotCount, expectedCount) {
+    super(
+      `ambigious '${selector}' selector, got ${gotCount} elements, expected ${expectedCount}`
+    );
+  }
+}
+
 /**
  * A chainable wrapper around selenium web driver, provides barebone methods
  * to build webdrivers upon.
@@ -424,15 +444,17 @@ class DriverBase {
                   'Waiting for at least one element to be located'
                 )
               ) {
-                throw new Error(`no elements matching '${selector}' selector`);
+                throw new NoElementsError(selector);
               }
             }
             throw e;
           })
           .then(els => {
             if (els.length > count) {
-              throw new Error(
-                `ambigious '${selector}' selector, got ${els.length} elements, expected ${count}`
+              throw new UnexpectedElementCountError(
+                selector,
+                els.length,
+                count
               );
             }
             return els;
@@ -665,7 +687,7 @@ class DriverBase {
         ) {
           this.checkBreadcrumbs(get_breadcrumbs);
           if (e.message.startsWith(`Waiting until meet criteria`)) {
-            throw new Error(`timeout while waiting to meet criteria`);
+            throw new CriteriaTimeoutError();
           }
         }
         throw e;
@@ -803,9 +825,7 @@ class DriverBase {
 
     return this.chain(() =>
       Promise.resolve()
-        .then(() =>
-          log(`Test: ${msg}${(details && `. ${details}`) || ''}`)
-        )
+        .then(() => log(`Test: ${msg}${(details && `. ${details}`) || ''}`))
         .then(() => chain())
         .then(v => this.browserLogs().then(() => v))
         .then(v => {
@@ -830,6 +850,13 @@ class DriverBase {
                 }`;
               }
               report(`${msg}${fdetails}`);
+              if (
+                !(e instanceof CriteriaTimeoutError) &&
+                !(e instanceof NoElementsError) &&
+                !(e instanceof UnexpectedElementCountError)
+              ) {
+                log_error(e);
+              }
             })
             .then(() => this.captureScreenshot())
             .catch(e => {
