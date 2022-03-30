@@ -1,6 +1,6 @@
 {
   "name": "@camperaid/watest",
-  "version": "2.3.8",
+  "version": "2.3.9",
   "description": "Web Application Testsuite",
   "engines": {
     "node": ">=14.15.1"
