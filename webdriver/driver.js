@@ -34,7 +34,8 @@ class Driver extends DriverBase {
           url = url_or_snippet;
         }
       } catch (e) {
-        if (e.code != 'ERR_INVALID_URL') {
+        // Non standard Error.code may not be set to 'ERR_INVALID_URL'.
+        if (!(e instanceof TypeError) || !e.message.startsWith('Invalid URL')) {
           throw e;
         }
       }
