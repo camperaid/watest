@@ -931,6 +931,39 @@ else {
   }
 
   /**
+   * Waits until no elements in DOM or no elements is visible.
+   */
+  noElementsOrNotVisible(selector, msg) {
+    assert(selector, `noElementsOrNotVisible: no selector`);
+    assert(msg, `noElementsOrNotVisible: no msg`);
+
+    let breadcrumbs = '';
+    let cond = new Condition(`until no elements or not visible`, async () => {
+      let els = await this.dvr.findElements(By.css(selector));
+      breadcrumbs = `Got elements count: ${els.length}, expected 0`;
+      if (els.length == 0) {
+        return true;
+      }
+      let isDisplayedArray = await Promise.all(
+        Array.from(els).map(el => el.isDisplayed())
+      );
+      breadcrumbs = `Got elements count: ${
+        els.length
+      }, elements visibility [${isDisplayedArray.join(
+        ' ,'
+      )}], expected: not visible`;
+      return isDisplayedArray.every(isDisplayed => !isDisplayed);
+    });
+
+    return this.run(
+      () => this.waitForCondition(cond, () => breadcrumbs),
+      msg,
+      `Selector: '${selector}'`,
+      () => breadcrumbs
+    );
+  }
+
+  /**
    * Waits until elements count is not zero.
    */
   hasElements(selector, msg) {

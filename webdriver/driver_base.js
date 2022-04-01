@@ -686,7 +686,7 @@ class DriverBase {
           e instanceof error.ScriptTimeoutError
         ) {
           this.checkBreadcrumbs(get_breadcrumbs);
-          if (e.message.startsWith(`Waiting until meet criteria`)) {
+          if (e.message.startsWith(`Waiting until`)) {
             throw new CriteriaTimeoutError();
           }
         }
