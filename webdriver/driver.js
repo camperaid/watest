@@ -486,21 +486,25 @@ class Driver extends DriverBase {
    * Picks file(s) in a file input.
    */
   pickFile(selector, path, msg) {
-    assert(selector, `pickFile: no selector`);
-    assert(path, `pickFile: no path`);
-    assert(msg, `pickFile: no msg`);
-    return this.waitForElementToInvoke(selector, el => el.sendKeys(path), msg);
+    return this.pickFiles(selector, [path], msg);
   }
 
   pickFiles(selector, paths, msg) {
     assert(selector, `pickFiles: no selector`);
     assert(paths, `pickFiles: no paths`);
     assert(msg, `pickFiles: no msg`);
-    return this.waitForElementToInvoke(
-      selector,
-      el => el.sendKeys(paths.join('\n')),
-      msg
-    );
+
+    return this.chain(async () => {
+      // Clear previosly set value if any.
+      await this.setProperty(selector, 'value', '', msg);
+
+      // Send keys to upload files.
+      await this.waitForElementToInvoke(
+        selector,
+        el => el.sendKeys(paths.join('\n')),
+        msg
+      );
+    });
   }
 
   //
