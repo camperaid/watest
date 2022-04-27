@@ -47,7 +47,7 @@ module.exports.test = async () => {
   await is_output(
     () => contains([0, 1], [1, 3], `Array contains`),
     [],
-    [`Failed: Array contains, array has no expected item 3`],
+    [`Failed: Array contains, array has no expected item 3, got: [0, 1]`],
     `failure`
   );
 };

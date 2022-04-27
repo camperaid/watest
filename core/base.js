@@ -123,7 +123,11 @@ function contains(
         })
       )
     ) {
-      fail_(`${msg}, array has no expected item ${stringify(e)}`);
+      fail_(
+        `${msg}, array has no expected item ${stringify(e)}, got: ${stringify(
+          got
+        )}`
+      );
       return false;
     }
   }
