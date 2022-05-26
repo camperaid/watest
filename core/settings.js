@@ -46,6 +46,10 @@ class Settings {
     return this._invocation;
   }
 
+  get ignorePattern() {
+    return rc.ignore_pattern && new RegExp(rc.ignore_pattern);
+  }
+
   get debunkLimit() {
     return parseInt(rc.debunk_limit) || 5;
   }

@@ -878,7 +878,11 @@ class Series {
   getTestFileList(folder) {
     return fs
       .readdirSync(path.join(root_dir, folder))
-      .filter(n => n.startsWith('t_'));
+      .filter(
+        n =>
+          n.startsWith('t_') &&
+          (!settings.ignorePattern || !settings.ignorePattern.test(n))
+      );
   }
 
   performInChildProcess({ name, path, loader, webdriver }) {

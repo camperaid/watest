@@ -53,6 +53,12 @@ const cfg = {
    * Servicer module.
    */
   servicer: process.env.WATEST_SERVICER_MODULE,
+
+  /**
+   * Regular expression defining a file name pattern
+   * to exclude from the tests.
+   */
+  ignore_pattern: process.env.WATEST_IGNORE_PATTERN,
 };
 
 module.exports = cfg;
