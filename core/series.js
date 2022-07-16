@@ -30,6 +30,9 @@ const {
 const root_folder = 'tests';
 const root_dir = path.resolve('.');
 
+const kKungFuDeathGripTimeout = {};
+const kKungFuDeathGripCancelled = {};
+
 process.on('unhandledRejection', error => {
   log_error(error);
   fail(`Unhandled Promise rejection`);
@@ -635,26 +638,41 @@ class Series {
       // Invoke a test.
       log(`\n!Running: ${name}, path: ${path}\n`);
       let start_time = new Date();
+      let kungFuDeathGrip = null;
+      let kungFuDeathGripResolve = null;
+      let kungFuDeathGripTimer = 0;
       try {
         this.core.setExpectedFailures(failures_info);
 
         // If timeout is given then race it against the test.
         if (settings.timeout) {
-          let kungFuDeathGripTimer = 0;
-          let kungFuDeathGrip = new Promise(r => {
-            kungFuDeathGripTimer = setTimeout(r, settings.timeout);
-          }).then(() =>
-            fail(
-              `Test ${name} takes longer than ${settings.timeout}ms. It's either slow or never ends.`
-            )
+          kungFuDeathGrip = new Promise(
+            resolve => (kungFuDeathGripResolve = resolve)
+          ).then(value => {
+            if (value != kKungFuDeathGripCancelled) {
+              fail(
+                `Test ${name} takes longer than ${settings.timeout}ms. It's either slow or never ends.`
+              );
+              return kKungFuDeathGripTimeout;
+            }
+          });
+          kungFuDeathGripTimer = setTimeout(
+            kungFuDeathGripResolve,
+            settings.timeout
           );
-
-          await Promise.race([func(), kungFuDeathGrip]);
-          clearTimeout(kungFuDeathGripTimer);
+          let retval = await Promise.race([func(), kungFuDeathGrip]);
+          if (retval != kKungFuDeathGripTimeout) {
+            clearTimeout(kungFuDeathGripTimer);
+            kungFuDeathGripResolve(kKungFuDeathGripCancelled);
+          }
         } else {
           await func(); // execute the test
         }
       } catch (e) {
+        if (kungFuDeathGripTimer) {
+          clearTimeout(kungFuDeathGripTimer);
+          kungFuDeathGripResolve(kKungFuDeathGripCancelled);
+        }
         let failmsg = e;
         if (e instanceof Error) {
           log_error(e);
