@@ -902,6 +902,34 @@ else {
     });
   }
 
+  //
+  // Clipboard
+  //
+
+  clipboardIs(value, msg) {
+    return this.matchScriptRetval({
+      script: `window.navigator.clipboard.readText()`,
+      expected: value,
+      msg,
+      test: got => test_is(got, value, { ignore_unexpected: true }),
+      is_matched: got =>
+        is(got, value, `${msg}, clipboard value`, {
+          ignore_unexpected: true,
+        }),
+    });
+  }
+
+  getClipboardText() {
+    return this.executeScript(
+      `window.navigator.clipboard.readText()`,
+      `Read clipboard text`
+    );
+  }
+
+  //
+  // DOM: elements count and visibility, focus.
+  //
+
   /**
    * Waits until elements count matches.
    */
