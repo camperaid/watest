@@ -404,7 +404,7 @@ class DriverBase {
   }
 
   /**
-   * Waits for text to match a given condition for an element defined
+   * Waits for a match of a given condition for element(s) defined
    * by a selector.
    */
   matchBase({
@@ -566,7 +566,8 @@ class DriverBase {
 
     let checkClick = `
       console.log('[WD] Wait for lastClick promise resolved');
-      (window.__selenium_lastClick || Promise.resolve()).then(result => {
+      (Promise.resolve(window.__selenium_lastClick)).then(result => {
+        console.log('[WD] lastClick promise was resolved');
         delete window.__selenium_clickHandler;
         delete window.__selenium_lastClick;
         delete window.__selenium_clickElRect;
