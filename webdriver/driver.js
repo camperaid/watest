@@ -113,6 +113,15 @@ class Driver extends DriverBase {
   }
 
   /**
+   * Logs a message into the web console.
+   */
+  logIntoConsole(message) {
+    return this.chain(() =>
+      this.dvr.executeScript(`console.log(arguments[0])`, message)
+    );
+  }
+
+  /**
    * Sleeps for given amount of seconds.
    */
   sleep(sec) {

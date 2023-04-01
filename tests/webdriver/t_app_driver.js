@@ -1,6 +1,6 @@
 'use strict';
 
-const { AppDriver, is_ok_output, do_self_tests } = require('./test.js');
+const { AppDriver, do_self_tests, is_ok_output } = require('./test.js');
 
 const snippet = `
 <html><body>
@@ -46,10 +46,12 @@ module.exports.test = do_self_tests(snippet, async session => {
         `Action: Get Input`,
         `Test: Input is shown. Selector: '#input'`,
         `Ok: '#input' has to be unique, got: 1`,
+        `[INFO] console-api 2:32 "[WatestAction] Get Input"`,
         `Ok: Input is shown`,
         `Action: Input.type 'hello' into Type hello`,
         `Test: Focus. Selector: '#input'`,
         `Ok: '#input' has to be unique, got: 1`,
+        `[INFO] console-api 2:32 "[WatestAction] Input.type 'hello' into Type hello"`,
         `Ok: Focus`,
         `Test: Focused. Selector: '#input'`,
         `Ok: '#input' has to be unique, got: 1`,

@@ -123,7 +123,10 @@ async function start_session(arg1, arg2) {
   /**
    * Denotes a test action in console, a logical unit.
    */
-  s.action = msg => s.driver.invoke(() => group(msg, 'Action'), msg);
+  s.action = msg =>
+    s.driver
+      .invoke(() => group(msg, 'Action'), msg)
+      .logIntoConsole(`[WatestAction] ${msg}`);
 
   /**
    * Invokes a command.
