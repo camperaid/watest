@@ -524,16 +524,6 @@ class Driver extends DriverBase {
   }
 
   /**
-   * Invokes a data request to the server on client.
-   */
-  invokeRequest(request) {
-    return this.executeScript(
-      `window.DataRequest.request(${JSON.stringify(request)})`,
-      `Invoke request: ${stringify(request)}`
-    );
-  }
-
-  /**
    * Waits until script retval is matched an expected value.
    */
   scriptRetvalIs(script, expected, msg) {
