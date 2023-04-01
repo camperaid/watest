@@ -1081,6 +1081,30 @@ else {
           .then(tag => `Active element: ${tag}`)
     );
   }
+
+  ifHasElements(selector, msg, chain, else_chain) {
+    return this.run(
+      () =>
+        this.dvr
+          .findElements(By.css(selector))
+          .then(els => (els.length > 0 ? chain() : else_chain && else_chain())),
+      msg,
+      `Selector: '${selector}'`
+    );
+  }
+
+  ifNoElements(selector, msg, chain, else_chain) {
+    return this.run(
+      () =>
+        this.dvr
+          .findElements(By.css(selector))
+          .then(els =>
+            els.length == 0 ? chain() : else_chain && else_chain()
+          ),
+      msg,
+      `Selector: '${selector}'`
+    );
+  }
 }
 
 module.exports.Driver = Driver;
