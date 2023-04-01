@@ -8,6 +8,8 @@ const {
   success,
 } = require('../test.js');
 
+const { webdrivers } = require('../../../core/settings.js');
+
 const completed_in = name => got => got.startsWith(`>${name} completed in`);
 
 module.exports.test = async () => {
@@ -54,6 +56,89 @@ module.exports.test = async () => {
     LogPipe.restoreStdStreams();
   }
 
+  const chromeLogs = webdrivers.includes('chrome')
+    ? [
+        [
+          'mac/webdriver/chrome/log',
+          [
+            '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/chrome',
+            '\x1B[102mmac/webdriver/chrome\x1B[0m Total: 1',
+            '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome',
+          ],
+        ],
+        [
+          'mac/webdriver/chrome/end-to-end/log',
+          [
+            '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/chrome/end-to-end',
+            '\x1B[102mmac/webdriver/chrome/end-to-end\x1B[0m Total: 1',
+            '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome/end-to-end',
+          ],
+        ],
+        [
+          'mac/webdriver/chrome/end-to-end/history/log',
+          [
+            '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/chrome/end-to-end/history',
+            '!Running: mac/webdriver/chrome/end-to-end/history/t_history.js, path: tests/webdriver/end-to-end/history/t_history.js',
+            '\x1B[31mFailed:\x1B[0m TestoFail',
+            '\x1B[31m>mac/webdriver/chrome/end-to-end/history/t_history.js\x1B[0m has 1 failure(s)',
+            completed_in(
+              'mac/webdriver/chrome/end-to-end/history/t_history.js'
+            ),
+            '\x1B[41m\x1B[37m>mac/webdriver/chrome/end-to-end/history/t_history.js\x1B[0m Failure count: 1',
+            '\x1B[41m\x1B[37mmac/webdriver/chrome/end-to-end/history > failed\x1B[0m Passed: 0. Failed: 1',
+            '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome/end-to-end/history',
+          ],
+        ],
+        [
+          'mac/webdriver/chrome/end-to-end/history2/log',
+          [
+            '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/chrome/end-to-end/history2',
+            '!Running: mac/webdriver/chrome/end-to-end/history2/t_history.js, path: tests/webdriver/end-to-end/history/t_history.js',
+            '\x1B[32mOk:\x1B[0m TestoOk',
+            completed_in(
+              'mac/webdriver/chrome/end-to-end/history2/t_history.js'
+            ),
+            '\x1B[102mmac/webdriver/chrome/end-to-end/history2\x1B[0m Total: 1',
+            '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome/end-to-end/history2',
+          ],
+        ],
+      ]
+    : [];
+
+  const firefoxLogs = webdrivers.includes('firefox')
+    ? [
+        [
+          'mac/webdriver/firefox/log',
+          [
+            '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/firefox',
+            '\x1B[102mmac/webdriver/firefox\x1B[0m Total: 1',
+            '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/firefox',
+          ],
+        ],
+        [
+          'mac/webdriver/firefox/end-to-end/log',
+          [
+            '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/firefox/end-to-end',
+            '\x1B[102mmac/webdriver/firefox/end-to-end\x1B[0m Total: 1',
+            '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/firefox/end-to-end',
+          ],
+        ],
+        [
+          'mac/webdriver/firefox/end-to-end/history/log',
+          [
+            '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/firefox/end-to-end/history',
+            '!Running: mac/webdriver/firefox/end-to-end/history/t_history.js, path: tests/webdriver/end-to-end/history/t_history.js',
+            '\x1B[32mOk:\x1B[0m TestoOk',
+            completed_in(
+              'mac/webdriver/firefox/end-to-end/history/t_history.js'
+            ),
+            '\x1B[102mmac/webdriver/firefox/end-to-end/history\x1B[0m Total: 1',
+            '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/firefox/end-to-end/history',
+          ],
+        ],
+      ]
+    : [];
+
   const buffers = LogPipe.FileStream.getLoggingBuffers();
   is(
     buffers,
@@ -75,73 +160,8 @@ module.exports.test = async () => {
           '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver',
         ],
       ],
-      [
-        'mac/webdriver/chrome/log',
-        [
-          '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/chrome',
-          '\x1B[102mmac/webdriver/chrome\x1B[0m Total: 1',
-          '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome',
-        ],
-      ],
-      [
-        'mac/webdriver/chrome/end-to-end/log',
-        [
-          '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/chrome/end-to-end',
-          '\x1B[102mmac/webdriver/chrome/end-to-end\x1B[0m Total: 1',
-          '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome/end-to-end',
-        ],
-      ],
-      [
-        'mac/webdriver/chrome/end-to-end/history/log',
-        [
-          '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/chrome/end-to-end/history',
-          '!Running: mac/webdriver/chrome/end-to-end/history/t_history.js, path: tests/webdriver/end-to-end/history/t_history.js',
-          '\x1B[31mFailed:\x1B[0m TestoFail',
-          '\x1B[31m>mac/webdriver/chrome/end-to-end/history/t_history.js\x1B[0m has 1 failure(s)',
-          completed_in('mac/webdriver/chrome/end-to-end/history/t_history.js'),
-          '\x1B[41m\x1B[37m>mac/webdriver/chrome/end-to-end/history/t_history.js\x1B[0m Failure count: 1',
-          '\x1B[41m\x1B[37mmac/webdriver/chrome/end-to-end/history > failed\x1B[0m Passed: 0. Failed: 1',
-          '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome/end-to-end/history',
-        ],
-      ],
-      [
-        'mac/webdriver/firefox/log',
-        [
-          '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/firefox',
-          '\x1B[102mmac/webdriver/firefox\x1B[0m Total: 1',
-          '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/firefox',
-        ],
-      ],
-      [
-        'mac/webdriver/firefox/end-to-end/log',
-        [
-          '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/firefox/end-to-end',
-          '\x1B[102mmac/webdriver/firefox/end-to-end\x1B[0m Total: 1',
-          '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/firefox/end-to-end',
-        ],
-      ],
-      [
-        'mac/webdriver/firefox/end-to-end/history/log',
-        [
-          '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/firefox/end-to-end/history',
-          '!Running: mac/webdriver/firefox/end-to-end/history/t_history.js, path: tests/webdriver/end-to-end/history/t_history.js',
-          '\x1B[32mOk:\x1B[0m TestoOk',
-          completed_in('mac/webdriver/firefox/end-to-end/history/t_history.js'),
-          '\x1B[102mmac/webdriver/firefox/end-to-end/history\x1B[0m Total: 1',
-          '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/firefox/end-to-end/history',
-        ],
-      ],
-      [
-        'mac/webdriver/chrome/end-to-end/history2/log',
-        [
-          '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/chrome/end-to-end/history2',
-          '!Running: mac/webdriver/chrome/end-to-end/history2/t_history.js, path: tests/webdriver/end-to-end/history/t_history.js',
-          '\x1B[32mOk:\x1B[0m TestoOk',
-          completed_in('mac/webdriver/chrome/end-to-end/history2/t_history.js'),
-          '\x1B[102mmac/webdriver/chrome/end-to-end/history2\x1B[0m Total: 1',
-          '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome/end-to-end/history2',
-        ],
-      ],
+      ...chromeLogs,
+      ...firefoxLogs,
     ],
     'logging verify'
   );
