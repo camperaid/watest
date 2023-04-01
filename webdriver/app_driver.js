@@ -119,8 +119,16 @@ class AppDriver {
 
   execute(script, descr) {
     return this.chain(() =>
-      this.action(`${this.uiname}.execute ${descr}`)
-        .executeScript(script, `Execute script`)
+      this.action(`${this.uiname}.execute ${descr}`).executeScript(
+        script,
+        `Execute script`
+      )
+    );
+  }
+
+  screenshot(msg) {
+    return this.chain(() =>
+      this.action(`${this.uiname}.screenshot for ${msg}`).screenshot()
     );
   }
 
