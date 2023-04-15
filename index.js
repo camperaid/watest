@@ -17,6 +17,8 @@ const {
   is,
   contains,
   is_output,
+  no_throws,
+  throws,
 
   test_is,
   test_contains,
@@ -44,6 +46,7 @@ module.exports = {
   info,
   inspect,
   not_reached,
+  no_throws,
   ok,
   scope,
   start_session,
@@ -51,6 +54,7 @@ module.exports = {
   todo,
   test_is,
   test_contains,
+  throws,
   tmp_storage_dir,
   warn,
 };

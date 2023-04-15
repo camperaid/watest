@@ -567,6 +567,25 @@ function is_out(got, expected, msg) {
   return false;
 }
 
+function throws(func, exception, msg) {
+  try {
+    func();
+    fail(`${msg}: no '${exception}' exception`);
+  } catch (e) {
+    is(e?.message, exception, msg);
+  }
+}
+
+function no_throws(func, msg) {
+  try {
+    func();
+    success(msg);
+  } catch (e) {
+    log_error(e);
+    fail(`${msg}, got: ${e?.message ?? ''} exception`);
+  }
+}
+
 module.exports = {
   success,
   fail,
@@ -580,6 +599,9 @@ module.exports = {
   is_object,
   is_primitive,
   is_string,
+
+  throws,
+  no_throws,
 
   test_is,
   test_contains,

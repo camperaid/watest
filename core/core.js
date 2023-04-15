@@ -231,6 +231,7 @@ module.exports = {
   success(...args) {
     return currentCore.success(...args);
   },
+
   failed() {
     return currentCore.failed();
   },
