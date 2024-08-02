@@ -40,7 +40,8 @@ module.exports.run_e2e_tests = async (sample, options = {}) => {
               !line.startsWith('> @camperaid/watest') &&
               !line.startsWith('> watest') &&
               !line.startsWith('Settings:') &&
-              !line.includes('ExperimentalWarning: --experimental-loader') &&
+              !line.includes('ExperimentalWarning: `--experimental-loader`') &&
+              !line.includes(`--import 'data:text/javascript,import { register }`) &&
               !line.startsWith('(Use `node --trace-warnings')
           );
         is_stdout ? stdout.push(...lines) : stderr.push(...lines);
