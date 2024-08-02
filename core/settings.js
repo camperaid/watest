@@ -5,7 +5,7 @@ const path = require('path');
 let rc = null;
 try {
   rc = require(path.resolve('.', './.watestrc.js'));
-} catch (e) {
+} catch (e) { // eslint-disable-line no-unused-vars
   rc = require(path.resolve('.', './.watestrc.cjs'));
 }
 
@@ -76,7 +76,7 @@ class Settings {
       console.log('Settings: no file logging');
       return;
     }
-dd
+
     this.run = rc.run || `${parseInt(Date.now() / 1000)}`;
 
     this.log_dir = path.join(log_dir, this.run);
@@ -90,7 +90,7 @@ dd
         this.webdrivers = JSON.parse(rc.webdrivers);
       } catch (e) {
         console.error(
-          `Settings: failed to parse webdrivers '${rc.webdrivers}'`
+          `Settings: failed to parse webdrivers '${rc.webdrivers}'`, e
         );
       }
     }

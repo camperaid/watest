@@ -865,7 +865,7 @@ class Series {
   async loadTestMeta(folder) {
     try {
       return await import(this.getTestMetaPath(folder));
-    } catch (e) {
+    } catch (e) { // eslint-disable-line no-unused-vars
       return {}; // no meta.js
     }
   }

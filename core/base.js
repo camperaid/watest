@@ -281,7 +281,6 @@ function is_object(
   return false;
 }
 
-// eslint-disable-next-line complexity
 function is_object_impl(
   got,
   expected,

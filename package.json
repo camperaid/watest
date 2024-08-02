@@ -40,12 +40,12 @@
   },
   "devDependencies": {
     "dotenv": "^16.4.5",
-    "eslint": "^8.22.0",
-    "eslint-plugin-node": "^11.1.0",
+    "eslint": "^9.8.0",
+    "@eslint/js": "^9.8.0",
+    "eslint-plugin-n": "^17.10.1",
     "husky": "^9.1.4",
     "lint-staged": "^15.2.7",
-    "prettier": "^2.7.1",
-    "prettifier": "^0.4.0"
+    "prettier": "^3.3.3"
   },
   "lint-staged": {
     "*.js": [
