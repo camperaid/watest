@@ -5,11 +5,11 @@ const {
   MockSeries,
   createMockLogPipe,
   format_completed,
-  format_failure,
   format_failures,
   format_ok,
   format_started,
   format_success,
+  stderr_format_failure,
   is,
   success,
   fail,
@@ -67,7 +67,7 @@ module.exports.test = async () => {
       format_failures(1, 1),
       format_completed(`${path}/`),
     ],
-    `logging buffer for ${path}`
+    `logging buffer #1 for ${path}`
   );
 
   path = `${invocation}/unit`;
@@ -79,7 +79,7 @@ module.exports.test = async () => {
       format_failures(1, 1, path),
       format_completed(path),
     ],
-    `logging buffer for ${path}`
+    `logging buffer #2 for ${path}`
   );
 
   path = `${invocation}/unit/base`;
@@ -98,7 +98,7 @@ module.exports.test = async () => {
       format_success(1, path),
       format_completed(path),
     ],
-    `logging buffer for ${path}`
+    `logging buffer #3 for ${path}`
   );
 
   path = `${invocation}/unit/core`;
@@ -110,8 +110,8 @@ module.exports.test = async () => {
         `${path}/t_presto.js`,
         `tests/unit/core/t_presto.js`
       ).trim(),
-      format_failure('Presto'),
-      format_failure(`has 1 failure(s)`, `>${path}/t_presto.js`),
+      stderr_format_failure('Presto'),
+      stderr_format_failure(`has 1 failure(s)`, `>${path}/t_presto.js`),
       ...completed_checkers({
         name: `${path}/t_presto.js`,
       }).filter(l => l),
@@ -119,6 +119,6 @@ module.exports.test = async () => {
       format_failures(1, 0, path),
       format_completed(path),
     ],
-    `logging buffer for ${path}/log`
+    `logging buffer #4 for ${path}/log`
   );
 };

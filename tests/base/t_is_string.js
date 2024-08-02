@@ -16,7 +16,7 @@ module.exports.test = async () => {
     () => is_string('Success', 'Fail', `Strings not equal`),
     [],
     [
-      `[31mFailed:[0m Strings not equal;
+      `Failed: Strings not equal;
 got:
 Success
 expected:

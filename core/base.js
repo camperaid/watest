@@ -4,7 +4,7 @@ const core = require('./core.js');
 const { success, fail, failed } = core;
 
 const { log, log_error } = require('../logging/logging.js');
-const { format_failure } = require('./format.js');
+const { format_failure, stderr_unwrap } = require('./format.js');
 const { stringify } = require('./util.js');
 
 const limit = 100;
@@ -465,6 +465,9 @@ async function capture_output(func) {
     fail(expection);
   }
 
+  // Adjust stderr.
+  stderr = stderr.map(stderr_unwrap);
+
   return {
     stdout,
     stderr,
@@ -547,22 +550,8 @@ function is_out(got, expected, msg) {
         `Unexpected output at index ${i},`
       )
     );
-    log_error(
-      `index\tgot\texpected\tequal ${Math.min(got_i.length, exp_i.length)}`
-    );
 
-    let min = Math.min(got_i.length, exp_i.length);
-    for (let j = 0; j < min; j++) {
-      log_error(`${j}\t'${got_i[j]}'\t'${exp_i[j]}'\t${exp_i[j] == got_i[j]}`);
-    }
-
-    for (let j = min; j < got_i.length; j++) {
-      log_error(`${j}\t'${got_i[j]}'`);
-    }
-
-    for (let j = min; j < exp_i.length; j++) {
-      log_error(`${j}\t\t'${exp_i[j]}'`);
-    }
+    print_string_diff(got_i, exp_i);
   }
   return false;
 }
@@ -583,6 +572,27 @@ function no_throws(func, msg) {
   } catch (e) {
     log_error(e);
     fail(`${msg}, got: ${e?.message ?? ''} exception`);
+  }
+}
+
+function print_string_diff(got, expected) {
+  log_error(`index\tgot\texpected\tgot\texpected`);
+
+  let min = Math.min(got.length, expected.length);
+  for (let j = 0; j < min; j++) {
+    log_error(
+      `${j}\t'${got[j]}'\t'${expected[j]}'\t${
+        expected[j] == got[j] ? '' : 'false'
+      }\t${got[j].charCodeAt(0)}\t${expected[j].charCodeAt(0)}`
+    );
+  }
+
+  for (let j = min; j < got.length; j++) {
+    log_error(`${j}\t'${got[j]}'`);
+  }
+
+  for (let j = min; j < expected.length; j++) {
+    log_error(`${j}\t\t'${expected[j]}'`);
   }
 }
 

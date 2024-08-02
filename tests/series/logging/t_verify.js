@@ -5,6 +5,7 @@ const {
   createMockLogPipe,
   fail,
   is,
+  stderr_format_failure,
   success,
 } = require('../test.js');
 
@@ -79,8 +80,8 @@ module.exports.test = async () => {
           [
             '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/chrome/end-to-end/history',
             '!Running: mac/webdriver/chrome/end-to-end/history/t_history.js, path: tests/webdriver/end-to-end/history/t_history.js',
-            '\x1B[31mFailed:\x1B[0m TestoFail',
-            '\x1B[31m>mac/webdriver/chrome/end-to-end/history/t_history.js\x1B[0m has 1 failure(s)',
+            stderr_format_failure('TestoFail'),
+            stderr_format_failure('has 1 failure(s)', '>mac/webdriver/chrome/end-to-end/history/t_history.js'),
             completed_in(
               'mac/webdriver/chrome/end-to-end/history/t_history.js'
             ),
