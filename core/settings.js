@@ -76,7 +76,7 @@ class Settings {
       console.log('Settings: no file logging');
       return;
     }
-
+dd
     this.run = rc.run || `${parseInt(Date.now() / 1000)}`;
 
     this.log_dir = path.join(log_dir, this.run);

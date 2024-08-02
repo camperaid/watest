@@ -11,6 +11,7 @@
     "watest": "./bin/watest.js"
   },
   "scripts": {
+    "prepare": "husky || true",
     "postprepare": "bash tests/install.sh",
     "lint": "eslint '**/*.js'",
     "lint:staged": "eslint --",
@@ -38,11 +39,11 @@
     "selenium-webdriver": "^4.23.0"
   },
   "devDependencies": {
-    "dotenv": "^16.0.1",
+    "dotenv": "^16.4.5",
     "eslint": "^8.22.0",
     "eslint-plugin-node": "^11.1.0",
-    "husky": "^8.0.1",
-    "lint-staged": "^13.0.3",
+    "husky": "^9.1.4",
+    "lint-staged": "^15.2.7",
     "prettier": "^2.7.1",
     "prettifier": "^0.4.0"
   },
