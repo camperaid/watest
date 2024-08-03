@@ -1,20 +1,16 @@
-'use strict';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const path = require('path');
+import { format_test_output } from '../../core/base.js';
+import { fail } from '../../core/core.js';
+import { spawn } from '../../core/spawn.js';
 
-const { format_test_output } = require('../../core/base.js');
-const { fail } = require('../../core/core.js');
-const { spawn } = require('../../core/spawn.js');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const scripts = ['../../index.js'];
-for (let script of scripts) {
-  let script_exports = require(script);
-  for (let e in script_exports) {
-    module.exports[e] = script_exports[e];
-  }
-}
+export * from '../../index.js';
 
-module.exports.run_e2e_tests = async (sample, options = {}) => {
+export async function run_e2e_tests(sample, options = {}) {
   let stdout = [];
   let stderr = [];
 
@@ -41,8 +37,10 @@ module.exports.run_e2e_tests = async (sample, options = {}) => {
               !line.startsWith('> watest') &&
               !line.startsWith('Settings:') &&
               !line.includes('ExperimentalWarning: `--experimental-loader`') &&
-              !line.includes(`--import 'data:text/javascript,import { register }`) &&
-              !line.startsWith('(Use `node --trace-warnings')
+              !line.includes(
+                `--import 'data:text/javascript,import { register }`,
+              ) &&
+              !line.startsWith('(Use `node --trace-warnings'),
           );
         is_stdout ? stdout.push(...lines) : stderr.push(...lines);
       }
@@ -53,4 +51,4 @@ module.exports.run_e2e_tests = async (sample, options = {}) => {
   }
 
   return format_test_output({ stdout, stderr });
-};
+}

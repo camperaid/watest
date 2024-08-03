@@ -1,27 +1,25 @@
-'use strict';
-
-const { log, log_error, log_trace } = require('../logging/logging.js');
-const {
+import { log, log_error, log_trace } from '../logging/logging.js';
+import {
   format_failure,
   format_intermittent,
   format_ok,
   format_warning,
   colorify,
-} = require('./format.js');
-const { inspect, initTmpStorage } = require('./util.js');
+} from './format.js';
+import { inspect, initTmpStorage } from './util.js';
 
 /**
  * Tracks testing flow, all the failures, intermittents, successes etc.
  */
 class Core {
-  constructor() {
+  constructor(timeout) {
     this.kcnt = 0;
     this.fcnt = 0;
     this.todocnt = 0;
     this.intermittentcnt = 0;
     this.warningcnt = 0;
 
-    this.timeout = 0;
+    this.timeout = timeout ?? 0;
 
     // Current group.
     this.currgroup = null;
@@ -142,7 +140,7 @@ class Core {
 
   failIfExpectedFailurePass() {
     let has_expected_failure = this.expectedFailures.some(f =>
-      f.list.every(li => li[1] > 0)
+      f.list.every(li => li[1] > 0),
     );
     if (!has_expected_failure) {
       for (let f of this.expectedFailures) {
@@ -150,7 +148,7 @@ class Core {
           let mf = f.list.find(f => f[1] == 0);
           if (mf) {
             this.unconditional_fail(
-              `Perma failure '${mf[0]}' has never been hit`
+              `Perma failure '${mf[0]}' has never been hit`,
             );
           }
         }
@@ -192,7 +190,7 @@ class Core {
     if (
       !this.timeout &&
       this.expectedFailures.find(
-        v => v.group == this.currgroup && v.type == 'perma'
+        v => v.group == this.currgroup && v.type == 'perma',
       )
     ) {
       return 1;
@@ -204,45 +202,26 @@ class Core {
 let primeCore = new Core();
 let currentCore = primeCore;
 
-module.exports = {
-  Core,
+export { Core };
 
-  info(...args) {
-    return currentCore.info(...args);
-  },
-  assert(...args) {
-    return currentCore.assert(...args);
-  },
-  not_reached(...args) {
-    return currentCore.not_reached(...args);
-  },
-  group(...args) {
-    return currentCore.group(...args);
-  },
-  fail(...args) {
-    return currentCore.fail(...args);
-  },
-  todo(...args) {
-    return currentCore.todo(...args);
-  },
-  warn(...args) {
-    return currentCore.warn(...args);
-  },
-  success(...args) {
-    return currentCore.success(...args);
-  },
-
-  failed() {
-    return currentCore.failed();
-  },
-
-  get core() {
-    return currentCore;
-  },
-  lock(core) {
-    currentCore = core || new Core();
+export const testflow = {
+  lock({ core, timeout } = {}) {
+    currentCore = core || new Core(timeout);
   },
   unlock() {
     currentCore = primeCore;
   },
+  get core() {
+    return currentCore;
+  },
 };
+
+export const assert = (...args) => currentCore.assert(...args);
+export const info = (...args) => currentCore.info(...args);
+export const not_reached = (...args) => currentCore.not_reached(...args);
+export const group = (...args) => currentCore.group(...args);
+export const fail = (...args) => currentCore.fail(...args);
+export const todo = (...args) => currentCore.todo(...args);
+export const warn = (...args) => currentCore.warn(...args);
+export const success = (...args) => currentCore.success(...args);
+export const failed = () => currentCore.failed();

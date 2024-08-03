@@ -1,1 +1,1 @@
-module.exports.folders = ['unit'];
+export var folders = ['unit'];

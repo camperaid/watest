@@ -1,8 +1,6 @@
-'use strict';
+import { fail, make_perform_function, is_test_output } from '../test.js';
 
-const { fail, make_perform_function, is_test_output } = require('../test.js');
-
-module.exports.test = async () => {
+export async function test() {
   // missing perma
   let failures = [
     [
@@ -41,7 +39,7 @@ module.exports.test = async () => {
       "\x1B[31mFailed:\x1B[0m Perma failure 'Server terminates connection' has never been hit",
       '\x1B[31m>t_testo.js\x1B[0m has 2 failure(s)',
     ],
-    'missing perma'
+    'missing perma',
   );
 
   // no perma but intermittent
@@ -83,6 +81,6 @@ module.exports.test = async () => {
       '\x1B[38;5;243mCompleted\x1B[0m tests/',
     ],
     [],
-    'no perma but intermittent'
+    'no perma but intermittent',
   );
-};
+}

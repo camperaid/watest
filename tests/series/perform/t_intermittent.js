@@ -1,8 +1,6 @@
-'use strict';
+import { fail, make_perform_function, is_test_output } from '../test.js';
 
-const { fail, make_perform_function, is_test_output } = require('../test.js');
-
-module.exports.test = async () => {
+export async function test() {
   // intermittent
   let failures = [
     [
@@ -44,7 +42,7 @@ module.exports.test = async () => {
     ]),
     expected_stdout,
     expected_stderr,
-    'intermittent'
+    'intermittent',
   );
 
   // generic intermittent
@@ -105,6 +103,6 @@ module.exports.test = async () => {
     ]),
     expected_stdout,
     expected_stderr,
-    'generic intermittent'
+    'generic intermittent',
   );
-};
+}

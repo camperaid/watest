@@ -1,6 +1,4 @@
-'use strict';
-
-const { do_self_tests, is_ok_output } = require('./test.js');
+import { do_self_tests, is_ok_output } from './test.js';
 
 const snippet = `
 <html><body>
@@ -8,7 +6,7 @@ const snippet = `
 </body></html>
 `;
 
-module.exports.test = do_self_tests(snippet, async ({ driver }) => {
+export var test = do_self_tests(snippet, async ({ driver }) => {
   // ifHasElements: true path
   await is_ok_output(
     () =>
@@ -16,7 +14,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
         '#input',
         `ifHasElements true path`,
         () => console.log(`Input doesn't exist`),
-        () => console.log(`Input unexpectedly exists`)
+        () => console.log(`Input unexpectedly exists`),
       ),
     [
       `Test: ifHasElements true path. Selector: '#input'`,
@@ -24,7 +22,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Ok: ifHasElements true path`,
     ],
     [],
-    `ifHasElements: true path`
+    `ifHasElements: true path`,
   );
 
   // ifHasElements: false path
@@ -34,7 +32,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
         '#input-doesnot-exist',
         `ifHasElements false path`,
         () => console.log(`Input unexpectedly doesn't exist`),
-        () => console.log(`Input exists`)
+        () => console.log(`Input exists`),
       ),
     [
       `Test: ifHasElements false path. Selector: '#input-doesnot-exist'`,
@@ -42,6 +40,6 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Ok: ifHasElements false path`,
     ],
     [],
-    `ifHasElements: false path`
+    `ifHasElements: false path`,
   );
 });

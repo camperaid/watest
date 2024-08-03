@@ -1,23 +1,21 @@
-'use strict';
+import path from 'path';
 
-const path = require('path');
-
-const settings = require('../core/settings.js');
-const { log, log_error } = require('./logging.js');
-const { log_dir, run } = settings;
+import { FileStream as DefaultFileStream } from './filestream.js';
+import { log, log_error } from './logging.js';
+import settings from '../core/settings.js';
 
 /**
  * A single instance of a logpipe writing to std and file streams.
  */
 class LogPipeInstance {
   constructor({ FileStream, suppress_logging }) {
-    this.FS = FileStream || require('./filestream.js').FileStream;
+    this.FS = FileStream || DefaultFileStream;
     this.suppress_logging = suppress_logging;
   }
 
   attach(invocation) {
     this.invocation = invocation;
-    this.log_dir = path.join(log_dir, this.invocation);
+    this.log_dir = path.join(settings.log_dir, this.invocation);
     if (this.suppress_logging) {
       return;
     }
@@ -30,7 +28,7 @@ class LogPipeInstance {
       log_error(e);
     });
 
-    return settings.logger.testRunStarted({ run, invocation });
+    return settings.logger.testRunStarted({ run: settings.run, invocation });
   }
 
   async logScreenshot(pic) {
@@ -43,7 +41,7 @@ class LogPipeInstance {
     log(`Screenshot is captured and written to ${stream.filepath}`);
 
     await settings.logger.writeLogFile({
-      run,
+      run: settings.run,
       invocation: this.invocation,
       name,
       content,
@@ -51,7 +49,10 @@ class LogPipeInstance {
   }
 
   logSourceMap() {
-    return settings.logger.writeSourceMap({ run, invocation: this.invocation });
+    return settings.logger.writeSourceMap({
+      run: settings.run,
+      invocation: this.invocation,
+    });
   }
 
   release() {
@@ -62,12 +63,12 @@ class LogPipeInstance {
         .then(() => this.fstream.readFile())
         .then(content =>
           settings.logger.writeLogFile({
-            run,
+            run: settings.run,
             invocation: this.invocation,
             name: this.fname,
             content,
             zip: true,
-          })
+          }),
         )
         .catch(e => {
           log_error(`Logging shutdown rejected: ${e}`);
@@ -82,7 +83,7 @@ class LogPipeInstance {
  */
 class LogPipe {
   static attach(invocation, options = {}) {
-    if (!log_dir) {
+    if (!settings.log_dir) {
       return Promise.resolve();
     }
 
@@ -100,13 +101,15 @@ class LogPipe {
   }
 
   static logScreenshot(...args) {
-    return log_dir
+    return settings.log_dir
       ? this.pipeOnStack.logScreenshot(...args)
       : Promise.resolve();
   }
 
   static logSourceMap(...args) {
-    return log_dir ? this.pipeOnStack.logSourceMap(...args) : Promise.resolve();
+    return settings.log_dir
+      ? this.pipeOnStack.logSourceMap(...args)
+      : Promise.resolve();
   }
 
   static logToFile(msg) {
@@ -117,7 +120,7 @@ class LogPipe {
   }
 
   static async release(...args) {
-    if (!log_dir) {
+    if (!settings.log_dir) {
       return Promise.resolve();
     }
 
@@ -184,9 +187,6 @@ class LogPipe {
   }
 }
 
-LogPipe.FileStream = require('./filestream.js').FileStream;
 LogPipe.stack = [];
 
-module.exports = {
-  LogPipe,
-};
+export { LogPipe };

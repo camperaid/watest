@@ -1,6 +1,4 @@
-'use strict';
-
-const { do_self_tests, is_failure_output, is_ok_output } = require('./test.js');
+import { do_self_tests, is_failure_output, is_ok_output } from './test.js';
 
 const snippet = `
 <html><body>
@@ -17,7 +15,7 @@ const snippet = `
 </body></html>
 `;
 
-module.exports.test = do_self_tests(snippet, async ({ driver }) => {
+export var test = do_self_tests(snippet, async ({ driver }) => {
   // scriptRetvalIs: success
   await is_ok_output(
     () => driver.scriptRetvalIs('window.getValue()', 'hey', `scriptRetvalIs`),
@@ -27,7 +25,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Ok: scriptRetvalIs`,
     ],
     [],
-    `scriptRetvalIs:success`
+    `scriptRetvalIs:success`,
   );
 
   // scriptRetvalIs: failure
@@ -45,7 +43,7 @@ unexpected character: 'y' at 2 pos, expected: 'o' at '' line`,
       `Failed: scriptRetvalIs, timeout while waiting to meet criteria`,
       `Failed: scriptRetvalIs`,
     ],
-    `scriptRetvalIs:failed`
+    `scriptRetvalIs:failed`,
   );
 
   // scriptRetvalContains: success
@@ -54,7 +52,7 @@ unexpected character: 'y' at 2 pos, expected: 'o' at '' line`,
       driver.scriptRetvalContains(
         'window.getValues()',
         ['hey'],
-        `scriptRetvalContains`
+        `scriptRetvalContains`,
       ),
     [
       `Test: scriptRetvalContains. Expected: ['hey']`,
@@ -62,7 +60,7 @@ unexpected character: 'y' at 2 pos, expected: 'o' at '' line`,
       `Ok: scriptRetvalContains`,
     ],
     [],
-    `scriptRetvalContains:success`
+    `scriptRetvalContains:success`,
   );
 
   // scriptRetvalContains: failure
@@ -72,7 +70,7 @@ unexpected character: 'y' at 2 pos, expected: 'o' at '' line`,
       driver.scriptRetvalContains(
         'window.getValues()',
         ['heo'],
-        `scriptRetvalContains`
+        `scriptRetvalContains`,
       ),
     [`Test: scriptRetvalContains. Expected: ['heo']`],
     [
@@ -80,6 +78,6 @@ unexpected character: 'y' at 2 pos, expected: 'o' at '' line`,
       `Failed: scriptRetvalContains, timeout while waiting to meet criteria`,
       `Failed: scriptRetvalContains`,
     ],
-    `scriptRetvalContains:failed`
+    `scriptRetvalContains:failed`,
   );
 });

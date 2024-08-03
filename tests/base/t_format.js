@@ -1,16 +1,15 @@
-'use strict';
-
-const {
+import {
   format_completed,
   format_failure,
   format_failures,
   format_success,
   parse,
   parse_failure,
-} = require('../../core/format.js');
-const { is } = require('../../index.js');
+} from '../../core/format.js';
 
-module.exports.test = () => {
+import { is } from '../../index.js';
+
+export function test() {
   // parse: failure
   is(
     parse(format_failure('Oops')),
@@ -19,7 +18,7 @@ module.exports.test = () => {
       label: 'Failed:',
       msg: 'Oops',
     },
-    'parse: failure'
+    'parse: failure',
   );
 
   // parse: completed
@@ -30,7 +29,7 @@ module.exports.test = () => {
       label: 'Completed',
       msg: 'Yes',
     },
-    'parse: completed'
+    'parse: completed',
   );
 
   // parse: failures
@@ -41,7 +40,7 @@ module.exports.test = () => {
       label: '>mac/webdriver/chrome/t_locmarker_click.js',
       msg: 'Failure count: 1',
     },
-    'parse: failures'
+    'parse: failures',
   );
 
   // parse: success
@@ -52,7 +51,7 @@ module.exports.test = () => {
       label: 'mac/webdriver',
       msg: 'Total: 1',
     },
-    'parse: success'
+    'parse: success',
   );
 
   // parse_failure
@@ -60,12 +59,12 @@ module.exports.test = () => {
     parse_failure(
       format_failure(
         'has 4 failure(s)',
-        '>mac/webdriver/ui-blocks/firefox/map/t_locmarker_click.js'
-      )
+        '>mac/webdriver/ui-blocks/firefox/map/t_locmarker_click.js',
+      ),
     ),
     {
       name: 'mac/webdriver/ui-blocks/firefox/map/t_locmarker_click.js',
       count: '4',
-    }
+    },
   );
-};
+}

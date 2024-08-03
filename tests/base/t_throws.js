@@ -1,8 +1,6 @@
-'use strict';
+import { is_output, throws, no_throws } from './test.js';
 
-const { is_output, throws, no_throws } = require('./test.js');
-
-module.exports.test = async () => {
+export async function test() {
   // throws: success
   await is_output(
     () =>
@@ -11,11 +9,11 @@ module.exports.test = async () => {
           throw new Error('Error#1');
         },
         `Error#1`,
-        `Throws error#1`
+        `Throws error#1`,
       ),
     [`Ok: Throws error#1, got: Error#1`],
     [],
-    `throws sucess`
+    `throws sucess`,
   );
 
   // throws: fail, unexpected exception
@@ -26,7 +24,7 @@ module.exports.test = async () => {
           throw new Error('Error#2');
         },
         `Error#1`,
-        `Wanted error#1`
+        `Wanted error#1`,
       ),
     [],
     [
@@ -38,7 +36,7 @@ Error#1
 unexpected character: '2' at 6 pos, expected: '1' at '' line
 `,
     ],
-    `throws fail, unexpected exception`
+    `throws fail, unexpected exception`,
   );
 
   // throws: fail, no exception
@@ -46,7 +44,7 @@ unexpected character: '2' at 6 pos, expected: '1' at '' line
     () => throws(() => {}, `Error#1`, `Wanted error#1`),
     [],
     [`Failed: Wanted error#1: no 'Error#1' exception`],
-    `throws fail, no exception`
+    `throws fail, no exception`,
   );
 
   // no_throws(() => {}, `No exceptions`)
@@ -56,7 +54,7 @@ unexpected character: '2' at 6 pos, expected: '1' at '' line
     () => no_throws(() => {}, `No exceptions`),
     [`Ok: No exceptions`],
     [],
-    `no throws: sucess`
+    `no throws: sucess`,
   );
 
   // no_throws: fail
@@ -70,6 +68,6 @@ unexpected character: '2' at 6 pos, expected: '1' at '' line
       v => v.startsWith('Error: Error#1'),
       `Failed: No exceptions, got: Error#1 exception`,
     ],
-    `no_throws fail`
+    `no_throws fail`,
   );
-};
+}

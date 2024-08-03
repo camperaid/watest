@@ -1,8 +1,6 @@
-'use strict';
-
-const { assert, group, fail, info } = require('../core/core.js');
-const { log, log_error } = require('../logging/logging.js');
-const { Driver } = require('./driver.js');
+import { assert, group, fail, info } from '../core/core.js';
+import { log, log_error } from '../logging/logging.js';
+import { Driver } from './driver.js';
 
 let active_sessions = [];
 
@@ -137,8 +135,8 @@ async function start_session(arg1, arg2) {
   if (libs) {
     await Promise.all(
       libs.map(lib =>
-        import(lib).then(lib_module => lib_module.loadIntoSession(s))
-      )
+        import(lib).then(lib_module => lib_module.loadIntoSession(s)),
+      ),
     );
   }
 
@@ -181,7 +179,4 @@ const scope = (arg1, arg2, arg3) => async () => {
   }
 };
 
-module.exports = {
-  start_session,
-  scope,
-};
+export { start_session, scope };

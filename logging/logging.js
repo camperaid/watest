@@ -1,6 +1,4 @@
-'use strict';
-
-const { ProcessArgs } = require('../core/process_args.js');
+import { ProcessArgs } from '../core/process_args.js';
 
 function log(...args) {
   console.log(...args);
@@ -15,13 +13,9 @@ function log_error(...args) {
   // before sending it via callbacks, which may make buffers to contain output
   // from multiple console.log/error calls, which makes the child process output
   // processing messy.
-  ProcessArgs.asObject().childProcess ?
-    console.log(...args) :
-    console.error(...args);
+  ProcessArgs.asObject().childProcess
+    ? console.log(...args)
+    : console.error(...args);
 }
 
-module.exports = {
-  log,
-  log_trace,
-  log_error
-};
+export { log, log_trace, log_error };

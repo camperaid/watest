@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports.folders = [
+export var folders = [
   'generic',
   'build',
   'perform',

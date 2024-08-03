@@ -1,10 +1,7 @@
-'use strict';
-
-const path = require('path');
-
-const { Core } = require('../../core/core.js');
-const { LogPipe } = require('../../logging/logpipe.js');
-const { Series } = require('../../core/series.js');
+import path from 'path';
+import { Core } from '../../core/core.js';
+import { LogPipe } from '../../logging/logpipe.js';
+import { Series } from '../../core/series.js';
 
 /**
  * Mock file stream constructor, writes to a string buffer.
@@ -85,8 +82,8 @@ class MockSeries extends Series {
         {
           core: new Core(),
         },
-        options
-      )
+        options,
+      ),
     );
     this.ts = options.ts;
   }
@@ -106,7 +103,4 @@ class MockSeries extends Series {
   }
 }
 
-module.exports = {
-  createMockLogPipe,
-  MockSeries,
-};
+export { createMockLogPipe, MockSeries };

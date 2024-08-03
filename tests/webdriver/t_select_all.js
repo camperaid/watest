@@ -1,9 +1,4 @@
-'use strict';
-
-const {
-  do_self_tests,
-  is_ok_output,
-} = require('./test.js');
+import { do_self_tests, is_ok_output } from './test.js';
 
 const snippet = `
 <html>
@@ -20,7 +15,7 @@ window.getSelection = selector => {
 </html>
 `;
 
-module.exports.test = do_self_tests(snippet, async ({ driver }) => {
+export var test = do_self_tests(snippet, async ({ driver }) => {
   let stdout = driver.firefox
     ? [
         `Test: select input text press Ctrl+A. Selector: 'input'`,
@@ -34,13 +29,13 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
     () => driver.selectAll('input', `select input text`),
     stdout,
     [],
-    `selectAll:input`
+    `selectAll:input`,
   );
 
   await driver.scriptRetvalIs(
     `window.getSelection('input')`,
     [0, 3],
-    'input text is selected'
+    'input text is selected',
   );
 
   // selectAll:textarea
@@ -56,12 +51,12 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
     () => driver.selectAll('textarea', `select textarea text`),
     stdout,
     [],
-    `selectAll:textarea`
+    `selectAll:textarea`,
   );
 
   await driver.scriptRetvalIs(
     `window.getSelection('textarea')`,
     [0, 3],
-    'textarea text is selected'
+    'textarea text is selected',
   );
 });

@@ -1,6 +1,4 @@
-'use strict';
-
-const { do_self_tests, is_failure_output, is_ok_output } = require('./test.js');
+import { do_self_tests, is_failure_output, is_ok_output } from './test.js';
 
 const snippet = `
 <html><body>
@@ -12,7 +10,7 @@ const snippet = `
 </body></html>
 `;
 
-module.exports.test = do_self_tests(snippet, async ({ driver }) => {
+export var test = do_self_tests(snippet, async ({ driver }) => {
   // textSelected
   await is_ok_output(
     () => driver.textSelected('#selected-input', `textSelected`),
@@ -22,7 +20,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Ok: textSelected`,
     ],
     [],
-    `textSelected`
+    `textSelected`,
   );
 
   // textSelected:failure
@@ -37,6 +35,6 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Failed: textSelected, timeout while waiting to meet criteria`,
       `Failed: textSelected`,
     ],
-    `textSelected:failure`
+    `textSelected:failure`,
   );
 });

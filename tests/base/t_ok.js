@@ -1,8 +1,6 @@
-'use strict';
+import { ok, is_output } from './test.js';
 
-const { ok, is_output } = require('./test.js');
-
-module.exports.test = async () => {
+export async function test() {
   // ok() sucess
   await is_output(() => ok(true, `Ok`), [`Ok: Ok`], [], `ok() sucess`);
 
@@ -11,6 +9,6 @@ module.exports.test = async () => {
     () => ok(false, `Not ok`),
     [],
     [`Failed: Not ok`],
-    `ok() failure`
+    `ok() failure`,
   );
-};
+}

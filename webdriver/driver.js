@@ -1,12 +1,9 @@
-'use strict';
-
-const { By, Condition, Key, until } = require('selenium-webdriver');
-
-const { test_is, test_contains, is, contains, ok } = require('../core/base.js');
-const { assert, fail } = require('../core/core.js');
-const { is_mac, stringify, toDataURL } = require('../core/util.js');
-const { log } = require('../logging/logging.js');
-const { getTimeout, DriverBase } = require('./driver_base.js');
+import { By, Condition, Key, until } from 'selenium-webdriver';
+import { test_is, test_contains, is, contains, ok } from '../core/base.js';
+import { assert, fail } from '../core/core.js';
+import { is_mac, stringify, toDataURL } from '../core/util.js';
+import { log } from '../logging/logging.js';
+import { getTimeout, DriverBase } from './driver_base.js';
 
 /**
  * A chainable web driver providing a number of handy methods to navigate
@@ -54,7 +51,7 @@ class Driver extends DriverBase {
   forward() {
     return this.run(
       () => this.dvr.navigate().forward(),
-      'Move forward in history'
+      'Move forward in history',
     );
   }
 
@@ -75,7 +72,7 @@ class Driver extends DriverBase {
         () => this.dvr.wait(until.urlIs(url), getTimeout()),
         msg,
         `Expected url: '${url}'`,
-        () => this.dvr.getCurrentUrl().then(u => `actual current url: '${u}'`)
+        () => this.dvr.getCurrentUrl().then(u => `actual current url: '${u}'`),
       );
     }
 
@@ -89,8 +86,8 @@ class Driver extends DriverBase {
       `Expected title: '${title}', url: '${url}'`,
       () =>
         Promise.all([this.dvr.getTitle(), this.dvr.getCurrentUrl()]).then(
-          ([t, u]) => `actual title: '${t}', current url: '${u}'`
-        )
+          ([t, u]) => `actual title: '${t}', current url: '${u}'`,
+        ),
     );
   }
 
@@ -117,7 +114,7 @@ class Driver extends DriverBase {
    */
   logIntoConsole(message) {
     return this.chain(() =>
-      this.dvr.executeScript(`console.log(arguments[0])`, message)
+      this.dvr.executeScript(`console.log(arguments[0])`, message),
     );
   }
 
@@ -175,7 +172,7 @@ class Driver extends DriverBase {
         this.dvr
           .wait(until.elementIsVisible(el), getTimeout())
           .getAttribute(attr),
-      msg
+      msg,
     );
   }
 
@@ -248,7 +245,7 @@ class Driver extends DriverBase {
       test: got =>
         test_is(
           got,
-          values.map(value => got => got == value)
+          values.map(value => got => got == value),
         ),
       expected_stringified: stringify(values),
     });
@@ -289,7 +286,7 @@ class Driver extends DriverBase {
       test: got =>
         test_is(
           got,
-          values.map(value => got => got && got.includes(value))
+          values.map(value => got => got && got.includes(value)),
         ),
       expected_stringified: stringify(values),
     });
@@ -303,7 +300,7 @@ class Driver extends DriverBase {
     assert(classname, `classNameStateIs: no classname`);
     assert(
       ['on', 'off'].includes(off_or_on),
-      `classNameStateIs: wrong off_or_on`
+      `classNameStateIs: wrong off_or_on`,
     );
     assert(msg, `classNameStateIs: no msg`);
 
@@ -318,7 +315,7 @@ class Driver extends DriverBase {
           v,
           `${selector} has ${
             (off_or_on == 'off' && 'not ') || ''
-          }${classname} class name`
+          }${classname} class name`,
         ),
     });
   }
@@ -481,9 +478,9 @@ class Driver extends DriverBase {
         this.dvr.executeScript(
           `return arguments[0]['${property}'] = arguments[1];`,
           el,
-          value
+          value,
         ),
-      msg
+      msg,
     );
   }
 
@@ -511,7 +508,7 @@ class Driver extends DriverBase {
       await this.waitForElementToInvoke(
         selector,
         el => el.sendKeys(paths.join('\n')),
-        msg
+        msg,
       );
     });
   }
@@ -528,7 +525,7 @@ class Driver extends DriverBase {
     assert(msg, `executeScript: no msg`);
     return this.run(
       () => this.dvr.executeAsyncScript(this.wrapScript(func)),
-      msg
+      msg,
     );
   }
 
@@ -564,7 +561,7 @@ class Driver extends DriverBase {
           got,
           expected,
           `script retval contains ${stringify(expected)}`,
-          { ignore_unexpected: true }
+          { ignore_unexpected: true },
         ),
     });
   }
@@ -580,7 +577,7 @@ class Driver extends DriverBase {
     assert(selector, `click: no selector`);
     assert(msg, `click: no msg`);
     return super.click(selector, msg, options || {}, el =>
-      this.dvr.wait(until.elementIsVisible(el), getTimeout()).click()
+      this.dvr.wait(until.elementIsVisible(el), getTimeout()).click(),
     );
   }
 
@@ -608,7 +605,7 @@ class Driver extends DriverBase {
           .move({ x: pos[0], y: pos[1], origin: el })
           .pause((this.firefox && 300) || 0)
           .click()
-          .perform()
+          .perform(),
     );
   }
 
@@ -623,7 +620,7 @@ class Driver extends DriverBase {
       selector,
       `${msg}. Double click at ${selector}`,
       {},
-      el => this.dvr.actions({ bridge: true }).doubleClick(el).perform()
+      el => this.dvr.actions({ bridge: true }).doubleClick(el).perform(),
     );
   }
 
@@ -645,7 +642,7 @@ class Driver extends DriverBase {
           .move({ x: pos[0], y: pos[1], origin: el })
           .pause((this.firefox && 300) || 0)
           .doubleClick()
-          .perform()
+          .perform(),
     );
   }
 
@@ -664,7 +661,7 @@ class Driver extends DriverBase {
           .move({ x: to[0], y: to[1], origin: el })
           .release()
           .perform(),
-      `Drag-n-drop from ${from}, to ${to}`
+      `Drag-n-drop from ${from}, to ${to}`,
     );
   }
 
@@ -675,7 +672,7 @@ class Driver extends DriverBase {
     return this.waitForElementToInvoke(
       selector,
       el => this.dvr.executeScript(`return arguments[0].scrollIntoView();`, el),
-      msg
+      msg,
     );
   }
 
@@ -695,7 +692,7 @@ class Driver extends DriverBase {
       selector,
       el =>
         this.dvr.wait(until.elementIsVisible(el), getTimeout()).sendKeys(text),
-      msg
+      msg,
     );
   }
 
@@ -712,7 +709,7 @@ class Driver extends DriverBase {
         this.dvr
           .wait(until.elementIsVisible(el), getTimeout())
           .sendKeys(Key.RETURN),
-      msg
+      msg,
     );
   }
 
@@ -729,7 +726,7 @@ class Driver extends DriverBase {
           this.dvr
             .wait(until.elementIsVisible(el), getTimeout())
             .sendKeys(Key.BACK_SPACE),
-        msg
+        msg,
       );
     }
 
@@ -745,7 +742,7 @@ class Driver extends DriverBase {
           .actions({ bridge: true })
           .sendKeys(...keys)
           .perform(),
-      `Press Backspace ${count} times`
+      `Press Backspace ${count} times`,
     );
   }
 
@@ -765,7 +762,7 @@ class Driver extends DriverBase {
           .actions({ bridge: true })
           .sendKeys(...keys)
           .perform(),
-      `Press ArrowUp ${count} times`
+      `Press ArrowUp ${count} times`,
     );
   }
 
@@ -776,7 +773,7 @@ class Driver extends DriverBase {
     return this.run(
       () =>
         this.dvr.actions({ bridge: true }).sendKeys(Key.ARROW_DOWN).perform(),
-      `Press ArrowDown`
+      `Press ArrowDown`,
     );
   }
 
@@ -787,7 +784,7 @@ class Driver extends DriverBase {
     return this.run(
       () =>
         this.dvr.actions({ bridge: true }).sendKeys(Key.ARROW_RIGHT).perform(),
-      `Press ArrowRight`
+      `Press ArrowRight`,
     );
   }
 
@@ -798,7 +795,7 @@ class Driver extends DriverBase {
     return this.run(
       () =>
         this.dvr.actions({ bridge: true }).sendKeys(Key.ARROW_LEFT).perform(),
-      `Press ArrowLeft`
+      `Press ArrowLeft`,
     );
   }
 
@@ -808,7 +805,7 @@ class Driver extends DriverBase {
   tab() {
     return this.run(
       () => this.dvr.actions({ bridge: true }).sendKeys(Key.TAB).perform(),
-      `Press Tab`
+      `Press Tab`,
     );
   }
 
@@ -824,7 +821,7 @@ class Driver extends DriverBase {
           .sendKeys(Key.TAB)
           .keyUp(Key.SHIFT)
           .perform(),
-      `Press Shift+Tab`
+      `Press Shift+Tab`,
     );
   }
 
@@ -844,7 +841,7 @@ class Driver extends DriverBase {
       return this.waitForElementToInvoke(
         selector,
         el => el.sendKeys(Key.chord(accel, 'a')),
-        `${msg} press Ctrl+A`
+        `${msg} press Ctrl+A`,
       );
     }
 
@@ -867,7 +864,7 @@ else {
           fail(`Failed to execute selectAll script: ${script}`);
           throw e;
         }),
-      msg
+      msg,
     );
   }
 
@@ -921,7 +918,7 @@ else {
   getClipboardText() {
     return this.executeScript(
       `window.navigator.clipboard.readText()`,
-      `Read clipboard text`
+      `Read clipboard text`,
     );
   }
 
@@ -942,13 +939,13 @@ else {
       this.dvr.findElements(By.css(selector)).then(els => {
         breadcrumbs = `Got elements count: ${els.length}, expected: ${count}`;
         return els.length == count;
-      })
+      }),
     );
     return this.run(
       () => this.dvr.wait(cond, getTimeout()),
       msg,
       `Selector: '${selector}'`,
-      () => breadcrumbs
+      () => breadcrumbs,
     );
   }
 
@@ -976,12 +973,12 @@ else {
         return true;
       }
       let isDisplayedArray = await Promise.all(
-        Array.from(els).map(el => el.isDisplayed())
+        Array.from(els).map(el => el.isDisplayed()),
       );
       breadcrumbs = `Got elements count: ${
         els.length
       }, elements visibility [${isDisplayedArray.join(
-        ' ,'
+        ' ,',
       )}], expected: not visible`;
       return isDisplayedArray.every(isDisplayed => !isDisplayed);
     });
@@ -990,7 +987,7 @@ else {
       () => this.waitForCondition(cond, () => breadcrumbs),
       msg,
       `Selector: '${selector}'`,
-      () => breadcrumbs
+      () => breadcrumbs,
     );
   }
 
@@ -1002,7 +999,7 @@ else {
     assert(msg, `hasElements: no msg`);
 
     let cond = new Condition(`until element count`, () =>
-      this.dvr.findElements(By.css(selector)).then(els => els.length > 0)
+      this.dvr.findElements(By.css(selector)).then(els => els.length > 0),
     );
     return this.run(() => this.dvr.wait(cond, getTimeout()), msg);
   }
@@ -1017,7 +1014,7 @@ else {
     return this.waitForElementToInvoke(
       selector,
       el => this.dvr.wait(until.elementIsNotVisible(el), getTimeout()),
-      msg
+      msg,
     );
   }
 
@@ -1031,7 +1028,7 @@ else {
     return this.waitForElementToInvoke(
       selector,
       el => this.dvr.wait(until.elementIsVisible(el), getTimeout()),
-      msg
+      msg,
     );
   }
 
@@ -1045,7 +1042,7 @@ else {
     return this.waitForElementToInvoke(
       selector,
       el => this.dvr.wait(until.elementIsNotVisible(el), getTimeout()),
-      msg
+      msg,
     );
   }
 
@@ -1066,11 +1063,11 @@ else {
               .activeElement()
               .then(activeEl =>
                 Promise.all([activeEl.getId(), el.getId()]).then(
-                  ids => ids[0] == ids[1]
-                )
-              )
+                  ids => ids[0] == ids[1],
+                ),
+              ),
           ),
-          getTimeout()
+          getTimeout(),
         ),
       msg,
       () =>
@@ -1078,7 +1075,7 @@ else {
           .switchTo()
           .activeElement()
           .getTagName()
-          .then(tag => `Active element: ${tag}`)
+          .then(tag => `Active element: ${tag}`),
     );
   }
 
@@ -1089,7 +1086,7 @@ else {
           .findElements(By.css(selector))
           .then(els => (els.length > 0 ? chain() : else_chain && else_chain())),
       msg,
-      `Selector: '${selector}'`
+      `Selector: '${selector}'`,
     );
   }
 
@@ -1099,12 +1096,12 @@ else {
         this.dvr
           .findElements(By.css(selector))
           .then(els =>
-            els.length == 0 ? chain() : else_chain && else_chain()
+            els.length == 0 ? chain() : else_chain && else_chain(),
           ),
       msg,
-      `Selector: '${selector}'`
+      `Selector: '${selector}'`,
     );
   }
 }
 
-module.exports.Driver = Driver;
+export { Driver };

@@ -1,6 +1,4 @@
-'use strict';
-
-const {
+import {
   assert,
   group,
   fail,
@@ -10,32 +8,28 @@ const {
   success,
   todo,
   warn,
-} = require('./core/core.js');
+} from './core/core.js';
 
-const {
+import {
   ok,
   is,
   contains,
   is_output,
   no_throws,
   throws,
-
   test_is,
   test_contains,
-} = require('./core/base.js');
+} from './core/base.js';
 
-const { inspect } = require('./core/util.js');
+import settings from './core/settings.js';
+import { inspect } from './core/util.js';
+import { AppDriver } from './webdriver/app_driver.js';
+import { ControlDriver } from './webdriver/control_driver.js';
+import { start_session, scope } from './webdriver/session.js';
 
-const { tmp_storage_dir } = require('./core/settings.js');
-
-const { AppDriver } = require('./webdriver/app_driver.js');
-const { ControlDriver } = require('./webdriver/control_driver.js');
-const { start_session, scope } = require('./webdriver/session.js');
-
-module.exports = {
+export {
   AppDriver,
   ControlDriver,
-
   assert,
   contains,
   failed,
@@ -55,6 +49,6 @@ module.exports = {
   test_is,
   test_contains,
   throws,
-  tmp_storage_dir,
   warn,
+  settings,
 };

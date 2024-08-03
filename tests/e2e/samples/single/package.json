@@ -1,8 +1,11 @@
 {
   "name": "@camperaid/watest/e2e/single",
-  "version": "0.0.1",
-  "description": "Watest E2E Test",
+  "version": "0.0.2",
   "type": "module",
+  "description": "Watest E2E Test",
+  "engines": {
+    "node": ">=20.16.0"
+  },
   "scripts": {
     "test": "watest"
   },

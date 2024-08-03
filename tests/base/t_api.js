@@ -1,9 +1,7 @@
-'use strict';
-
-const api = require('../../index.js');
+import * as api from '../../index.js';
 const { ok } = api;
 
-module.exports.test = async () => {
+export async function test() {
   const props = [
     'AppDriver',
     'ControlDriver',
@@ -24,11 +22,10 @@ module.exports.test = async () => {
     'todo',
     'test_is',
     'test_contains',
-    'tmp_storage_dir',
     'warn',
   ];
 
   for (let prop of props) {
     ok(prop in api, `${prop} present`);
   }
-};
+}

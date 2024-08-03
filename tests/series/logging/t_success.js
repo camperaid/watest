@@ -1,6 +1,4 @@
-'use strict';
-
-const {
+import {
   completed_checkers,
   MockSeries,
   createMockLogPipe,
@@ -11,11 +9,11 @@ const {
   is,
   success,
   running_checker,
-} = require('../test.js');
+} from '../test.js';
 
-const { invocation } = require('../../../core/settings.js');
+import settings from '../../../core/settings.js';
 
-module.exports.test = async () => {
+export async function test() {
   const ts = {
     'tests': {
       meta: {
@@ -55,7 +53,7 @@ module.exports.test = async () => {
 
   const buffers = new Map(LogPipe.FileStream.getLoggingBuffers());
 
-  let path = `${invocation}`;
+  let path = `${settings.invocation}`;
   is(
     buffers.get(`${path}/log`),
     [
@@ -63,24 +61,24 @@ module.exports.test = async () => {
       format_success(2),
       format_completed(`${path}/`),
     ],
-    `logging buffer for ${path}`
+    `logging buffer for ${path}`,
   );
 
-  path = `${invocation}/unit`;
+  path = `${settings.invocation}/unit`;
   is(
     buffers.get(`${path}/log`),
     [format_started(path), format_success(2, path), format_completed(path)],
-    `logging buffer for ${path}`
+    `logging buffer for ${path}`,
   );
 
-  path = `${invocation}/unit/base`;
+  path = `${settings.invocation}/unit/base`;
   is(
     buffers.get(`${path}/log`),
     [
       format_started(path),
       running_checker(
         `${path}/t_testo.js`,
-        `tests/unit/base/t_testo.js`
+        `tests/unit/base/t_testo.js`,
       ).trim(),
       format_ok('Testo'),
       ...completed_checkers({
@@ -89,17 +87,17 @@ module.exports.test = async () => {
       format_success(1, path),
       format_completed(path),
     ],
-    `logging buffer for ${path}`
+    `logging buffer for ${path}`,
   );
 
-  path = `${invocation}/unit/core`;
+  path = `${settings.invocation}/unit/core`;
   is(
     buffers.get(`${path}/log`),
     [
       format_started(path),
       running_checker(
         `${path}/t_presto.js`,
-        `tests/unit/core/t_presto.js`
+        `tests/unit/core/t_presto.js`,
       ).trim(),
       format_ok('Presto'),
       ...completed_checkers({
@@ -108,6 +106,6 @@ module.exports.test = async () => {
       format_success(1, path),
       format_completed(path),
     ],
-    `logging buffer for ${path}/log`
+    `logging buffer for ${path}/log`,
   );
-};
+}

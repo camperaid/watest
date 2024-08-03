@@ -1,6 +1,4 @@
-'use strict';
-
-const { do_self_tests, is_failure_output, is_ok_output } = require('./test.js');
+import { do_self_tests, is_failure_output, is_ok_output } from './test.js';
 
 const snippet = `
 <html><body>
@@ -9,7 +7,7 @@ const snippet = `
 </body></html>
 `;
 
-module.exports.test = do_self_tests(snippet, async ({ driver }) => {
+export var test = do_self_tests(snippet, async ({ driver }) => {
   // attributeContainsAll: success
   await is_ok_output(
     () =>
@@ -17,7 +15,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
         'input',
         'value',
         ['he', 'hacha'],
-        `attributeContainsAll`
+        `attributeContainsAll`,
       ),
     [
       `Test: attributeContainsAll. Expected: ['he', 'hacha']. Selector: 'input'`,
@@ -25,7 +23,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Ok: attributeContainsAll`,
     ],
     [],
-    `attributeContainsAll:success`
+    `attributeContainsAll:success`,
   );
 
   // attributeContainsAll: failure
@@ -36,7 +34,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
         'input',
         'value',
         ['hey', 'chachacha'],
-        `attributeContainsAll`
+        `attributeContainsAll`,
       ),
     [
       `Test: attributeContainsAll. Expected: ['hey', 'chachacha']. Selector: 'input'`,
@@ -47,6 +45,6 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Failed: attributeContainsAll, timeout while waiting to meet criteria`,
       `Failed: attributeContainsAll`,
     ],
-    `attributeContainsAll:failure`
+    `attributeContainsAll:failure`,
   );
 });

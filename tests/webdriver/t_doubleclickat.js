@@ -1,6 +1,4 @@
-'use strict';
-
-const { do_self_tests, is } = require('./test.js');
+import { do_self_tests, is } from './test.js';
 
 const snippet = `
 <html><body>
@@ -32,7 +30,7 @@ const snippet = `
 </body></html>
 `;
 
-module.exports.test = do_self_tests(snippet, async ({ driver }) => {
+export var test = do_self_tests(snippet, async ({ driver }) => {
   await driver.doubleClickAt('div', [0, 0], `dblclick`);
   is(
     await driver.executeScript('window.getPromise()', `get dblclickat result`),
@@ -40,6 +38,6 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       x: 50,
       y: 50,
     },
-    'check dblclickat results'
+    'check dblclickat results',
   );
 });

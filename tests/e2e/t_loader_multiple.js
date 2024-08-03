@@ -1,8 +1,6 @@
-'use strict';
+import { is, run_e2e_tests } from './test.js';
 
-const { is, run_e2e_tests } = require('./test.js');
-
-module.exports.test = async () => {
+export async function test() {
   let output = await run_e2e_tests('loader_multiple');
   is(
     output.stdout,
@@ -27,8 +25,8 @@ module.exports.test = async () => {
       'Testsuite: shutdown',
       'Elapsed:',
     ],
-    'stdout'
+    'stdout',
   );
 
   is(output.stderr, [], 'stderr');
-};
+}

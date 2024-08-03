@@ -1,6 +1,4 @@
-'use strict';
-
-const { do_self_tests, is_failure_output, is_ok_output } = require('./test.js');
+import { do_self_tests, is_failure_output, is_ok_output } from './test.js';
 
 const snippet = `
 <html><body>
@@ -9,7 +7,7 @@ const snippet = `
 </body></html>
 `;
 
-module.exports.test = do_self_tests(snippet, async ({ driver }) => {
+export var test = do_self_tests(snippet, async ({ driver }) => {
   // textIs: success
   await is_ok_output(
     () => driver.textIsAll('p', ['Paragraph', 'Maragraph'], `textIsAll`),
@@ -19,7 +17,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Ok: textIsAll`,
     ],
     [],
-    `textIsAll:success`
+    `textIsAll:success`,
   );
 
   // textIs: failure
@@ -33,7 +31,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Failed: textIsAll, timeout while waiting to meet criteria`,
       `Failed: textIsAll`,
     ],
-    `textIsAll:failure`
+    `textIsAll:failure`,
   );
 
   // textIs: ambigious
@@ -45,7 +43,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Failed: textIsAll, ambigious 'p' selector, got 2 elements, expected 1`,
       `Failed: textIsAll`,
     ],
-    `textIsAll:ambigious`
+    `textIsAll:ambigious`,
   );
 
   // textIs: no elements
@@ -57,6 +55,6 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Failed: textIsAll, no elements matching '#p-not-exists' selector`,
       `Failed: textIsAll`,
     ],
-    `textIsAll:noelements`
+    `textIsAll:noelements`,
   );
 });

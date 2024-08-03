@@ -1,5 +1,3 @@
-'use strict';
-
 class ProcessArgs {
   static asObject() {
     let obj = {
@@ -68,6 +66,4 @@ class ProcessArgs {
   }
 }
 
-module.exports = {
-  ProcessArgs,
-};
+export { ProcessArgs };

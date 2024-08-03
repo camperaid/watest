@@ -1,5 +1,5 @@
-const { success } = require('watest');
+import { success } from 'watest';
 
-module.exports.test = async () => {
+export async function test() {
   success('works!');
-};
+}

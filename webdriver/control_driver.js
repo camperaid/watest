@@ -1,7 +1,5 @@
-'use strict';
-
-const { assert } = require('../core/core.js');
-const { AppDriver } = require('./app_driver.js');
+import { assert } from '../core/core.js';
+import { AppDriver } from './app_driver.js';
 
 /**
  * Control driver base.
@@ -14,7 +12,7 @@ class ControlDriver extends AppDriver {
         session,
         selector,
       },
-      p
+      p,
     );
   }
 
@@ -27,6 +25,4 @@ class ControlDriver extends AppDriver {
   }
 }
 
-module.exports = {
-  ControlDriver,
-};
+export { ControlDriver };

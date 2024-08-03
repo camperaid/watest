@@ -1,34 +1,28 @@
-'use strict';
-
-const settings = require('../core/settings.js');
-
-const { is } = require('../core/base.js');
-const {
-  core,
-  fail,
-  todo,
-  warn,
+import settings from '../core/settings.js';
+import { is } from '../core/base.js';
+import {
   assert,
+  fail,
   info,
   success,
-} = require('../core/core.js');
-
-const { stringify } = require('../core/util.js');
-const { log, log_error } = require('../logging/logging.js');
-const { LogPipe } = require('../logging/logpipe.js');
-const { define_class_promise } = require('./util.js');
-
-const {
+  testflow,
+  todo,
+  warn,
+} from '../core/core.js';
+import { stringify } from '../core/util.js';
+import { log, log_error } from '../logging/logging.js';
+import { LogPipe } from '../logging/logpipe.js';
+import { define_class_promise } from './util.js';
+import {
   Browser,
   Builder,
   By,
   Condition,
   error,
   until,
-} = require('selenium-webdriver');
-
-const firefox = require('selenium-webdriver/firefox');
-const chrome = require('selenium-webdriver/chrome');
+} from 'selenium-webdriver';
+import firefox from 'selenium-webdriver/firefox.js';
+import chrome from 'selenium-webdriver/chrome.js';
 
 function getChromeOptions() {
   const chromeOptions = new chrome.Options().windowSize({
@@ -51,8 +45,8 @@ function getFirefoxArgs() {
 }
 
 const defaultTimeout = 10;
-const getTimeout = () => (core.getTimeout() || defaultTimeout) * 1000;
-const getTimeoutOnFailure = () => (core.getTimeout() || 0) * 1000; // use non zero values for failure debugging
+const getTimeout = () => (testflow.core.getTimeout() || defaultTimeout) * 1000;
+const getTimeoutOnFailure = () => (testflow.core.getTimeout() || 0) * 1000; // use non zero values for failure debugging
 const browserLogLevel = 'ALL'; // 'WARNING'
 
 function warn_if_stale(e, msg) {
@@ -80,7 +74,7 @@ class NoElementsError extends Error {
 class UnexpectedElementCountError extends Error {
   constructor(selector, gotCount, expectedCount) {
     super(
-      `ambigious '${selector}' selector, got ${gotCount} elements, expected ${expectedCount}`
+      `ambigious '${selector}' selector, got ${gotCount} elements, expected ${expectedCount}`,
     );
   }
 }
@@ -226,7 +220,7 @@ class DriverBase {
       msg,
       `Expected: ${stringify(expected)}`,
       test,
-      is_matched
+      is_matched,
     );
   }
 
@@ -242,12 +236,12 @@ class DriverBase {
         this.dvr
           .wait(until.elementsLocated(By.css(selector)), getTimeout())
           .then(els =>
-            this.dvr.executeAsyncScript(this.wrapScript(script), els[0])
+            this.dvr.executeAsyncScript(this.wrapScript(script), els[0]),
           ),
       msg,
       `Selector: '${selector}'`,
       test,
-      is_matched
+      is_matched,
     );
   }
 
@@ -297,8 +291,8 @@ class DriverBase {
           els_and_tags.map(([el, tag]) =>
             /^(textarea|input)$/i.test(tag)
               ? this.dvr.executeScript(`return arguments[0].value;`, el)
-              : el.getText()
-          )
+              : el.getText(),
+          ),
         ).then(list => list.map(item => item.replace(/\s+/g, ' ').trim())),
       test,
       is_matched: got =>
@@ -338,7 +332,7 @@ class DriverBase {
         Promise.all(els.map(el => Promise.all([el, el.getTagName()])))
           .then(els_and_tags => get_text(els_and_tags))
           .catch(e =>
-            warn_if_stale(e, `on '${selector}' element text retrieval`)
+            warn_if_stale(e, `on '${selector}' element text retrieval`),
           ),
       get_result_description: 'tag name',
       test,
@@ -441,7 +435,7 @@ class DriverBase {
             if (e instanceof error.TimeoutError) {
               if (
                 e.message.startsWith(
-                  'Waiting for at least one element to be located'
+                  'Waiting for at least one element to be located',
                 )
               ) {
                 throw new NoElementsError(selector);
@@ -454,7 +448,7 @@ class DriverBase {
               throw new UnexpectedElementCountError(
                 selector,
                 els.length,
-                count
+                count,
               );
             }
             return els;
@@ -463,13 +457,13 @@ class DriverBase {
           .catch(e =>
             warn_if_stale(
               e,
-              `on '${selector}' ${get_result_description} retrieval`
-            )
+              `on '${selector}' ${get_result_description} retrieval`,
+            ),
           ),
       msg,
       `Expected: ${expected}. Selector: '${selector}'`,
       test,
-      is_matched
+      is_matched,
     );
   }
 
@@ -480,7 +474,7 @@ class DriverBase {
     selector,
     msg,
     { do_not_fail_if_not_unique, throw_on_fail, no_click_check },
-    click_func
+    click_func,
   ) {
     let listenClick = `
       window.__selenium_lastClick = new Promise(resolve => {
@@ -583,13 +577,13 @@ class DriverBase {
           .executeAsyncScript(listenClick, selector)
           .then(() => click_func(el))
           .then(
-            () => !no_click_check && this.dvr.executeAsyncScript(checkClick)
+            () => !no_click_check && this.dvr.executeAsyncScript(checkClick),
           )
           .then(r => {
             if (!r) {
               if (!no_click_check) {
                 info(
-                  `No click event result. The webpage must be navigated out.`
+                  `No click event result. The webpage must be navigated out.`,
                 );
               }
               return;
@@ -600,7 +594,7 @@ class DriverBase {
             let targetRect = rtos(r.targetRect);
             let elRect = rtos(r.elRect);
             info(
-              `clicked at ${r.target} at (${r.x}, ${r.y}), target's rect: ${targetRect}; dispatched to: ${r.el}, rect: ${elRect}}`
+              `clicked at ${r.target} at (${r.x}, ${r.y}), target's rect: ${targetRect}; dispatched to: ${r.el}, rect: ${elRect}}`,
             );
             let x_before = r.x < r.elRect.x;
             let x_after = r.x > r.elRect.x + r.elRect.width;
@@ -624,15 +618,15 @@ class DriverBase {
               let xs = `x ${ptos(
                 r.elRect.x,
                 r.elRect.x + r.elRect.width,
-                r.x
+                r.x,
               )}`;
               let ys = `y ${ptos(
                 r.elRect.y,
                 r.elRect.y + r.elRect.height,
-                r.y
+                r.y,
               )}}`;
               ((throw_on_fail && todo) || warn)(
-                `Unexpected element clicked: ${xs}, ${ys}`
+                `Unexpected element clicked: ${xs}, ${ys}`,
               );
               if (throw_on_fail) {
                 throw new Error(`Expected failure`);
@@ -644,7 +638,7 @@ class DriverBase {
       msg,
       null, // failure_details
       do_not_fail_if_not_unique,
-      throw_on_fail
+      throw_on_fail,
     );
   }
 
@@ -665,13 +659,13 @@ class DriverBase {
       chain().then(v => {
         breadcrumbs.got = v;
         return criteria(v);
-      })
+      }),
     );
 
     return this.run(
       () => this.waitForCondition(cond, () => breadcrumbs),
       msg,
-      details_msg
+      details_msg,
     );
   }
 
@@ -692,7 +686,7 @@ class DriverBase {
           }
         }
         throw e;
-      }
+      },
     );
   }
 
@@ -714,7 +708,7 @@ class DriverBase {
           is(
             breadcrumbs[i].got,
             breadcrumbs[i].expected,
-            `${breadcrumbs[i].msg} at ${i} index`
+            `${breadcrumbs[i].msg} at ${i} index`,
           );
         }
       }
@@ -746,7 +740,7 @@ class DriverBase {
     msg,
     failure_details,
     do_not_fail_if_not_unique,
-    expected_failure
+    expected_failure,
   ) {
     assert(selector, `No selector is provided`);
     assert(func);
@@ -765,7 +759,7 @@ class DriverBase {
       msg,
       `Selector: '${selector}'`,
       failure_details,
-      expected_failure
+      expected_failure,
     );
   }
 
@@ -787,7 +781,7 @@ class DriverBase {
       // and thus is a real performance bummer.
       let message = entry.message.replace(
         /(data:\S+?)(\s|:)(\d+):(\d+)/g,
-        (match, p1, p2, p3, p4) => `dataurl-placeholder:${p3}:${p4}`
+        (match, p1, p2, p3, p4) => `dataurl-placeholder:${p3}:${p4}`,
       );
       log(`[${entry.level.name}] ${message}`);
     }
@@ -878,7 +872,7 @@ class DriverBase {
                 throw new TestExecutionError(`Test failed`);
               });
             });
-        })
+        }),
     );
   }
 
@@ -889,7 +883,7 @@ class DriverBase {
     let chainLink = new this.constructor.CtorPromise(
       this.p.then(link),
       this.dvr,
-      this.options
+      this.options,
     );
 
     this.dvr.lastChainLink = chainLink;
@@ -903,7 +897,7 @@ class DriverBase {
         if (this.dvr.lastChainLink == chainLink) {
           this.dvr.lastChainLink = null;
         }
-      }
+      },
     );
     return chainLink;
   }
@@ -927,8 +921,4 @@ class DriverBase {
   }
 }
 
-module.exports = {
-  DriverBase,
-  getTimeout,
-  TestExecutionError,
-};
+export { DriverBase, getTimeout, TestExecutionError };

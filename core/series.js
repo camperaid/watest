@@ -1,21 +1,18 @@
-'use strict';
+import fs from 'fs';
+import nodepath from 'path';
+import { fileURLToPath } from 'url';
 
-const fs = require('fs');
-const path = require('path');
-const nodepath = path;
+import { assert, fail, testflow } from './core.js';
+import { parse, parse_failure } from './format.js';
+import { ProcessArgs } from './process_args.js';
+import settings from './settings.js';
+import { spawn } from './spawn.js';
+import { stringify } from './util.js';
+import { log, log_error } from '../logging/logging.js';
+import { LogPipe } from '../logging/logpipe.js';
+import { DriverBase } from '../webdriver/driver_base.js';
 
-const { log, log_error } = require('../logging/logging.js');
-const { DriverBase } = require('../webdriver/driver_base.js');
-const testflow = require('./core.js');
-const { parse, parse_failure } = require('./format.js');
-const { ProcessArgs } = require('./process_args.js');
-const settings = require('./settings.js');
-const { spawn } = require('./spawn');
-const { stringify } = require('./util.js');
-
-const { assert, fail } = testflow;
-
-const {
+import {
   format_started,
   format_completed,
   format_failure,
@@ -25,10 +22,13 @@ const {
   format_todos,
   format_warnings,
   colorify,
-} = require('./format.js');
+} from './format.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = nodepath.dirname(__filename);
 
 const root_folder = 'tests';
-const root_dir = path.resolve('.');
+const root_dir = nodepath.resolve('.');
 
 const kKungFuDeathGripTimeout = {};
 const kKungFuDeathGripCancelled = {};
@@ -44,7 +44,7 @@ process.on('unhandledRejection', error => {
 class Series {
   static run(patterns, options) {
     if (!('LogPipe' in options)) {
-      options.LogPipe = require('../logging/logpipe.js').LogPipe;
+      options.LogPipe = LogPipe;
     }
     options.LogPipe.suppress_logging = options.childProcess;
 
@@ -57,7 +57,7 @@ class Series {
           .run()
           .then(() =>
             // shutdown returns list of failures or null if no failures
-            options.LogPipe.release()
+            options.LogPipe.release(),
           )
           .then(
             () => series.shutdown(),
@@ -66,7 +66,7 @@ class Series {
               fail(e.message);
               log_error(e);
               return failures;
-            }
+            },
           );
       });
   }
@@ -86,7 +86,7 @@ class Series {
       LogPipe,
       webdriver,
       webdrivers = settings.webdrivers,
-    }
+    },
   ) {
     this.debunk = debunk;
     this.invocation = invocation || settings.invocation;
@@ -107,7 +107,7 @@ class Series {
     this.ocnt = 0;
 
     this.core = core || testflow.core;
-    testflow.lock(this.core);
+    testflow.lock({ core: this.core });
 
     this.core.setTimeout(timeout);
     this.core.clearStats();
@@ -128,7 +128,7 @@ class Series {
       this.patterns.map(pattern => ({
         path: pattern,
         webdriver: this.webdriver,
-      }))
+      })),
     );
 
     // In debunk mode re-run tests until it fails.
@@ -171,8 +171,8 @@ class Series {
         colorify(
           'failures',
           '!Failed:',
-          `no tests matching '${stringify(patterns)}' pattern(s) found`
-        )
+          `no tests matching '${stringify(patterns)}' pattern(s) found`,
+        ),
       );
       return Promise.resolve();
     }
@@ -206,7 +206,7 @@ class Series {
 
       if (test_module.expected_failures) {
         inherited_expected_failures = inherited_expected_failures.concat(
-          test_module.expected_failures.filter(v => v[0] == '**')
+          test_module.expected_failures.filter(v => v[0] == '**'),
         );
       }
 
@@ -251,7 +251,7 @@ class Series {
       // A separate folder for the webdriver tests.
       assert(
         this.webdrivers instanceof Array,
-        `Webdrivers are misconfigured, got: ${JSON.stringify(this.webdrivers)}`
+        `Webdrivers are misconfigured, got: ${JSON.stringify(this.webdrivers)}`,
       );
 
       // Build the tests for webdrivers. Filter the list according traversed
@@ -378,8 +378,8 @@ class Series {
         }).then(subtests => ({
           subfolder,
           subtests,
-        }))
-      )
+        })),
+      ),
     );
 
     return subtests_for_subfolders
@@ -425,7 +425,7 @@ class Series {
     }
 
     const expected_failures = inherited_expected_failures.concat(
-      test_module.expected_failures || []
+      test_module.expected_failures || [],
     );
 
     // Initialize
@@ -494,7 +494,7 @@ class Series {
         await Promise.all(
           [...(test_module.services || [])]
             .reverse()
-            .map(s => settings.servicer.stop(s))
+            .map(s => settings.servicer.stop(s)),
         );
       };
       tests.push({
@@ -533,7 +533,7 @@ class Series {
       list = list.filter(
         test =>
           this.matchedPatterns({ path: test.path, webdriver, patterns })
-            .length != 0
+            .length != 0,
       );
     }
 
@@ -545,7 +545,7 @@ class Series {
       pattern =>
         (!webdriver || !pattern.webdriver || pattern.webdriver == webdriver) &&
         (path.startsWith(pattern.path) ||
-          (path_is_not_final && pattern.path.startsWith(path)))
+          (path_is_not_final && pattern.path.startsWith(path))),
     );
   }
 
@@ -647,18 +647,18 @@ class Series {
         // If timeout is given then race it against the test.
         if (settings.timeout) {
           kungFuDeathGrip = new Promise(
-            resolve => (kungFuDeathGripResolve = resolve)
+            resolve => (kungFuDeathGripResolve = resolve),
           ).then(value => {
             if (value != kKungFuDeathGripCancelled) {
               fail(
-                `Test ${name} takes longer than ${settings.timeout}ms. It's either slow or never ends.`
+                `Test ${name} takes longer than ${settings.timeout}ms. It's either slow or never ends.`,
               );
               return kKungFuDeathGripTimeout;
             }
           });
           kungFuDeathGripTimer = setTimeout(
             kungFuDeathGripResolve,
-            settings.timeout
+            settings.timeout,
           );
           let retval = await Promise.race([func(), kungFuDeathGrip]);
           if (retval != kKungFuDeathGripTimeout) {
@@ -825,8 +825,8 @@ class Series {
         format_failures(
           this.core.failureCount - fcnt,
           this.core.okCount - ocnt,
-          !is_root && folder
-        )
+          !is_root && folder,
+        ),
       );
     } else {
       log_func(format_success(this.core.okCount - ocnt, !is_root && folder));
@@ -835,7 +835,7 @@ class Series {
 
   static failuresInfo({ failures, webdriver, platform, testname }) {
     let filtered_failures = failures.filter(
-      v => testname.includes(v[0]) || v[0] == '*' || v[0] == '**'
+      v => testname.includes(v[0]) || v[0] == '*' || v[0] == '**',
     );
 
     return (
@@ -865,13 +865,14 @@ class Series {
   async loadTestMeta(folder) {
     try {
       return await import(this.getTestMetaPath(folder));
-    } catch (e) { // eslint-disable-line no-unused-vars
+      // eslint-disable-next-line no-unused-vars
+    } catch (e) {
       return {}; // no meta.js
     }
   }
 
   loadTest(test_path) {
-    return import(path.join(root_dir, test_path)).then(
+    return import(nodepath.join(root_dir, test_path)).then(
       test_module => {
         if (!test_module.test) {
           throw new Error(`No test was found in ${test_path}`);
@@ -881,25 +882,25 @@ class Series {
       e => {
         log_error(e);
         throw new Error(`Failed to load test: ${test_path}`);
-      }
+      },
     );
   }
 
   getTestMetaPath(folder) {
-    let meta_path = path.join(root_dir, `${folder}/meta.js`);
+    let meta_path = nodepath.join(root_dir, `${folder}/meta.js`);
     return (
       (fs.existsSync(meta_path) && meta_path) ||
-      path.join(root_dir, `${folder}/meta.mjs`)
+      nodepath.join(root_dir, `${folder}/meta.mjs`)
     );
   }
 
   getTestFileList(folder) {
     return fs
-      .readdirSync(path.join(root_dir, folder))
+      .readdirSync(nodepath.join(root_dir, folder))
       .filter(
         n =>
           n.startsWith('t_') &&
-          (!settings.ignorePattern || !settings.ignorePattern.test(n))
+          (!settings.ignorePattern || !settings.ignorePattern.test(n)),
       );
   }
 
@@ -916,14 +917,14 @@ class Series {
       '--root-folder',
       nodepath.join(name, '../'),
       ...ProcessArgs.controlArguments,
-      path
+      path,
     );
     if (webdriver) {
       args.push('--webdriver', webdriver);
     }
 
     return spawn('node', args, {}, buffer =>
-      this.processChildProcessOutput(name, buffer)
+      this.processChildProcessOutput(name, buffer),
     ).catch(e => {
       log_error(e);
       fail(`Failed to process child process output`);
@@ -944,22 +945,22 @@ class Series {
         if (line.startsWith('console.debug')) {
           line = line.replace(
             /console\.debug: "(.+)"/,
-            (match, p) => `[DEBUG] ${p}`
+            (match, p) => `[DEBUG] ${p}`,
           );
         } else if (line.startsWith('console.log')) {
           line = line.replace(
             /console\.log: "(.+)"/,
-            (match, p) => `[INFO] ${p}`
+            (match, p) => `[INFO] ${p}`,
           );
         } else if (line.startsWith('console.assert')) {
           line = line.replace(
             /console\.assert: "(.+)"/,
-            (match, p) => `[SEVERE] ${p}`
+            (match, p) => `[SEVERE] ${p}`,
           );
         } else if (line.startsWith('console.error')) {
           line = line.replace(
             /console\.error: "(.+)"/,
-            (match, p) => `[SEVERE] ${p}`
+            (match, p) => `[SEVERE] ${p}`,
           );
         } else if (line.startsWith('data:text/html,')) {
           line = line.replace(/\S*/, '@dataurl_placeholder');
@@ -1018,5 +1019,8 @@ class Series {
   }
 }
 
-module.exports.Series = Series;
-module.exports.runSeries = (...args) => Series.run(...args);
+export { Series };
+
+export function runSeries(...args) {
+  return Series.run(...args);
+}

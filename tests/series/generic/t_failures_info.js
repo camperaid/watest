@@ -1,8 +1,6 @@
-'use strict';
+import { is, Series } from '../test.js';
 
-const { is, Series } = require('../test.js');
-
-module.exports.test = () => {
+export function test() {
   // failuresInfo: all
   let failures = [
     [
@@ -32,7 +30,7 @@ module.exports.test = () => {
         msg: 'Server terminates connection 421 error',
       },
     ],
-    `all`
+    `all`,
   );
 
   // failuresInfo: win-chrome
@@ -73,7 +71,7 @@ module.exports.test = () => {
         msg: 'No LocInfo is shown, InfoWindow with no title is shown instead',
       },
     ],
-    `win-chrome`
+    `win-chrome`,
   );
 
   // all-firefox
@@ -122,11 +120,10 @@ module.exports.test = () => {
           'LocInfo title. Failure details: ""',
           'Waiting until element is visible',
         ],
-        msg:
-          'Double click triggers intermittently when Killarney marker is clicked, what makes create-trip-dialog showing',
+        msg: 'Double click triggers intermittently when Killarney marker is clicked, what makes create-trip-dialog showing',
       },
     ],
-    'all-firefox'
+    'all-firefox',
   );
 
   // chrome-mobile
@@ -188,7 +185,7 @@ module.exports.test = () => {
         msg: undefined,
       },
     ],
-    'chrome-mobile'
+    'chrome-mobile',
   );
 
   // common failures aka '*' test filters
@@ -238,6 +235,6 @@ module.exports.test = () => {
         msg: 'Intermittent socket hangup',
       },
     ],
-    `common`
+    `common`,
   );
-};
+}

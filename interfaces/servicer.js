@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Manages services requested by a testsuite.
  */
@@ -31,4 +29,4 @@ class Servicer {
   get(/* service */) {}
 }
 
-module.exports = new Servicer();
+export default new Servicer();

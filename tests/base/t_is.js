@@ -1,14 +1,12 @@
-'use strict';
+import { is, is_output } from './test.js';
 
-const { is, is_output } = require('./test.js');
-
-module.exports.test = async () => {
+export async function test() {
   // is() sucess
   await is_output(
     () => is(3, 3, `Equal`),
     [`Ok: Equal, got: 3`],
     [],
-    `is() sucess`
+    `is() sucess`,
   );
 
   // is() failure
@@ -16,7 +14,7 @@ module.exports.test = async () => {
     () => is(3, 4, `Not equal`),
     [],
     [`Failed: Not equal, got: 3, expected: 4`],
-    `is() failure`
+    `is() failure`,
   );
 
   // is() regexp sucess
@@ -24,7 +22,7 @@ module.exports.test = async () => {
     () => is('34', /^\d+$/, `Equal`),
     [`Ok: Equal '34' matches /^\\d+$/ regexp`],
     [],
-    `is() regexp sucess`
+    `is() regexp sucess`,
   );
 
   // is() regexp failure
@@ -32,7 +30,7 @@ module.exports.test = async () => {
     () => is('34a', /^\d+$/, `Equal`),
     [],
     [`Failed: Equal '34a' doesn't match /^\\d+$/ regexp`],
-    `is() regexp failure`
+    `is() regexp failure`,
   );
 
   // is() object sucess
@@ -40,7 +38,7 @@ module.exports.test = async () => {
     () => is({ field: 'hey' }, { field: 'hey' }, `Objects equal`),
     [`Ok: Objects equal, got: {field: 'hey'}`],
     [],
-    `is() object sucess`
+    `is() object sucess`,
   );
 
   // is() object failure
@@ -51,6 +49,6 @@ module.exports.test = async () => {
       `Failed: Objects not equal: 'field' field value mismatch;\ngot:\nhey\nexpected:\npey\nunexpected character: 'h' at 0 pos, expected: 'p' at '' line`,
       `Failed: Objects not equal`,
     ],
-    `is() object failure`
+    `is() object failure`,
   );
-};
+}

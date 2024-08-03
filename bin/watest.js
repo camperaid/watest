@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-'use strict';
-
-const { ProcessArgs } = require('../core/process_args.js');
+import { ProcessArgs } from '../core/process_args.js';
+import '../core/settings.js';
+import { runSeries } from '../core/series.js';
 
 const args = ProcessArgs.asObject();
 if (args.showHelp) {
@@ -19,9 +19,4 @@ Options:
   process.exit();
 }
 
-// Initalize config.
-require('../core/settings.js');
-
-// Run tests.
-const { runSeries } = require('../core/series.js');
 runSeries(args.patterns, args).then(failures => failures && process.exit(1));

@@ -1,8 +1,6 @@
-'use strict';
+import { is_test_output, make_perform_function, fail } from '../test.js';
 
-const { is_test_output, make_perform_function, fail } = require('../test.js');
-
-module.exports.test = async () => {
+export async function test() {
   let failures = [
     [
       '**',
@@ -75,6 +73,6 @@ module.exports.test = async () => {
       '\x1B[38;5;243mCompleted\x1B[0m tests/',
     ],
     [],
-    'global intermittents'
+    'global intermittents',
   );
-};
+}

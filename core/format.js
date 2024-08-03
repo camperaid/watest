@@ -1,5 +1,3 @@
-'use strict';
-
 const esc_char = ''; // \x1b
 
 const colors = {
@@ -20,7 +18,7 @@ const colors = {
 };
 
 const codes = new Map(
-  Array.from(Object.keys(colors)).map(key => [colors[key], key])
+  Array.from(Object.keys(colors)).map(key => [colors[key], key]),
 );
 
 // Colorifies the message.
@@ -81,14 +79,14 @@ function format_failures(count, context_or_okcount, context) {
     return colorify(
       'failures',
       `>${context_or_okcount}`,
-      `Failure count: ${count}`
+      `Failure count: ${count}`,
     );
   }
   let label = !context ? 'Failed!' : `${context} > failed`;
   return colorify(
     'failures',
     label,
-    `Passed: ${context_or_okcount}. Failed: ${count}`
+    `Passed: ${context_or_okcount}. Failed: ${count}`,
   );
 }
 
@@ -132,11 +130,10 @@ function stderr_format_failure(...args) {
   return stderr_wrap(format_failure(...args));
 }
 
-module.exports = {
+export {
   colorify,
   parse,
   parse_failure,
-
   format_started,
   format_completed,
   format_intermittent,

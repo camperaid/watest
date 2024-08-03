@@ -1,14 +1,12 @@
-'use strict';
+import { is_output, is_object } from './test.js';
 
-const { is_output, is_object } = require('./test.js');
-
-module.exports.test = async () => {
+export async function test() {
   // sucess
   await is_output(
     () => is_object({ field: 'hey' }, { field: 'hey' }, 'TstMsg'),
     [`Ok: TstMsg, got: {field: 'hey'}\n`],
     [],
-    `sucess`
+    `sucess`,
   );
 
   // types: Set
@@ -16,7 +14,7 @@ module.exports.test = async () => {
     () => is_object(new Set(['v1', 'v2']), ['v1', 'v2'], 'TstMsg'),
     [`Ok: TstMsg, got: Set['v1', 'v2']`],
     [],
-    `types: Set`
+    `types: Set`,
   );
 
   // types: Map
@@ -24,7 +22,7 @@ module.exports.test = async () => {
     () => is_object(new Map([['key', 'val']]), [['key', 'val']], 'TstMsg'),
     [`Ok: TstMsg, got: Map{key: 'val'}`],
     [],
-    `types: Map`
+    `types: Map`,
   );
 
   // types: Date success
@@ -32,7 +30,7 @@ module.exports.test = async () => {
     () => is_object(new Date('2022-01-01'), new Date('2022-01-01'), 'TstMsg'),
     [`Ok: TstMsg, got: 2022-01-01T00:00:00.000Z`],
     [],
-    `types: Date sucess`
+    `types: Date sucess`,
   );
 
   // types: Date failure
@@ -43,7 +41,7 @@ module.exports.test = async () => {
       `Failed: TstMsg: unexpected value: 2022-01-01T00:00:00.000Z, expected: 2023-02-02T00:00:00.000Z`,
       `Failed: TstMsg`,
     ],
-    `types: Date failure`
+    `types: Date failure`,
   );
 
   // function sucess
@@ -51,7 +49,7 @@ module.exports.test = async () => {
     () => is_object({ field: 'hey' }, () => true, 'TstMsg'),
     [`Ok: TstMsg, got: {field: 'hey'}`],
     [],
-    `function sucess`
+    `function sucess`,
   );
 
   // function failure
@@ -62,7 +60,7 @@ module.exports.test = async () => {
       `Failed: TstMsg: unexpected value: {field: 'hey'}, expected: () => false`,
       `Failed: TstMsg`,
     ],
-    `function failure`
+    `function failure`,
   );
 
   // failure: type mismatch
@@ -73,7 +71,7 @@ module.exports.test = async () => {
       `Failed: TstMsg: 'key' field type mismatch, got type: number, expected type: string, got value: 3, expected value: '3'`,
       `Failed: TstMsg`,
     ],
-    `failure: type mismatch`
+    `failure: type mismatch`,
   );
 
   // failure: class mismatch
@@ -84,7 +82,7 @@ module.exports.test = async () => {
       `Failed: TstMsg: class mismatch, got: Array, expected: Map`,
       `Failed: TstMsg`,
     ],
-    `failure: class mismatch, expected of a different class`
+    `failure: class mismatch, expected of a different class`,
   );
 
   // failure: class mismatch
@@ -95,7 +93,7 @@ module.exports.test = async () => {
       `Failed: TstMsg: class mismatch, got: Set, expected: Map`,
       `Failed: TstMsg`,
     ],
-    `failure: class mismatch, |expected| and |got| belong to different classes`
+    `failure: class mismatch, |expected| and |got| belong to different classes`,
   );
 
   // success: class mismatch but |expected| is a generic Object
@@ -109,7 +107,7 @@ module.exports.test = async () => {
     () => is_object(new A(), { name: 'name' }, 'TstMsg'),
     [`Ok: TstMsg, got: {name: 'name'}`],
     [],
-    `success: class mismatch but |expected| is a generic Object`
+    `success: class mismatch but |expected| is a generic Object`,
   );
 
   // failure: value mismatch
@@ -120,7 +118,7 @@ module.exports.test = async () => {
       `Failed: TstMsg: class mismatch, got: Object, expected: null`,
       `Failed: TstMsg`,
     ],
-    `failure: class mismatch (null) #2`
+    `failure: class mismatch (null) #2`,
   );
 
   // failure: value mismatch
@@ -131,7 +129,7 @@ module.exports.test = async () => {
       `Failed: TstMsg: 'field' field value mismatch;\ngot:\nhey\nexpected:\npey\nunexpected character: 'h' at 0 pos, expected: 'p' at '' line`,
       `Failed: TstMsg`,
     ],
-    `failure: value mismatch (strings)`
+    `failure: value mismatch (strings)`,
   );
 
   // failure: not enumerable property value mismatch
@@ -144,14 +142,14 @@ module.exports.test = async () => {
           }
         })(),
         { field: 'pey' },
-        'TstMsg'
+        'TstMsg',
       ),
     [],
     [
       `Failed: TstMsg: 'field' field value mismatch;\ngot:\nhey\nexpected:\npey\nunexpected character: 'h' at 0 pos, expected: 'p' at '' line`,
       `Failed: TstMsg`,
     ],
-    `failure: not enumerable property value mismatch`
+    `failure: not enumerable property value mismatch`,
   );
 
   // failure: primitive
@@ -159,7 +157,7 @@ module.exports.test = async () => {
     () => is_object(null, {}, 'TstMsg'),
     [],
     [`Failed: TstMsg, got: null, expected: [object Object]`],
-    `failure: value mismatch (null)`
+    `failure: value mismatch (null)`,
   );
 
   // failure: field was not expected
@@ -175,7 +173,7 @@ module.exports.test = async () => {
         {
           f2: {},
         },
-        'TstMsg'
+        'TstMsg',
       ),
     [],
     [
@@ -183,7 +181,7 @@ module.exports.test = async () => {
       `Failed: TstMsg: 'f2->f21' field was not expected, got: 'f21'`,
       `Failed: TstMsg`,
     ],
-    `failure: class mismatch`
+    `failure: class mismatch`,
   );
 
   // failure: nested fields, array length mismatch
@@ -200,13 +198,13 @@ module.exports.test = async () => {
             f2: [3],
           },
         },
-        'TstMsg'
+        'TstMsg',
       ),
     [],
     [
       `Failed: TstMsg: 'f1->f2' field array length mismatch, got: 0, expected: 1.\nGot: []\nExpected: [3]`,
       `Failed: TstMsg`,
     ],
-    `failure: nested fields array length mismatch`
+    `failure: nested fields array length mismatch`,
   );
-};
+}

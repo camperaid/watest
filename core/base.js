@@ -1,11 +1,7 @@
-'use strict';
-
-const core = require('./core.js');
-const { success, fail, failed } = core;
-
-const { log, log_error } = require('../logging/logging.js');
-const { format_failure, stderr_unwrap } = require('./format.js');
-const { stringify } = require('./util.js');
+import { success, fail, failed } from './core.js';
+import { format_failure, stderr_unwrap } from './format.js';
+import { stringify } from './util.js';
+import { log, log_error } from '../logging/logging.js';
 
 const limit = 100;
 
@@ -36,7 +32,7 @@ function test_is(got, expected, options = {}) {
     Object.assign(options, {
       fail_: dummy,
       success_: dummy,
-    })
+    }),
   );
 }
 
@@ -51,7 +47,7 @@ function test_contains(got, expected, options = {}) {
     Object.assign(options, {
       fail_: dummy,
       success_: dummy,
-    })
+    }),
   );
 }
 
@@ -69,7 +65,7 @@ function contains(
   got,
   expected,
   msg,
-  { ignore_unexpected, fail_ = fail, success_ = success } = {}
+  { ignore_unexpected, fail_ = fail, success_ = success } = {},
 ) {
   if (typeof got == 'string' || typeof expected == 'string') {
     if (typeof got != 'string') {
@@ -79,8 +75,8 @@ function contains(
     if (typeof expected != 'string') {
       fail_(
         `${msg}, got string, expected ${typeof expected}: ${stringify(
-          expected
-        )}`
+          expected,
+        )}`,
       );
       return false;
     }
@@ -90,15 +86,15 @@ function contains(
     }
     fail_(
       `${msg}, got string doesn't contain expected string, got: ${stringify(
-        got
-      )}, expected: ${stringify(expected)}`
+        got,
+      )}, expected: ${stringify(expected)}`,
     );
     return false;
   }
 
   if (!(expected instanceof Array)) {
     fail_(
-      `${msg}, expected value is not array, expected: ${stringify(expected)}`
+      `${msg}, expected value is not array, expected: ${stringify(expected)}`,
     );
     return false;
   }
@@ -110,7 +106,7 @@ function contains(
 
   if (got.length < expected.length) {
     fail_(
-      `${msg}, array is lesser than expected, ${got.length} vs ${expected.length}`
+      `${msg}, array is lesser than expected, ${got.length} vs ${expected.length}`,
     );
     return false;
   }
@@ -120,13 +116,13 @@ function contains(
       !got.find(g =>
         test_is(g, e, {
           ignore_unexpected,
-        })
+        }),
       )
     ) {
       fail_(
         `${msg}, array has no expected item ${stringify(e)}, got: ${stringify(
-          got
-        )}`
+          got,
+        )}`,
       );
       return false;
     }
@@ -140,14 +136,14 @@ function is_string(
   got,
   expected,
   msg,
-  { fail_ = fail, success_ = success } = {}
+  { fail_ = fail, success_ = success } = {},
 ) {
   // Different types.
   if (typeof got != 'string' || typeof expected != 'string') {
     fail_(
       `${msg} type mismatch, ` +
         `got type: ${typeof got}, expected type: ${typeof expected}, ` +
-        `got value: ${stringify(got)}, expected value: ${stringify(expected)}`
+        `got value: ${stringify(got)}, expected value: ${stringify(expected)}`,
     );
     return false;
   }
@@ -161,7 +157,7 @@ function is_string(
       fail_(
         `${msg};\ngot:\n${got}\nexpected:\n${expected}\n` +
           `unexpected character: '${got.charAt(i)}' at ${i} pos, ` +
-          `expected: '${expected.charAt(i)}' at '${line}' line`
+          `expected: '${expected.charAt(i)}' at '${line}' line`,
       );
       return false;
     }
@@ -178,7 +174,7 @@ function is_string(
   let expected_str = `expected: '${expected}' of ${expected.length} chars`;
   let diff_str = `diff: '${expected.substring(got.length)}'`;
   fail_(
-    `${msg}, string longer than expected, ${got_str}, ${expected_str}, ${diff_str}`
+    `${msg}, string longer than expected, ${got_str}, ${expected_str}, ${diff_str}`,
   );
   return false;
 }
@@ -187,7 +183,7 @@ function is_primitive(
   got,
   expected,
   msg,
-  { enrich_failure_msg, fail_ = fail, success_ = success } = {}
+  { enrich_failure_msg, fail_ = fail, success_ = success } = {},
 ) {
   const enrichmsg = (enrich_failure_msg && `${msg} value mismatch`) || msg;
 
@@ -206,7 +202,7 @@ function is_primitive(
       return true;
     }
     fail_(
-      `${enrichmsg}, got: ${printable_got}, expected: ${expected.toString()}`
+      `${enrichmsg}, got: ${printable_got}, expected: ${expected.toString()}`,
     );
     return false;
   }
@@ -232,7 +228,7 @@ function is_primitive(
     fail_(
       `${msg} type mismatch, ` +
         `got type: ${typeof got}, expected type: ${typeof expected}, ` +
-        `got value: ${stringify(got)}, expected value: ${stringify(expected)}`
+        `got value: ${stringify(got)}, expected value: ${stringify(expected)}`,
     );
     return false;
   }
@@ -256,7 +252,7 @@ function is_object(
     do_not_print_got_on_success,
     fail_ = fail,
     success_ = success,
-  } = {}
+  } = {},
 ) {
   // Primitive values.
   if (!(got instanceof Object)) {
@@ -286,7 +282,7 @@ function is_object_impl(
   expected,
   msg,
   fieldpath,
-  { ignore_unexpected, fail_, success_ }
+  { ignore_unexpected, fail_, success_ },
 ) {
   const contextmsg = `${msg}${(fieldpath && ` '${fieldpath}' field`) || ''}`;
 
@@ -323,7 +319,7 @@ function is_object_impl(
   ) {
     fail_(
       `${contextmsg} class mismatch, got: ${got.constructor.name}, ` +
-        `expected: ${(expected && expected.constructor.name) || expected}`
+        `expected: ${(expected && expected.constructor.name) || expected}`,
     );
     return false;
   }
@@ -354,7 +350,7 @@ function is_object_impl(
           expected.length
         }.
 Got: ${stringify(got)}
-Expected: ${stringify(expected)}`
+Expected: ${stringify(expected)}`,
       );
       return false;
     }
@@ -368,8 +364,8 @@ Expected: ${stringify(expected)}`
         let fpath = (fieldpath && `${fieldpath}->${field}`) || field;
         fail_(
           `${msg} '${fpath}' field was not expected, got: ${stringify(
-            got[field]
-          )}`
+            got[field],
+          )}`,
         );
         isok = false;
       }
@@ -421,7 +417,7 @@ async function is_test_output(func, out, err, msg) {
     func,
     out.map(expected => got => got.trim().startsWith(expected)),
     err.map(expected => got => got.trim().startsWith(expected)),
-    msg
+    msg,
   );
 
   if (!stdout_matched || !stderr_matched) {
@@ -530,8 +526,8 @@ function is_out(got, expected, msg) {
         log_error(
           format_failure(
             `got: ${stringify(got_i)}, expected: ${exp_i}`,
-            `Unexpected output at index ${i},`
-          )
+            `Unexpected output at index ${i},`,
+          ),
         );
       }
       continue;
@@ -546,8 +542,8 @@ function is_out(got, expected, msg) {
         `got: ${stringify(got_i)}, expected: ${exp_i}, got len: ${
           got_i.length
         }, expected len: ${exp_i.length}`,
-        `Unexpected output at index ${i},`
-      )
+        `Unexpected output at index ${i},`,
+      ),
     );
 
     print_string_diff(got_i, exp_i);
@@ -582,7 +578,7 @@ function print_string_diff(got, expected) {
     log_error(
       `${j}\t'${got[j]}'\t'${expected[j]}'\t${
         expected[j] == got[j] ? '' : 'false'
-      }\t${got[j].charCodeAt(0)}\t${expected[j].charCodeAt(0)}`
+      }\t${got[j].charCodeAt(0)}\t${expected[j].charCodeAt(0)}`,
     );
   }
 
@@ -595,11 +591,10 @@ function print_string_diff(got, expected) {
   }
 }
 
-module.exports = {
+export {
   success,
   fail,
   failed,
-
   ok,
   is,
   contains,
@@ -608,13 +603,10 @@ module.exports = {
   is_object,
   is_primitive,
   is_string,
-
   throws,
   no_throws,
-
   test_is,
   test_contains,
-
   capture_output,
   capture_test_output,
   format_test_output,

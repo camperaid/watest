@@ -1,9 +1,10 @@
 {
   "name": "@camperaid/watest/e2e/folder",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "type": "module",
   "description": "Watest E2E Test",
   "engines": {
-    "node": ">=14.15.1"
+    "node": ">=20.16.0"
   },
   "scripts": {
     "test": "watest"

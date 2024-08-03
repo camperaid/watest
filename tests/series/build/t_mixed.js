@@ -1,8 +1,6 @@
-'use strict';
+import { is, MockSeries } from '../test.js';
 
-const { is, MockSeries } = require('../test.js');
-
-module.exports.test = async () => {
+export async function test() {
   const init = got => got.name == 'init';
   const func = got => got.name == 'test_wrap';
   const uninit = got => got.name == 'uninit';
@@ -119,6 +117,6 @@ module.exports.test = async () => {
         init_or_uninit: true,
       },
     ],
-    'build'
+    'build',
   );
-};
+}

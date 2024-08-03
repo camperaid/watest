@@ -1,20 +1,23 @@
-'use strict';
+import { colorify, group, fail, success, is_output } from './test.js';
 
-const { colorify, group, fail, success, is_output } = require('./test.js');
-
-module.exports.test = async () => {
+export async function test() {
   // console.log
   await is_output(() => console.log(3), [`[33m3[39m\n`], [], `console.log(3)`);
 
   // console.error
-  await is_output(() => console.error(3), [], [`[33m3[39m\n`], `console.error(3)`);
+  await is_output(
+    () => console.error(3),
+    [],
+    [`[33m3[39m\n`],
+    `console.error(3)`,
+  );
 
   // group(msg)
   await is_output(
     () => group('message'),
     [colorify('group', `Group:`, 'message')],
     [],
-    `group(msg)`
+    `group(msg)`,
   );
 
   // group(msg, label);
@@ -22,7 +25,7 @@ module.exports.test = async () => {
     () => group('message', 'Block'),
     [colorify('group', `Block:`, 'message')],
     [],
-    `group(msg, label)`
+    `group(msg, label)`,
   );
 
   // success()
@@ -30,4 +33,4 @@ module.exports.test = async () => {
 
   // fail()
   await is_output(() => fail('Fail'), [], [`Failed: Fail`], `fail()`);
-};
+}

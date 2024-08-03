@@ -1,12 +1,6 @@
-'use strict';
+import { is_test_output, make_perform_function, success } from '../test.js';
 
-const {
-  is_test_output,
-  make_perform_function,
-  success,
-} = require('../test.js');
-
-module.exports.test = async () => {
+export async function test() {
   await is_test_output(
     make_perform_function([
       {
@@ -58,6 +52,6 @@ module.exports.test = async () => {
       '\x1B[38;5;243mCompleted\x1B[0m tests/',
     ],
     [],
-    'nested'
+    'nested',
   );
-};
+}

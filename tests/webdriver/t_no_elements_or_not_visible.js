@@ -1,6 +1,4 @@
-'use strict';
-
-const { do_self_tests, is_failure_output, is_ok_output } = require('./test.js');
+import { do_self_tests, is_failure_output, is_ok_output } from './test.js';
 
 const snippet = `
 <html><body>
@@ -9,20 +7,20 @@ const snippet = `
 </body></html>
 `;
 
-module.exports.test = do_self_tests(snippet, async ({ driver }) => {
+export var test = do_self_tests(snippet, async ({ driver }) => {
   // noElementsOrNotVisible: no elements: success
   await is_ok_output(
     () =>
       driver.noElementsOrNotVisible(
         '#input-doesnot-exist',
-        `noElementsOrNotVisible`
+        `noElementsOrNotVisible`,
       ),
     [
       `Test: noElementsOrNotVisible. Selector: '#input-doesnot-exist'`,
       `Ok: noElementsOrNotVisible`,
     ],
     [],
-    `noElementsOrNotVisible:no elements: success`
+    `noElementsOrNotVisible:no elements: success`,
   );
 
   // noElementsOrNotVisible: not visible: success
@@ -30,14 +28,14 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
     () =>
       driver.noElementsOrNotVisible(
         '#input-not-visible',
-        `noElementsOrNotVisible`
+        `noElementsOrNotVisible`,
       ),
     [
       `Test: noElementsOrNotVisible. Selector: '#input-not-visible'`,
       `Ok: noElementsOrNotVisible`,
     ],
     [],
-    `noElementsOrNotVisible:not visible:success`
+    `noElementsOrNotVisible:not visible:success`,
   );
 
   // noElementsOrNotVisible: visible: failure
@@ -50,6 +48,6 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Failed: noElementsOrNotVisible, timeout while waiting to meet criteria`,
       `Failed: noElementsOrNotVisible. Failure details: Got elements count: 1, elements visibility [true], expected: not visible`,
     ],
-    `noElementsOrNotVisible:visible:failure`
+    `noElementsOrNotVisible:visible:failure`,
   );
 });

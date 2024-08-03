@@ -1,8 +1,6 @@
-'use strict';
+import { is_test_output, make_perform_function } from '../test.js';
 
-const { is_test_output, make_perform_function } = require('../test.js');
-
-module.exports.test = async () => {
+export async function test() {
   // fail
   await is_test_output(
     make_perform_function([
@@ -23,6 +21,6 @@ module.exports.test = async () => {
       '\x1B[31mFailed:\x1B[0m Neighter failure nor success in t_testo.js',
       '\x1B[31m>t_testo.js\x1B[0m has 1 failure(s)',
     ],
-    'fail'
+    'fail',
   );
-};
+}

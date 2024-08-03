@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Logging hook interface. Allows to connect logging servers to the testsuite.
  */
@@ -26,4 +24,4 @@ class Logger {
   }
 }
 
-module.exports = new Logger();
+export default new Logger();

@@ -1,16 +1,14 @@
-'use strict';
-
-const { assert } = require('../core/core.js');
+import { assert } from '../core/core.js';
 
 /**
  * Defines a forward-proxy promise for a given class. For a class T
  * the TPromise class is created.
  */
-module.exports.define_class_promise = (
+export function define_class_promise(
   T,
-  Resolvent = (v, ...args) => new T(...args, v)
-) =>
-  class extends T {
+  Resolvent = (v, ...args) => new T(...args, v),
+) {
+  return class extends T {
     constructor(p, ...args) {
       assert(p, 'No promise for promise class');
       super(...args);
@@ -28,7 +26,7 @@ module.exports.define_class_promise = (
             }
             throw e;
           }),
-        ...this.args
+        ...this.args,
       );
     }
 
@@ -36,3 +34,4 @@ module.exports.define_class_promise = (
       return new this.constructor(this.p.catch(reject), ...this.args);
     }
   };
+}

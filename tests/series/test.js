@@ -1,20 +1,5 @@
-'use strict';
-
-const { Core } = require('../../core/core.js');
-const { Series } = require('../../core/series.js');
-
-const scripts = [
-  '../../core/util.js',
-  '../../core/base.js',
-  '../../core/format.js',
-  './mock_series.js',
-];
-for (let script of scripts) {
-  let script_exports = require(script);
-  for (let e in script_exports) {
-    module.exports[e] = script_exports[e];
-  }
-}
+import { Core } from '../../core/core.js';
+import { Series } from '../../core/series.js';
 
 function build_tests(tests) {
   return tests.map(t => ({
@@ -44,17 +29,17 @@ class MockLogPipe {
   logToFile() {}
 }
 
-module.exports.Series = Series;
+export * from '../../core/util.js';
+export * from '../../core/base.js';
+export * from '../../core/format.js';
+export * from './mock_series.js';
+
+export { Series };
 
 /**
  * Message output checkers.
  */
-module.exports.completed_checkers = ({
-  name,
-  intermittents,
-  todos,
-  warnings,
-}) => {
+export function completed_checkers({ name, intermittents, todos, warnings }) {
   let checkers = [];
   if (intermittents) {
     checkers.push(`>${name} has ${intermittents} intermittent(s)`);
@@ -67,22 +52,26 @@ module.exports.completed_checkers = ({
   }
   checkers.push(got => got.startsWith(`>${name} completed in`));
   return checkers;
-};
+}
 
-module.exports.logswritten_checker = got =>
-  got.startsWith('Logs are written to');
+export function logswritten_checker(got) {
+  return got.startsWith('Logs are written to');
+}
 
-module.exports.running_checker = (name, path) =>
-  `\n!Running: ${name}, path: ${path}\n\n`;
+export function running_checker(name, path) {
+  return `\n!Running: ${name}, path: ${path}\n\n`;
+}
 
-module.exports.make_perform_function = tests => async () => {
-  const series = new Series('tests/', {
-    core: new Core(),
-    LogPipe: new MockLogPipe(),
-  });
-  try {
-    await series.perform({ folder: 'tests/', tests: build_tests(tests) });
-  } finally {
-    series.shutdown();
-  }
-};
+export function make_perform_function(tests) {
+  return async () => {
+    const series = new Series('tests/', {
+      core: new Core(),
+      LogPipe: new MockLogPipe(),
+    });
+    try {
+      await series.perform({ folder: 'tests/', tests: build_tests(tests) });
+    } finally {
+      series.shutdown();
+    }
+  };
+}

@@ -1,6 +1,4 @@
-'use strict';
-
-const { AppDriver, do_self_tests, is_ok_output } = require('./test.js');
+import { AppDriver, do_self_tests, is_ok_output } from './test.js';
 
 const snippet = `
 <html><body>
@@ -17,7 +15,7 @@ class Input extends AppDriver {
   }
 }
 
-module.exports.test = do_self_tests(snippet, async session => {
+export var test = do_self_tests(snippet, async session => {
   // AppDriver: chainable
   let expectations = session.isFirefox()
     ? [
@@ -69,6 +67,6 @@ module.exports.test = do_self_tests(snippet, async session => {
     () => Input.get(session).type('hello'),
     expectations,
     [],
-    `AppDriver: chainable`
+    `AppDriver: chainable`,
   );
 });

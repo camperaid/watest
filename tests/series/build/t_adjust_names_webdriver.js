@@ -1,8 +1,6 @@
-'use strict';
+import { is, MockSeries } from '../test.js';
 
-const { is, MockSeries } = require('../test.js');
-
-module.exports.test = async () => {
+export async function test() {
   const test = got => got.name == 'test_wrap';
   const ts = {
     'tests': {
@@ -63,10 +61,8 @@ module.exports.test = async () => {
                     path: 'tests/webdriver/end-to-end/sharing/',
                     subtests: [
                       {
-                        name:
-                          'mac/webdriver/chrome/end-to-end/sharing2/t_shared_editing.js',
-                        path:
-                          'tests/webdriver/end-to-end/sharing/t_shared_editing.js',
+                        name: 'mac/webdriver/chrome/end-to-end/sharing2/t_shared_editing.js',
+                        path: 'tests/webdriver/end-to-end/sharing/t_shared_editing.js',
                         func: test,
                         webdriver: 'chrome',
                         failures_info: [],
@@ -80,6 +76,6 @@ module.exports.test = async () => {
         ],
       },
     ],
-    'build'
+    'build',
   );
-};
+}

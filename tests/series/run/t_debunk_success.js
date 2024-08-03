@@ -1,8 +1,6 @@
-'use strict';
+import { is_test_output, MockSeries, success } from '../test.js';
 
-const { is_test_output, MockSeries, success } = require('../test.js');
-
-module.exports.test = async () => {
+export async function test() {
   const ts = {
     'tests': {
       meta: {
@@ -33,6 +31,9 @@ module.exports.test = async () => {
   ];
 
   const expected_stdout = [
+    'Settings: no temporary storage dir',
+    'Settings: logging into /tmp',
+    'Settings: chrome webdrivers',
     ...expected_out_for_success,
     ...expected_out_for_success,
     ...expected_out_for_success,
@@ -50,6 +51,6 @@ module.exports.test = async () => {
     () => MockSeries.run([], { ts, debunk: true }),
     expected_stdout,
     expected_stderr,
-    'debunk success'
+    'debunk success',
   );
-};
+}

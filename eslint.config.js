@@ -1,15 +1,13 @@
-'use strict';
+import js from '@eslint/js'; // eslint-disable-line n/no-unpublished-import
+import nodePlugin from 'eslint-plugin-n'; // eslint-disable-line n/no-unpublished-import
 
-const js = require('@eslint/js'); // eslint-disable-line n/no-unpublished-require
-const nodePlugin = require('eslint-plugin-n'); // eslint-disable-line n/no-unpublished-require
-
-module.exports = [
+export default [
   js.configs.recommended,
-  nodePlugin.configs["flat/recommended-script"],
+  nodePlugin.configs['flat/recommended-script'],
   {
     languageOptions: {
       ecmaVersion: 2021,
-      sourceType: 'commonjs',
+      sourceType: 'module',
     },
   },
   {
@@ -20,9 +18,6 @@ module.exports = [
   },
   {
     files: ['tests/e2e/samples/**'],
-    languageOptions: {
-      sourceType: 'module', // Use ES modules
-    },
     settings: {
       node: {
         allowModules: ['watest'],

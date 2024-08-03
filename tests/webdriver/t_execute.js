@@ -1,6 +1,4 @@
-'use strict';
-
-const { do_self_tests, is } = require('./test.js');
+import { do_self_tests, is } from './test.js';
 
 const snippet = `
 <html><body>
@@ -17,15 +15,15 @@ const snippet = `
 </body></html>
 `;
 
-module.exports.test = do_self_tests(snippet, async ({ driver }) => {
+export var test = do_self_tests(snippet, async ({ driver }) => {
   is(
     await driver.executeScript('window.getValue()', `get input value`),
     'hey',
-    'get input value sync'
+    'get input value sync',
   );
   is(
     await driver.executeScript('window.getValueAsync()', `get input value`),
     'hey',
-    'get input value async'
+    'get input value async',
   );
 });

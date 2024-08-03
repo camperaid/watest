@@ -1,14 +1,12 @@
-'use strict';
+import { is_string, is_output } from './test.js';
 
-const { is_string, is_output } = require('./test.js');
-
-module.exports.test = async () => {
+export async function test() {
   // success
   await is_output(
     () => is_string('Success', 'Success', `Strings equal`),
     [`[32mOk:[0m Strings equal, got: Success\n`],
     [],
-    `success`
+    `success`,
   );
 
   // failure
@@ -23,6 +21,6 @@ expected:
 Fail
 unexpected character: 'S' at 0 pos, expected: 'F' at '' line\n`,
     ],
-    `failure`
+    `failure`,
   );
-};
+}

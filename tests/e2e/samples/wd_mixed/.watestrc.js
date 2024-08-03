@@ -4,4 +4,4 @@ const cfg = {
   webdriver_headless: true,
 };
 
-module.exports = cfg;
+export default cfg;

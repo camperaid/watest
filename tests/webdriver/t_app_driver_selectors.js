@@ -1,6 +1,4 @@
-'use strict';
-
-const { AppDriver, is, do_self_tests } = require('./test.js');
+import { AppDriver, is, do_self_tests } from './test.js';
 
 const snippet = `
 <html><body>
@@ -24,7 +22,7 @@ class Body extends AppDriver {
   }
 }
 
-module.exports.test = do_self_tests(snippet, async session => {
+export var test = do_self_tests(snippet, async session => {
   let body = await Body.get(session);
   is(body.Self, 'body', `AppDriver selectors: Self`);
   is(body.Form.Self, 'body .form', `AppDriver selectors: Form.Self`);
@@ -32,6 +30,6 @@ module.exports.test = do_self_tests(snippet, async session => {
   is(
     body.Form.Button,
     'body .form .button',
-    `AppDriver selectors: Form.Button`
+    `AppDriver selectors: Form.Button`,
   );
 });

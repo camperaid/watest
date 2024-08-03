@@ -1,6 +1,4 @@
-'use strict';
-
-const { do_self_tests, is_failure_output, is_ok_output } = require('./test.js');
+import { do_self_tests, is_failure_output, is_ok_output } from './test.js';
 
 const snippet = `
 <html><body>
@@ -10,7 +8,7 @@ const snippet = `
 </body></html>
 `;
 
-module.exports.test = do_self_tests(snippet, async ({ driver }) => {
+export var test = do_self_tests(snippet, async ({ driver }) => {
   // classNameStateIs: on
   await is_ok_output(
     () =>
@@ -21,7 +19,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Ok: classNameStateIs.on`,
     ],
     [],
-    `classNameStateIs.on`
+    `classNameStateIs.on`,
   );
 
   // classNameStateIs: off
@@ -31,7 +29,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
         '#input',
         'chorizo-off',
         'off',
-        `classNameStateIs.off`
+        `classNameStateIs.off`,
       ),
     [
       `Test: classNameStateIs.off. Selector: '#input'`,
@@ -39,7 +37,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Ok: classNameStateIs.off`,
     ],
     [],
-    `classNameStateIs.off`
+    `classNameStateIs.off`,
   );
 
   // classNameStateIs: failure
@@ -50,7 +48,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
         '#input',
         'chorizo-off',
         'on',
-        `classNameStateIs.off`
+        `classNameStateIs.off`,
       ),
     [`Test: classNameStateIs.off. Selector: '#input'`],
     [
@@ -58,7 +56,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Failed: classNameStateIs.off, timeout while waiting to meet criteria`,
       `Failed: classNameStateIs.off`,
     ],
-    `classNameStateIs.failure`
+    `classNameStateIs.failure`,
   );
 
   // innerHTMLIs
@@ -70,7 +68,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Ok: innerHTMLIs`,
     ],
     [],
-    `innerHTMLIs`
+    `innerHTMLIs`,
   );
 
   // innerHTMLIs: failure
@@ -88,7 +86,7 @@ unexpected character: '<' at 0 pos, expected: 'b' at '' line`,
       `Failed: innerHTMLIs, timeout while waiting to meet criteria`,
       `Failed: innerHTMLIs`,
     ],
-    `innerHTMLIs:failure`
+    `innerHTMLIs:failure`,
   );
 
   // propertyIs
@@ -100,7 +98,7 @@ unexpected character: '<' at 0 pos, expected: 'b' at '' line`,
       `Ok: propertyIs`,
     ],
     [],
-    `propertyIs`
+    `propertyIs`,
   );
 
   // propertyIs: failure
@@ -113,6 +111,6 @@ unexpected character: '<' at 0 pos, expected: 'b' at '' line`,
       `Failed: propertyIs, timeout while waiting to meet criteria`,
       `Failed: propertyIs`,
     ],
-    `propertyIs:failure`
+    `propertyIs:failure`,
   );
 });

@@ -1,14 +1,15 @@
-'use strict';
+import fs from 'fs';
+import querystring from 'querystring';
+import util from 'util';
 
-const fs = require('fs');
-const { log } = require('../logging/logging.js');
-const cfg = require('./settings.js');
+import { log } from '../logging/logging.js';
+import settings from './settings.js';
 
 /**
  * Logs object in console colored.
  */
 function inspect(obj) {
-  log(require('util').inspect(obj, false, null, true /* enable colors */));
+  log(util.inspect(obj, false, null, true /* enable colors */));
 }
 
 /**
@@ -38,7 +39,7 @@ function stringify(obj, traces = new Set()) {
   }
   if (obj instanceof Map) {
     let entries = Array.from(obj.entries()).map(
-      ([k, v]) => `${k}: ${stringify(v, traces)}`
+      ([k, v]) => `${k}: ${stringify(v, traces)}`,
     );
     return `Map{${entries.join(', ')}}`;
   }
@@ -74,9 +75,9 @@ function stringify(obj, traces = new Set()) {
  * A temporary storage dir.
  */
 function initTmpStorage() {
-  if (cfg.tmp_storage_dir) {
-    removeDir(cfg.tmp_storage_dir);
-    fs.mkdirSync(cfg.tmp_storage_dir);
+  if (settings.tmp_storage_dir) {
+    removeDir(settings.tmp_storage_dir);
+    fs.mkdirSync(settings.tmp_storage_dir);
   }
 }
 
@@ -102,15 +103,7 @@ function is_mac() {
 }
 
 function toDataURL(html) {
-  return `data:text/html,${require('querystring').escape(html)}`;
+  return `data:text/html,${querystring.escape(html)}`;
 }
 
-module.exports = {
-  inspect,
-  stringify,
-  is_mac,
-  toDataURL,
-
-  removeDir,
-  initTmpStorage,
-};
+export { inspect, stringify, is_mac, toDataURL, removeDir, initTmpStorage };

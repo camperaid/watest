@@ -1,6 +1,4 @@
-'use strict';
-
-const { do_self_tests, is_failure_output, is_ok_output } = require('./test.js');
+import { do_self_tests, is_failure_output, is_ok_output } from './test.js';
 
 const snippet = `
 <html><body>
@@ -15,7 +13,7 @@ const snippet = `
 </body></html>
 `;
 
-module.exports.test = do_self_tests(snippet, async ({ driver }) => {
+export var test = do_self_tests(snippet, async ({ driver }) => {
   // textIs: success
   await is_ok_output(
     () => driver.textIs('#p', 'Paragraph', `textIs`),
@@ -25,7 +23,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Ok: textIs`,
     ],
     [],
-    `textIs`
+    `textIs`,
   );
 
   // textIs: whitespaces
@@ -37,7 +35,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Ok: textIs`,
     ],
     [],
-    `textIs:whitespaces`
+    `textIs:whitespaces`,
   );
 
   // textIs: failure
@@ -50,7 +48,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Failed: textIs, timeout while waiting to meet criteria`,
       `Failed: textIs`,
     ],
-    `textIs:failure`
+    `textIs:failure`,
   );
 
   // textIs: ambigious
@@ -62,7 +60,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Failed: textIs, ambigious 'p' selector, got 3 elements, expected 1`,
       `Failed: textIs`,
     ],
-    `textIs:ambigious`
+    `textIs:ambigious`,
   );
 
   // textIs: no elements
@@ -74,7 +72,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Failed: textIs, no elements matching '#p-not-exists' selector`,
       `Failed: textIs`,
     ],
-    `textIs:noelements`
+    `textIs:noelements`,
   );
 
   // textIs: input
@@ -86,7 +84,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Ok: textIs`,
     ],
     [],
-    `textIs:input`
+    `textIs:input`,
   );
 
   // textIs: textarea
@@ -98,7 +96,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Ok: textIs`,
     ],
     [],
-    `textIs:textarea`
+    `textIs:textarea`,
   );
 
   // textStartsWith: success
@@ -110,7 +108,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Ok: textStartsWith`,
     ],
     [],
-    `textStartsWith`
+    `textStartsWith`,
   );
 
   // textStartsWith: failure
@@ -123,7 +121,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Failed: textStartsWith, timeout while waiting to meet criteria`,
       `Failed: textStartsWith`,
     ],
-    `textStartsWith:failure`
+    `textStartsWith:failure`,
   );
 
   // textEmpty: success
@@ -135,6 +133,6 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Ok: textEmpty`,
     ],
     [],
-    `textEmpty`
+    `textEmpty`,
   );
 });

@@ -1,8 +1,6 @@
-'use strict';
+import { is, MockSeries } from '../test.js';
 
-const { is, MockSeries } = require('../test.js');
-
-module.exports.test = async () => {
+export async function test() {
   const ts = {
     'tests': {
       meta: {
@@ -48,6 +46,6 @@ module.exports.test = async () => {
         webdriver: '',
       },
     ],
-    'pattern'
+    'pattern',
   );
-};
+}

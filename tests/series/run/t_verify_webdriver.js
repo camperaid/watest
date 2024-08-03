@@ -1,8 +1,6 @@
-'use strict';
+import { fail, is_test_output, MockSeries, success } from '../test.js';
 
-const { fail, is_test_output, MockSeries, success } = require('../test.js');
-
-module.exports.test = async () => {
+export async function test() {
   let testfailed = false;
   const ts = {
     'tests': {
@@ -33,6 +31,9 @@ module.exports.test = async () => {
   };
 
   const expected_stdout = [
+    'Settings: no temporary storage dir',
+    'Settings: logging into /tmp',
+    'Settings: chrome webdrivers',
     '\x1B[38;5;99mStarted\x1B[0m mac/',
     '\x1B[38;5;99mStarted\x1B[0m mac/webdriver',
     '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/chrome',
@@ -103,6 +104,6 @@ module.exports.test = async () => {
       }),
     expected_stdout,
     expected_stderr,
-    'verify_wd'
+    'verify_wd',
   );
-};
+}

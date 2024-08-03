@@ -1,3 +1,1 @@
-'use strict';
-
-module.exports.webdriver = true;
+export var webdriver = true;

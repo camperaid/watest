@@ -1,7 +1,5 @@
-'use strict';
-
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 /**
  * Writes to a local file.
@@ -37,6 +35,4 @@ class FileStream {
   }
 }
 
-module.exports = {
-  FileStream,
-};
+export { FileStream };

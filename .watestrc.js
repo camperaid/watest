@@ -1,5 +1,3 @@
-'use strict';
-
 const cfg = {
   /**
    * Test run and invocation. If not set, then the testuiste will generate them.
@@ -61,4 +59,4 @@ const cfg = {
   ignore_pattern: process.env.WATEST_IGNORE_PATTERN,
 };
 
-module.exports = cfg;
+export default cfg;

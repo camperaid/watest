@@ -1,14 +1,12 @@
-'use strict';
+import { contains, is_output } from './test.js';
 
-const { contains, is_output } = require('./test.js');
-
-module.exports.test = async () => {
+export async function test() {
   // string: success
   await is_output(
     () => contains('green cat', 'cat', `String contains`),
     [`Ok: String contains, got: 'green cat'`],
     [],
-    `success`
+    `success`,
   );
 
   // string: failure: expected string, got array
@@ -16,7 +14,7 @@ module.exports.test = async () => {
     () => contains([], 'green cat', `String contains`),
     [],
     [`Failed: String contains, expected string, got object: []`],
-    `failure`
+    `failure`,
   );
 
   // string: failure: got string, expected array
@@ -24,15 +22,17 @@ module.exports.test = async () => {
     () => contains('cat', [], `String contains`),
     [],
     [`Failed: String contains, got string, expected object: []`],
-    `failure`
+    `failure`,
   );
 
   // string: failure: doesn't contains
   await is_output(
     () => contains('cat', 'green cat', `String contains`),
     [],
-    [`Failed: String contains, got string doesn't contain expected string, got: 'cat', expected: 'green cat'`],
-    `failure`
+    [
+      `Failed: String contains, got string doesn't contain expected string, got: 'cat', expected: 'green cat'`,
+    ],
+    `failure`,
   );
 
   // array: success
@@ -40,7 +40,7 @@ module.exports.test = async () => {
     () => contains([0, 1], [1], `Array contains`),
     [`Ok: Array contains, got: [0, 1]`],
     [],
-    `success`
+    `success`,
   );
 
   // array: failure
@@ -48,6 +48,6 @@ module.exports.test = async () => {
     () => contains([0, 1], [1, 3], `Array contains`),
     [],
     [`Failed: Array contains, array has no expected item 3, got: [0, 1]`],
-    `failure`
+    `failure`,
   );
-};
+}

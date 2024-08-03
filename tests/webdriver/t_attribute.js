@@ -1,6 +1,4 @@
-'use strict';
-
-const { do_self_tests, is_failure_output, is_ok_output } = require('./test.js');
+import { do_self_tests, is_failure_output, is_ok_output } from './test.js';
 
 const snippet = `
 <html><body>
@@ -8,7 +6,7 @@ const snippet = `
 </body></html>
 `;
 
-module.exports.test = do_self_tests(snippet, async ({ driver }) => {
+export var test = do_self_tests(snippet, async ({ driver }) => {
   // attributeIs: success
   await is_ok_output(
     () => driver.attributeIs('#input', 'value', 'hey', `attributeIs`),
@@ -18,7 +16,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Ok: attributeIs`,
     ],
     [],
-    `attributeIs:success`
+    `attributeIs:success`,
   );
 
   // attributeIs: failure
@@ -31,7 +29,7 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Failed: attributeIs, timeout while waiting to meet criteria`,
       `Failed: attributeIs`,
     ],
-    `attributeIs:failed`
+    `attributeIs:failed`,
   );
 
   // attributeContains: success
@@ -44,6 +42,6 @@ module.exports.test = do_self_tests(snippet, async ({ driver }) => {
       `Ok: attributeContains`,
     ],
     [],
-    `attributeContains:success`
+    `attributeContains:success`,
   );
 });

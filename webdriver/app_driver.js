@@ -1,7 +1,5 @@
-'use strict';
-
-const { define_class_promise } = require('./util.js');
-const { assert } = require('../core/core.js');
+import { define_class_promise } from './util.js';
+import { assert } from '../core/core.js';
 
 /**
  * A bass class used to create chainable application drivers.
@@ -38,8 +36,8 @@ class AppDriver {
     return this.chain(() =>
       this.action(`Get ${this.uiname}`).elementVisible(
         this.Self,
-        `${this.uiname} is shown`
-      )
+        `${this.uiname} is shown`,
+      ),
     );
   }
 
@@ -67,7 +65,7 @@ class AppDriver {
     assert(typeof link == 'function', `Only function can be chained`);
     return new this.constructor.CtorPromise(
       this.p.then(link),
-      Object.assign({}, this.properties, properties || {})
+      Object.assign({}, this.properties, properties || {}),
     );
   }
 
@@ -78,7 +76,7 @@ class AppDriver {
         .elementFocused(selector, 'Focused')
         .selectAll(selector, `Select all text`)
         .sendKeys(selector, value, `Type into ${field}`)
-        .textIs(selector, value, `Check ${field} text`)
+        .textIs(selector, value, `Check ${field} text`),
     );
   }
 
@@ -86,7 +84,7 @@ class AppDriver {
     return this.chain(() =>
       this.action(`${this.uiname}.clear ${field}`)
         .clear(selector, `Clear text`)
-        .textIs(selector, '', `Check ${field} text`)
+        .textIs(selector, '', `Check ${field} text`),
     );
   }
 
@@ -94,7 +92,7 @@ class AppDriver {
     return this.chain(() =>
       this.action(`${this.uiname}.setValue for ${field}`)
         .setValue(selector, value, `Set value property for ${field}`)
-        .textIs(selector, value, `Check ${field} text`)
+        .textIs(selector, value, `Check ${field} text`),
     );
   }
 
@@ -102,7 +100,7 @@ class AppDriver {
     return this.chain(() =>
       this.action(`${this.uiname}.check ${field}`)
         .click(selector, `Click at ${field}`)
-        .hasElements(`${selector}:checked`, `${field} should be checked`)
+        .hasElements(`${selector}:checked`, `${field} should be checked`),
     );
   }
 
@@ -112,8 +110,8 @@ class AppDriver {
         .click(selector, `Click at ${field}`)
         .hasElements(
           `${selector}:not(:checked)`,
-          `${field} should be unchecked`
-        )
+          `${field} should be unchecked`,
+        ),
     );
   }
 
@@ -121,14 +119,14 @@ class AppDriver {
     return this.chain(() =>
       this.action(`${this.uiname}.execute ${descr}`).executeScript(
         script,
-        `Execute script`
-      )
+        `Execute script`,
+      ),
     );
   }
 
   screenshot(msg) {
     return this.chain(() =>
-      this.action(`${this.uiname}.screenshot for ${msg}`).screenshot()
+      this.action(`${this.uiname}.screenshot for ${msg}`).screenshot(),
     );
   }
 
@@ -185,6 +183,4 @@ class AppDriver {
   }
 }
 
-module.exports = {
-  AppDriver,
-};
+export { AppDriver };
