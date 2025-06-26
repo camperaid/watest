@@ -95,6 +95,11 @@ class Settings {
       this.rc.webdriver_headless == 'true';
     this.webdriver_loglevel = this.rc.webdriver_loglevel;
 
+    this.webdriver_window_width =
+      parseInt(this.rc.webdriver_window_width) || 1366;
+    this.webdriver_window_height =
+      parseInt(this.rc.webdriver_window_height) || 768;
+
     if (this.webdrivers) {
       console.log(`Settings: ${this.webdrivers.join(', ')} webdrivers`);
     }

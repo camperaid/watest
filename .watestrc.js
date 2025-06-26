@@ -33,6 +33,12 @@ const cfg = {
   webdriver_headless: process.env.WATEST_WEBDRIVER_HEADLESS,
 
   /**
+   *  Web driver window size.
+   */
+  webdriver_window_width: process.env.WATEST_WEBDRIVER_WINDOW_WIDTH,
+  webdriver_window_height: process.env.WATEST_WEBDRIVER_WINDOW_HEIGHT,
+
+  /**
    * Web driver log level.
    */
   webdriver_loglevel: process.env.WATEST_WEBDRIVER_LOGLEVEL,

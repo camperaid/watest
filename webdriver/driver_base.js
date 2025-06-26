@@ -26,8 +26,8 @@ import chrome from 'selenium-webdriver/chrome.js';
 
 function getChromeOptions() {
   const chromeOptions = new chrome.Options().windowSize({
-    width: 1366,
-    height: 768,
+    width: settings.webdriver_window_width,
+    height: settings.webdriver_window_height,
   });
   if (settings.webdriver_headless) {
     chromeOptions.addArguments('headless');
