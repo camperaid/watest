@@ -115,6 +115,19 @@ class AppDriver {
     );
   }
 
+  select(selectSelector, optionSelector, optionValue, field) {
+    return this.chain(() =>
+      this.action(`${this.uiname}.select '${optionValue}' into ${field}`)
+        .click(selectSelector, `Open ${field} select`)
+        .click(optionSelector, `Select '${optionValue}' in ${field}`)
+        .textIs(
+          selectSelector,
+          optionValue,
+          `Check '${optionValue}' option selected in ${field}`,
+        ),
+    );
+  }
+
   execute(script, descr) {
     return this.chain(() =>
       this.action(`${this.uiname}.execute ${descr}`).executeScript(
