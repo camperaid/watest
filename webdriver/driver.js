@@ -802,9 +802,13 @@ class Driver extends DriverBase {
   /**
    * Press tab key.
    */
-  tab() {
+  tab(tabCount = 1) {
     return this.run(
-      () => this.dvr.actions({ bridge: true }).sendKeys(Key.TAB).perform(),
+      () =>
+        this.dvr
+          .actions({ bridge: true })
+          .sendKeys(Array(tabCount).fill(Key.TAB).join(''))
+          .perform(),
       `Press Tab`,
     );
   }
