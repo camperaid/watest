@@ -907,7 +907,8 @@ class Series {
   performInChildProcess({ name, path, loader, webdriver }) {
     let args = [];
     if (loader) {
-      args.push('--loader', loader);
+      // Use the new --import flag with register() API instead of deprecated --loader
+      args.push('--import', `data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("${loader}", pathToFileURL("./"));`);
     }
     const watest_bin = nodepath.join(__dirname, '../bin/watest.js');
     args.push(

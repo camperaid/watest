@@ -1,10 +1,10 @@
 export const loader = true;
 
-export async function resolve(specifier, context, defaultResolve) {
+export async function resolve(specifier, context, nextResolve) {
   switch (specifier) {
     case './base.mjs':
       specifier = './base_mock.mjs';
       break;
   }
-  return defaultResolve(specifier, context, defaultResolve);
+  return nextResolve(specifier, context);
 }
