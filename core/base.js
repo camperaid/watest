@@ -552,21 +552,34 @@ function is_out(got, expected, msg) {
 }
 
 function throws(func, exception, msg) {
-  try {
-    func();
-    fail(`${msg}: no '${exception}' exception`);
-  } catch (e) {
-    is(e?.message, exception, msg);
-  }
+  const on_no_exception = () => fail(`${msg}: no '${exception}' exception`);
+  const on_exception = e => is(e?.message, exception, msg);
+  return throw_internal(func, on_no_exception, on_exception);
 }
 
 function no_throws(func, msg) {
-  try {
-    func();
-    success(msg);
-  } catch (e) {
+  const on_no_exception = () => success(msg);
+  const on_exception = e => {
     log_error(e);
     fail(`${msg}, got: ${e?.message ?? ''} exception`);
+  };
+  return throw_internal(func, on_no_exception, on_exception);
+}
+
+function throw_internal(func, on_no_exception, on_exception) {
+  try {
+    const result = func();
+
+    // If result is a Promise, handle it asynchronously
+    if (result && typeof result.then === 'function') {
+      return result.then(on_no_exception, on_exception);
+    }
+
+    // Sync function completed successfully (no exception)
+    on_no_exception();
+  } catch (e) {
+    // Sync function threw an exception
+    on_exception(e);
   }
 }
 
