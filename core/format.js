@@ -116,9 +116,10 @@ function format_warnings(count, context) {
   return colorify('warnings', label, `Total: ${count}`);
 }
 
-// Node v20 wraps stderr by '\[31m' and '\[39m' characters.
 function stderr_wrap(s) {
-  return `[31m${s}[39m`;
+  // Node v22 doesn't wraps stderr by '\[31m' and '\[39m'
+  // characters unlike node v20.
+  return s;
 }
 
 function stderr_unwrap(s) {

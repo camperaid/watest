@@ -570,8 +570,8 @@ function throw_internal(func, on_no_exception, on_exception) {
   try {
     const result = func();
 
-    // If result is a Promise, handle it asynchronously
-    if (result && typeof result.then === 'function') {
+    // If result is a Promise, handle it asynchronously.
+    if (result instanceof Promise) {
       return result.then(on_no_exception, on_exception);
     }
 
