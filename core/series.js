@@ -641,6 +641,16 @@ class Series {
       let kungFuDeathGrip = null;
       let kungFuDeathGripResolve = null;
       let kungFuDeathGripTimer = 0;
+
+      // Take snapshots before the test runs
+      const testSnapshots = {
+        fcnt: this.core.failureCount,
+        icnt: this.core.intermittentCount,
+        tcnt: this.core.todoCount,
+        wcnt: this.core.warningCount,
+        ocnt: this.core.okCount,
+      };
+
       try {
         this.core.setExpectedFailures(failures_info);
 
@@ -687,6 +697,7 @@ class Series {
           init_or_uninit,
           path,
           webdriver,
+          snapshots: testSnapshots,
         });
 
         // If failed, then stop running the current tests.
@@ -715,12 +726,12 @@ class Series {
     await this.LogPipe.release();
   }
 
-  recordStats({ name, init_or_uninit, path, webdriver }) {
+  recordStats({ name, init_or_uninit, path, webdriver, snapshots }) {
     let hasChanged = false;
     let hasFailures = false;
 
     // Record intermittents.
-    let delta = this.core.intermittentCount - this.icnt;
+    let delta = this.core.intermittentCount - snapshots.icnt;
     if (delta > 0) {
       log(`>${name} has ${delta} intermittent(s)`);
       this.icnt = this.core.intermittentCount;
@@ -728,7 +739,7 @@ class Series {
     }
 
     // Record todos.
-    delta = this.core.todoCount - this.tcnt;
+    delta = this.core.todoCount - snapshots.tcnt;
     if (delta > 0) {
       log(`>${name} has ${delta} todo(s)`);
       this.tcnt = this.core.todoCount;
@@ -736,7 +747,7 @@ class Series {
     }
 
     // Record warnings.
-    delta = this.core.warningCount - this.wcnt;
+    delta = this.core.warningCount - snapshots.wcnt;
     if (delta > 0) {
       log(`>${name} has ${delta} warnings(s)`);
       this.wcnt = this.core.warningCount;
@@ -744,14 +755,14 @@ class Series {
     }
 
     // Record successful test count.
-    delta = this.core.okCount - this.ocnt;
+    delta = this.core.okCount - snapshots.ocnt;
     if (delta > 0) {
       this.ocnt = this.core.okCount;
       hasChanged = true;
     }
 
     // Fail if no changes.
-    delta = this.core.failureCount - this.fcnt;
+    delta = this.core.failureCount - snapshots.fcnt;
     if (!init_or_uninit) {
       if (delta == 0 && !hasChanged) {
         delta = 1;
@@ -908,7 +919,10 @@ class Series {
     let args = [];
     if (loader) {
       // Use the new --import flag with register() API instead of deprecated --loader
-      args.push('--import', `data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("${loader}", pathToFileURL("./"));`);
+      args.push(
+        '--import',
+        `data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("${loader}", pathToFileURL("./"));`,
+      );
     }
     const watest_bin = nodepath.join(__dirname, '../bin/watest.js');
     args.push(
