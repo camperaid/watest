@@ -26,12 +26,19 @@ import { inspect } from './core/util.js';
 import { AppDriver } from './webdriver/app_driver.js';
 import { ControlDriver } from './webdriver/control_driver.js';
 import { start_session, scope } from './webdriver/session.js';
+import {
+  runCommand,
+  runBashScript,
+  execCommand,
+  spawn,
+} from './core/system.js';
 
 export {
   AppDriver,
   ControlDriver,
   assert,
   contains,
+  execCommand,
   failed,
   fail,
   group,
@@ -42,7 +49,10 @@ export {
   not_reached,
   no_throws,
   ok,
+  runBashScript,
+  runCommand,
   scope,
+  spawn,
   start_session,
   success,
   todo,
