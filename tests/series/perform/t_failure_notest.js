@@ -16,6 +16,7 @@ export async function test() {
       '!Running: t_testo.js, path: t_testo.js',
       '>t_testo.js completed in',
       '\x1B[38;5;243mCompleted\x1B[0m tests/',
+      'Testsuite: shutdown',
     ],
     [
       '\x1B[31mFailed:\x1B[0m Neighter failure nor success in t_testo.js',

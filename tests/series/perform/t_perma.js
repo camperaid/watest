@@ -36,6 +36,7 @@ export async function test() {
       '>t_testo.js has 1 warnings(s)',
       '>t_testo.js completed in',
       '\x1B[38;5;243mCompleted\x1B[0m tests/',
+      'Testsuite: shutdown',
     ],
     [],
     'perma',

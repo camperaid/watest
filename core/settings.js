@@ -16,7 +16,7 @@ class Settings {
       await import(this.rc.logger || '../interfaces/logger.js')
     ).default;
 
-    this.servicer = (
+    this.getServicer = (
       await import(this.rc.servicer || '../interfaces/servicer.js')
     ).default;
 

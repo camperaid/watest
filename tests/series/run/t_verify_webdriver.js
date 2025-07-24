@@ -84,9 +84,9 @@ export async function test() {
     '\x1B[102mSuccess!\x1B[0m Total: 1',
     '\x1B[38;5;243mCompleted\x1B[0m mac/',
     'Logs are written to',
-    'Testsuite: shutdown',
     'Elapsed:',
     'Logs are written to',
+    'Testsuite: shutdown',
   ];
 
   const expected_stderr = [

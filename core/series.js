@@ -145,9 +145,6 @@ class Series {
         await this.runFor(this.failures, '2');
       }
     }
-
-    await settings.servicer.shutdown();
-
     log(`Elapsed: ${Date.now() - start_time}ms`);
   }
 
@@ -181,6 +178,7 @@ class Series {
   }
 
   shutdown() {
+    console.log(`Testsuite: shutdown`);
     testflow.unlock();
     return this.failures.length > 0 ? this.failures : null;
   }
@@ -444,13 +442,21 @@ class Series {
       test_module.expected_failures || [],
     );
 
-    // Initialize
+    // Set services if given.
+    if (test_module.servicer) {
+      if (this.#servicerType) {
+        throw new Error(`No nested servicers are supported`);
+      }
+      this.#servicerType = test_module.servicer;
+    }
+
+    // Initialize.
     if (test_module.services || test_module.init) {
       let init = async () => {
         // Start services if any.
         let chain = Promise.resolve();
         for (let service of test_module.services || []) {
-          chain = chain.then(() => settings.servicer.start(service));
+          chain = chain.then(() => this.getServicer().start(service));
         }
         await chain;
 
@@ -476,7 +482,7 @@ class Series {
       // A function to notify the servicer the test is about to start and then
       // to invoke the test.
       const test_wrap = () =>
-        Promise.resolve(settings.servicer.ontest(name)).then(test);
+        Promise.resolve(this.#servicer?.ontest(name)).then(test);
 
       let failures_info = Series.failuresInfo({
         failures: expected_failures,
@@ -510,8 +516,13 @@ class Series {
         await Promise.all(
           [...(test_module.services || [])]
             .reverse()
-            .map(s => settings.servicer.stop(s)),
+            .map(s => this.getServicer().stop(s)),
         );
+
+        // Clean up service-level servicer
+        await this.#servicer?.shutdown();
+        this.#servicer = null;
+        this.#servicerType = null;
       };
       tests.push({
         name: `${virtual_folder}/uninit`,
@@ -1048,6 +1059,20 @@ class Series {
       }
     }
   }
+
+  getServicer() {
+    if (!this.#servicer) {
+      this.#servicer = this.createServicer(this.#servicerType);
+    }
+    return this.#servicer;
+  }
+
+  createServicer(servicerType) {
+    return settings.getServicer(servicerType);
+  }
+
+  #servicer;
+  #servicerType;
 }
 
 export { Series };

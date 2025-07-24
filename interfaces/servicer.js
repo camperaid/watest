@@ -16,7 +16,6 @@ class Servicer {
    * Called when the testsuite gets shutdown.
    */
   shutdown() {
-    console.log(`Testsuite: shutdown`);
   }
 
   /**

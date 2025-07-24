@@ -40,9 +40,9 @@ export async function test() {
     ...expected_out_for_success,
     ...expected_out_for_success,
 
-    'Testsuite: shutdown',
     'Elapsed:',
     'Logs are written to',
+    'Testsuite: shutdown',
   ];
 
   const expected_stderr = [];

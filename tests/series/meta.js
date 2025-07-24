@@ -5,4 +5,5 @@ export var folders = [
   'run',
   'logging',
   'loader',
+  'servicer',
 ];

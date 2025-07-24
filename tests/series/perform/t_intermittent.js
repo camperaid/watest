@@ -26,6 +26,7 @@ export async function test() {
     '>t_testo.js has 1 warnings(s)',
     '>t_testo.js completed in',
     '\x1B[38;5;243mCompleted\x1B[0m tests/',
+    'Testsuite: shutdown',
   ];
   let expected_stderr = [];
 
@@ -77,6 +78,7 @@ export async function test() {
     '>t_testo_2.js has 3 warnings(s)',
     '>t_testo_2.js completed in',
     '\x1B[38;5;243mCompleted\x1B[0m tests/',
+    'Testsuite: shutdown',
   ];
   expected_stderr = [];
 

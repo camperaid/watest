@@ -71,6 +71,7 @@ export async function test() {
       '\x1B[38;5;243mCompleted\x1B[0m unit/core',
       '\x1B[38;5;243mCompleted\x1B[0m unit',
       '\x1B[38;5;243mCompleted\x1B[0m tests/',
+      'Testsuite: shutdown',
     ],
     [],
     'global intermittents',

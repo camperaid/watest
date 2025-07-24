@@ -146,7 +146,7 @@ export async function test() {
   is(
     buffers,
     [
-      ['log', ['Testsuite: shutdown', got => got.startsWith('Elapsed:')]],
+      ['log', [got => got.startsWith('Elapsed:')]],
       [
         'mac/log',
         [
