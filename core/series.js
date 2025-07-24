@@ -367,8 +367,24 @@ class Series {
       return [];
     }
 
+    // Filter subfolders to only process those that match the patterns
+    let filteredSubfolders = subfolders;
+    if (patterns.length > 0) {
+      filteredSubfolders = subfolders.filter(subfolder => {
+        const subfolderPath = `${folder}/${subfolder}`;
+        return (
+          this.matchedPatterns({
+            path: subfolderPath,
+            webdriver,
+            patterns,
+            path_is_not_final: true,
+          }).length > 0
+        );
+      });
+    }
+
     let subtests_for_subfolders = await Promise.all(
-      subfolders.map(subfolder =>
+      filteredSubfolders.map(subfolder =>
         this.build({
           patterns,
           folder: `${folder}/${subfolder}`,
