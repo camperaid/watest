@@ -6,7 +6,7 @@ export default [
   nodePlugin.configs['flat/recommended-script'],
   {
     languageOptions: {
-      ecmaVersion: 2021,
+      ecmaVersion: 2022,
       sourceType: 'module',
     },
   },
