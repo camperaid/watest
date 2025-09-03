@@ -551,9 +551,16 @@ function is_out(got, expected, msg) {
   return false;
 }
 
-function throws(func, exception, msg) {
-  const on_no_exception = () => fail(`${msg}: no '${exception}' exception`);
-  const on_exception = e => is(e?.message, exception, msg);
+function throws(func, expected, msg) {
+  const on_no_exception = () => fail(`${msg}: no '${expected}' exception`);
+  const on_exception = e =>
+    is(
+      expected instanceof RegExp || typeof expected === 'string'
+        ? e?.message
+        : e,
+      expected,
+      msg,
+    );
   return throw_internal(func, on_no_exception, on_exception);
 }
 

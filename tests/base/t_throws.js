@@ -136,4 +136,71 @@ unexpected character: '2' at 6 pos, expected: '1' at '' line
     ],
     `no_throws fail (async)`,
   );
+
+  // throws: accept object descriptor (statusCode + JSON body)
+  await is_output(
+    () =>
+      throws(
+        () => {
+          const err = new Error(
+            'HTTP error code 422 for https://api.digitalocean.com/v2/droplets',
+          );
+          err.statusCode = 422;
+          err.responseBody = JSON.stringify({
+            id: 'unprocessable_entity',
+            message: 'You specified an invalid image for Droplet creation.',
+          });
+          throw err;
+        },
+        {
+          statusCode: 422,
+          responseBody: JSON.stringify({
+            id: 'unprocessable_entity',
+            message: 'You specified an invalid image for Droplet creation.',
+          }),
+        },
+        `Throws error descriptor`,
+      ),
+    [
+      `Ok: Throws error descriptor, got: {statusCode: 422, responseBody: '{"id":"unprocessable_entity","message":"You specified an invalid image for Droplet creation."}'}`,
+    ],
+    [],
+    `throws accept object descriptor`,
+  );
+
+  // throws: accept RegExp for message matching
+  await is_output(
+    () =>
+      throws(
+        () => {
+          throw new Error(
+            'Unexpected 404 response code for https://example.com/test from droplet 1',
+          );
+        },
+        /404|Unexpected/,
+        `Throws with RegExp`,
+      ),
+    [
+      `Ok: Throws with RegExp 'Unexpected 404 response code for https://example.com/test from droplet 1' matches /404|Unexpected/ regexp`,
+    ],
+    [],
+    `throws accept RegExp pattern`,
+  );
+
+  // throws: fail RegExp that doesn't match
+  await is_output(
+    () =>
+      throws(
+        () => {
+          throw new Error('Some other error message');
+        },
+        /404|Unexpected/,
+        `RegExp should match`,
+      ),
+    [],
+    [
+      `Failed: RegExp should match 'Some other error message' doesn't match /404|Unexpected/ regexp`,
+    ],
+    `throws fail RegExp no match`,
+  );
 }
