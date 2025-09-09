@@ -106,4 +106,4 @@ class Settings {
   }
 }
 
-export default new Settings();
+export const settings = new Settings();

@@ -1,4 +1,4 @@
-import settings from '../core/settings.js';
+import { settings } from '../core/settings.js';
 import { is } from '../core/base.js';
 import {
   assert,

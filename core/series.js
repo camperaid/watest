@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import { assert, fail, testflow } from './core.js';
 import { parse, parse_failure } from './format.js';
 import { ProcessArgs } from './process_args.js';
-import settings from './settings.js';
+import { settings } from './settings.js';
 import { spawn } from './spawn.js';
 import { stringify } from './util.js';
 import { log, log_error } from '../logging/logging.js';

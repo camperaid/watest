@@ -22,7 +22,7 @@ import {
   test_contains,
 } from './core/base.js';
 
-import settings from './core/settings.js';
+import { settings } from './core/settings.js';
 import { inspect } from './core/util.js';
 import { AppDriver } from './webdriver/app_driver.js';
 import { ControlDriver } from './webdriver/control_driver.js';

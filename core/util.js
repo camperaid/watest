@@ -3,7 +3,7 @@ import querystring from 'querystring';
 import util from 'util';
 
 import { log } from '../logging/logging.js';
-import settings from './settings.js';
+import { settings } from './settings.js';
 
 /**
  * Logs object in console colored.

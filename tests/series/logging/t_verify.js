@@ -6,7 +6,7 @@ import {
   stderr_format_failure,
   success,
 } from '../test.js';
-import settings from '../../../core/settings.js';
+import { settings } from '../../../core/settings.js';
 
 const completed_in = name => got => got.startsWith(`>${name} completed in`);
 

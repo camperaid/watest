@@ -11,7 +11,7 @@ import {
   running_checker,
 } from '../test.js';
 
-import settings from '../../../core/settings.js';
+import { settings } from '../../../core/settings.js';
 
 export async function test() {
   const ts = {

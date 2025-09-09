@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import { ProcessArgs } from '../core/process_args.js';
-import '../core/settings.js';
 import { runSeries } from '../core/series.js';
 
 const args = ProcessArgs.asObject();

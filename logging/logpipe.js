@@ -2,7 +2,7 @@ import path from 'path';
 
 import { FileStream as DefaultFileStream } from './filestream.js';
 import { log, log_error } from './logging.js';
-import settings from '../core/settings.js';
+import { settings } from '../core/settings.js';
 
 /**
  * A single instance of a logpipe writing to std and file streams.
