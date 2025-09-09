@@ -200,28 +200,55 @@ class Core {
 }
 
 let primeCore = new Core();
-let currentCore = primeCore;
+
+// Stack-based context management for nested operations
+const contextStack = [];
+
+function getCurrentContext() {
+  return contextStack.length > 0
+    ? contextStack[contextStack.length - 1]
+    : { core: primeCore, series: null };
+}
 
 export { Core };
 
 export const testflow = {
-  lock({ core, timeout } = {}) {
-    currentCore = core || new Core(timeout);
+  lock({ core, timeout, series } = {}) {
+    const newCore = core || new Core(timeout);
+    contextStack.push({
+      core: newCore,
+      series,
+    });
   },
+
   unlock() {
-    currentCore = primeCore;
+    if (contextStack.length > 0) {
+      contextStack.pop();
+    }
+    // Always maintain at least one context (the prime core)
   },
+
   get core() {
-    return currentCore;
+    return getCurrentContext().core;
+  },
+
+  get series() {
+    return getCurrentContext().series;
+  },
+
+  // Debug helper to see stack depth
+  get stackDepth() {
+    return contextStack.length;
   },
 };
 
-export const assert = (...args) => currentCore.assert(...args);
-export const info = (...args) => currentCore.info(...args);
-export const not_reached = (...args) => currentCore.not_reached(...args);
-export const group = (...args) => currentCore.group(...args);
-export const fail = (...args) => currentCore.fail(...args);
-export const todo = (...args) => currentCore.todo(...args);
-export const warn = (...args) => currentCore.warn(...args);
-export const success = (...args) => currentCore.success(...args);
-export const failed = () => currentCore.failed();
+export const assert = (...args) => testflow.core.assert(...args);
+export const info = (...args) => testflow.core.info(...args);
+export const not_reached = (...args) => testflow.core.not_reached(...args);
+export const group = (...args) => testflow.core.group(...args);
+export const fail = (...args) => testflow.core.fail(...args);
+export const todo = (...args) => testflow.core.todo(...args);
+export const warn = (...args) => testflow.core.warn(...args);
+export const success = (...args) => testflow.core.success(...args);
+export const failed = () => testflow.core.failed();
+export const getServicer = () => testflow.series?.getServicer();

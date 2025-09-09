@@ -107,7 +107,7 @@ class Series {
     this.ocnt = 0;
 
     this.core = core || testflow.core;
-    testflow.lock({ core: this.core });
+    testflow.lock({ core: this.core, series: this });
 
     this.core.setTimeout(timeout);
     this.core.clearStats();

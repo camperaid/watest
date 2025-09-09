@@ -8,6 +8,7 @@ import {
   success,
   todo,
   warn,
+  getServicer,
 } from './core/core.js';
 
 import {
@@ -41,6 +42,7 @@ export {
   execCommand,
   failed,
   fail,
+  getServicer,
   group,
   is,
   is_output,
