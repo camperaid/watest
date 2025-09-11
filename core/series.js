@@ -178,8 +178,10 @@ class Series {
   }
 
   shutdown() {
-    console.log(`Testsuite: shutdown`);
+    this.shutdownServicer();
     testflow.unlock();
+
+    console.log(`Testsuite: shutdown`);
     return this.failures.length > 0 ? this.failures : null;
   }
 
@@ -519,10 +521,10 @@ class Series {
             .map(s => this.getServicer().stop(s)),
         );
 
-        // Clean up service-level servicer
-        await this.#servicer?.shutdown();
-        this.#servicer = null;
-        this.#servicerType = null;
+        // Don't call shutdown() or destroy servicer during folder transitions
+        // The servicer should persist across nested folders so child tests
+        // can access services started by parent folders
+        // Only shutdown when the entire test suite completes
       };
       tests.push({
         name: `${virtual_folder}/uninit`,
@@ -1069,6 +1071,14 @@ class Series {
 
   createServicer(servicerType) {
     return settings.getServicer(servicerType);
+  }
+
+  shutdownServicer() {
+    if (this.#servicer) {
+      this.#servicer.shutdown();
+      this.#servicer = null;
+      this.#servicerType = null;
+    }
   }
 
   #servicer;
