@@ -1,18 +1,22 @@
 import { is_test_output, success } from '../../base/test.js';
 import { MockSeriesWithServicer } from './mock_servicer.js';
 
+/**
+ * Test that a folder can specify servicer type without services.
+ * This is useful when you want to select an environment (e.g., kubernetes)
+ * without starting any services.
+ */
 export async function test() {
   const ts = {
     'tests': {
       meta: {
-        servicer: 'docker',
-        services: ['mysql', 'redis'],
+        servicer: 'kubernetes', // Just select the servicer type, no services
       },
       files: ['t_example.js'],
     },
     'tests/t_example.js': {
       test() {
-        success('Servicer test example works');
+        success('Test in kubernetes environment works');
       },
     },
   };
@@ -25,27 +29,25 @@ export async function test() {
       'Settings: chrome webdrivers',
       '\x1B[38;5;99mStarted\x1B[0m mac/',
       '!Running: mac/init, path: tests/meta.js',
-      'MockServicer:docker init',
-      'MockServicer:docker starting mysql',
-      'MockServicer:docker starting redis',
+      'MockServicer:kubernetes init',
+      // No services started - init is called with undefined/empty
       '>mac/init completed in',
       '!Running: mac/t_example.js, path: tests/t_example.js',
-      '\x1B[32mOk:\x1B[0m Servicer test example works',
+      '\x1B[32mOk:\x1B[0m Test in kubernetes environment works',
       '>mac/t_example.js completed in',
       '!Running: mac/uninit, path: tests/meta.js',
-      'MockServicer:docker deinit',
-      'MockServicer:docker stopping redis',
-      'MockServicer:docker stopping mysql',
+      'MockServicer:kubernetes deinit',
+      // No services stopped
       '>mac/uninit completed in',
       '\x1B[102mSuccess!\x1B[0m Total: 1',
       '\x1B[38;5;243mCompleted\x1B[0m mac/',
       'Logs are written to',
       'Elapsed:',
       'Logs are written to',
-      'MockServicer:docker shutdown',
+      'MockServicer:kubernetes shutdown',
       'Testsuite: shutdown',
     ],
     [],
-    'servicer lifecycle',
+    'servicer without services',
   );
 }

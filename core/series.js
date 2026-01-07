@@ -444,23 +444,16 @@ class Series {
       test_module.expected_failures || [],
     );
 
-    // Set services if given.
-    if (test_module.servicer) {
-      if (this.#servicerType) {
-        throw new Error(`No nested servicers are supported`);
-      }
-      this.#servicerType = test_module.servicer;
-    }
-
     // Initialize.
-    if (test_module.services || test_module.init) {
+    // Servicer is only created when explicitly requested via 'servicer' property.
+    // Tests with just 'services' but no 'servicer' won't trigger servicer creation.
+    const has_servicer = test_module.servicer !== undefined;
+    const has_init = test_module.init;
+    if (has_servicer || has_init) {
       let init = async () => {
-        // Start services if any.
-        let chain = Promise.resolve();
-        for (let service of test_module.services || []) {
-          chain = chain.then(() => this.getServicer().start(service));
-        }
-        await chain;
+        // Initialize servicer with services (if any).
+        const servicer = this.getServicer(test_module.servicer);
+        await servicer.init(test_module.services);
 
         // Do initialization if any.
         if (test_module.init) {
@@ -508,23 +501,14 @@ class Series {
     }
 
     // Uninitialize.
-    if (test_module.services || test_module.init) {
+    if (has_servicer || has_init) {
       let uninit = async () => {
         // Deinitalize test env.
         if (test_module.uninit) {
           await test_module.uninit();
         }
-        // Stop services in reverse order.
-        await Promise.all(
-          [...(test_module.services || [])]
-            .reverse()
-            .map(s => this.getServicer().stop(s)),
-        );
-
-        // Don't call shutdown() or destroy servicer during folder transitions
-        // The servicer should persist across nested folders so child tests
-        // can access services started by parent folders
-        // Only shutdown when the entire test suite completes
+        // Deinitialize servicer with services.
+        await this.#servicer?.deinit(test_module.services);
       };
       tests.push({
         name: `${virtual_folder}/uninit`,
@@ -967,7 +951,10 @@ class Series {
       args.push('--webdriver', webdriver);
     }
 
-    return spawn('node', args, {}, buffer =>
+    // Pass run ID to child process to ensure consistent test artifact IDs
+    const env = { ...process.env, WATEST_RUN: settings.run };
+
+    return spawn('node', args, { env }, buffer =>
       this.processChildProcessOutput(name, buffer),
     ).catch(e => {
       log_error(e);
@@ -1062,9 +1049,15 @@ class Series {
     }
   }
 
-  getServicer() {
-    if (!this.#servicer) {
-      this.#servicer = this.createServicer(this.#servicerType);
+  getServicer(requestedType) {
+    // Create servicer if none exists or if switching to a different type.
+    // Note: we don't shutdown the old servicer here - the servicer factory
+    // handles stopping conflicting services for better performance.
+    if (
+      !this.#servicer ||
+      (requestedType !== undefined && this.#servicer.type !== requestedType)
+    ) {
+      this.#servicer = this.createServicer(requestedType);
     }
     return this.#servicer;
   }
@@ -1077,12 +1070,10 @@ class Series {
     if (this.#servicer) {
       this.#servicer.shutdown();
       this.#servicer = null;
-      this.#servicerType = null;
     }
   }
 
   #servicer;
-  #servicerType;
 }
 
 export { Series };

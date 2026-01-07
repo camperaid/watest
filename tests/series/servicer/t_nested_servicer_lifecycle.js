@@ -1,45 +1,5 @@
 import { is_test_output, success } from '../../base/test.js';
-import { log } from '../../../logging/logging.js';
-import { MockSeries } from '../mock_series.js';
-
-// Mock servicer that logs to console for output validation
-class MockServicer {
-  constructor(type) {
-    this.type = type;
-    this.services = new Set();
-  }
-
-  async start(service) {
-    log(`MockServicer:${this.type} starting ${service}`);
-    this.services.add(service);
-    return { started: service, type: this.type };
-  }
-
-  async stop(service) {
-    log(`MockServicer:${this.type} stopping ${service}`);
-    this.services.delete(service);
-    return { stopped: service, type: this.type };
-  }
-
-  async shutdown() {
-    log(
-      `MockServicer:${this.type} shutdown (services still running: ${Array.from(this.services).join(', ') || 'none'})`,
-    );
-    return { shutdown: true, type: this.type };
-  }
-
-  async ontest() {
-    // Optional: log test notifications
-    return null;
-  }
-}
-
-// Extended MockSeries that uses our logging servicer
-class MockSeriesWithServicer extends MockSeries {
-  createServicer(type) {
-    return new MockServicer(type || 'default');
-  }
-}
+import { MockSeriesWithServicer } from './mock_servicer.js';
 
 export async function test() {
   const ts = {
@@ -58,6 +18,7 @@ export async function test() {
     },
     'tests/nested': {
       meta: {
+        servicer: 'docker',
         services: ['worker', 'queue'],
       },
       files: ['t_child.js'],
@@ -79,6 +40,7 @@ export async function test() {
 
       // Parent folder init - starts parent services
       '!Running: mac/init, path: tests/meta.js',
+      'MockServicer:docker init',
       'MockServicer:docker starting db',
       'MockServicer:docker starting cache',
       '>mac/init completed in',
@@ -93,6 +55,7 @@ export async function test() {
 
       // Nested folder init - starts child services (parent services still running)
       '!Running: mac/nested/init, path: tests/nested/meta.js',
+      'MockServicer:docker init',
       'MockServicer:docker starting worker',
       'MockServicer:docker starting queue',
       '>mac/nested/init completed in',
@@ -104,6 +67,7 @@ export async function test() {
 
       // Critical: nested uninit should only stop child services, NOT shutdown servicer
       '!Running: mac/nested/uninit, path: tests/nested/meta.js',
+      'MockServicer:docker deinit',
       'MockServicer:docker stopping queue',
       'MockServicer:docker stopping worker',
       // Should NOT see "MockServicer:docker shutdown" here!
@@ -114,6 +78,7 @@ export async function test() {
 
       // Parent uninit - stops parent services
       '!Running: mac/uninit, path: tests/meta.js',
+      'MockServicer:docker deinit',
       'MockServicer:docker stopping cache',
       'MockServicer:docker stopping db',
       '>mac/uninit completed in',
@@ -124,8 +89,8 @@ export async function test() {
       'Elapsed:',
       'Logs are written to',
 
-      // Final shutdown should happen here and include remaining services
-      'MockServicer:docker shutdown (services still running: none)',
+      // Final shutdown should happen here with no remaining services
+      'MockServicer:docker shutdown',
       'Testsuite: shutdown',
     ],
     [],

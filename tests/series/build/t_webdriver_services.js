@@ -8,6 +8,7 @@ export async function test() {
     'e2e': {
       meta: {
         webdriver: true,
+        servicer: 'docker',
         services: ['db'],
       },
       files: ['t_testo.js', 't_presto.js'],
