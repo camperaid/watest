@@ -15,6 +15,7 @@ class LogPipeInstance {
 
   attach(invocation) {
     this.invocation = invocation;
+    this.run = settings.run;
     this.log_dir = path.join(settings.log_dir, this.invocation);
     if (this.suppress_logging) {
       return;
@@ -28,7 +29,7 @@ class LogPipeInstance {
       log_error(e);
     });
 
-    return settings.logger.testRunStarted({ run: settings.run, invocation });
+    return settings.logger.testRunStarted({ run: this.run, invocation });
   }
 
   async logScreenshot(pic) {
@@ -41,7 +42,7 @@ class LogPipeInstance {
     log(`Screenshot is captured and written to ${stream.filepath}`);
 
     await settings.logger.writeLogFile({
-      run: settings.run,
+      run: this.run,
       invocation: this.invocation,
       name,
       content,
@@ -50,30 +51,42 @@ class LogPipeInstance {
 
   logSourceMap() {
     return settings.logger.writeSourceMap({
-      run: settings.run,
+      run: this.run,
       invocation: this.invocation,
     });
   }
 
   release() {
-    return (
-      !this.suppress_logging &&
-      this.fstream
-        .end()
-        .then(() => this.fstream.readFile())
-        .then(content =>
-          settings.logger.writeLogFile({
-            run: settings.run,
+    if (this.suppress_logging || !this.fstream) {
+      return Promise.resolve();
+    }
+
+    const filepath = this.fstream.filepath;
+
+    return this.fstream
+      .end()
+      .then(() => this.fstream.readFile())
+      .then(content =>
+        settings.logger.writeLogFile({
+          run: this.run,
+          invocation: this.invocation,
+          name: this.fname,
+          content,
+          zip: true,
+        }),
+      )
+      .catch(e => {
+        log_error(
+          `[logpipe:error] ✗ Logging shutdown failed for ${filepath}:`,
+          {
+            filepath,
             invocation: this.invocation,
-            name: this.fname,
-            content,
-            zip: true,
-          }),
-        )
-        .catch(e => {
-          log_error(`Logging shutdown rejected: ${e}`);
-        })
-    );
+            error: e.message,
+            code: e.code,
+            stack: e.stack,
+          },
+        );
+      });
   }
 }
 
@@ -127,6 +140,10 @@ class LogPipe {
     // Remove the pipe from the stack to prevent anyone writing into it after
     // its release.
     let pipeToRelease = this.stack.pop();
+    if (!pipeToRelease) {
+      return Promise.resolve();
+    }
+
     await pipeToRelease.release(...args);
 
     if (this.suppress_logging) {
