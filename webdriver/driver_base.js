@@ -37,6 +37,8 @@ function getChromeOptions() {
       deviceName: 'iPhone 7',
     });
   }
+  // Accept self-signed certificates (for k3s testing)
+  chromeOptions.addArguments('ignore-certificate-errors');
   return chromeOptions;
 }
 
