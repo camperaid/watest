@@ -57,7 +57,8 @@ class Core {
   fail(msg) {
     if (typeof msg == 'object') {
       inspect(msg);
-      this.unconditional_fail('Unexpected exception');
+      const errorMessage = msg?.message || msg?.toString() || 'Unexpected exception';
+      this.unconditional_fail(errorMessage);
       return;
     }
 
