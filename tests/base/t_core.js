@@ -1,14 +1,21 @@
 import { colorify, group, fail, success, is_output } from './test.js';
 
 export async function test() {
-  // console.log
-  await is_output(() => console.log(3), [`[33m3[39m\n`], [], `console.log(3)`);
+  // console.log - Node adds yellow color codes to numbers in TTY
+  const colored3 = `\x1b[33m3\x1b[39m\n`;
+
+  await is_output(
+    () => console.log(3),
+    [colored3],
+    [],
+    `console.log(3)`,
+  );
 
   // console.error
   await is_output(
     () => console.error(3),
     [],
-    [`[33m3[39m\n`],
+    [colored3],
     `console.error(3)`,
   );
 
