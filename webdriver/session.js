@@ -145,38 +145,65 @@ async function start_session(arg1, arg2) {
 
 /**
  * Opens a new browser window and runs the given tests within it.
- * @param arg1 - url_or_snippet or tests
- * @param arg2 - tests if |arg1| is url_or_snippet or options or libs
- @ @param arg3 - libs if |arg2| is not libs
+ * @param args - [url?], tests, [options?], [libs?]
+ *   url: string or function returning string
+ *   tests: async function receiving session
+ *   options: object (e.g., {auto_session: false})
+ *   libs: array of library paths to load
  */
-const scope = (arg1, arg2, arg3) => async () => {
-  let url_or_snippet = (typeof arg1 == 'string' && arg1) || null;
-  let tests = (typeof arg1 == 'function' && arg1) || arg2;
-  let options = (typeof arg1 == 'function' && arg2) || null;
-  let libs = arg3 || (arg2 instanceof Array && arg2);
-  assert(tests, 'No tests to run provided');
+const scope =
+  (...args) =>
+  async () => {
+    let libs, options, tests, url_or_snippet_getter;
 
-  // Do the test.
-  try {
-    // Start session if requested.
-    let session = null;
-    if (!options || options.auto_session !== false) {
-      session = await start_session(url_or_snippet, libs);
+    // Extract args from end: libs (array) then options (object) then tests (function) then url
+    for (let i = args.length - 1; i >= 0; i--) {
+      const arg = args[i];
+      if (!libs && Array.isArray(arg)) {
+        libs = arg;
+      } else if (
+        !options &&
+        arg &&
+        typeof arg === 'object' &&
+        typeof arg !== 'function'
+      ) {
+        options = arg;
+      } else if (!tests && typeof arg === 'function') {
+        tests = arg;
+      } else if (typeof arg === 'string' || typeof arg === 'function') {
+        url_or_snippet_getter = arg;
+      }
     }
-    await tests(session);
-  } catch (e) {
-    log_error(e);
-    fail(e.message);
-  } finally {
-    log(`Quit ${active_sessions.length} wd session(s)`);
 
-    while (active_sessions.length > 1) {
-      await active_sessions[1].close();
+    const url_or_snippet = url_or_snippet_getter
+      ? typeof url_or_snippet_getter === 'function'
+        ? url_or_snippet_getter()
+        : url_or_snippet_getter
+      : null;
+
+    assert(tests, 'No tests to run provided');
+
+    // Do the test.
+    try {
+      // Start session if requested.
+      let session = null;
+      if (!options || options.auto_session !== false) {
+        session = await start_session(url_or_snippet, libs);
+      }
+      await tests(session);
+    } catch (e) {
+      log_error(e);
+      fail(e.message);
+    } finally {
+      log(`Quit ${active_sessions.length} wd session(s)`);
+
+      while (active_sessions.length > 1) {
+        await active_sessions[1].close();
+      }
+      if (active_sessions.length == 1) {
+        await active_sessions[0].quit();
+      }
     }
-    if (active_sessions.length == 1) {
-      await active_sessions[0].quit();
-    }
-  }
-};
+  };
 
 export { start_session, scope };
