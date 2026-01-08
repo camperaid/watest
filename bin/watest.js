@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { ProcessArgs } from '../core/process_args.js';
+import { ProcessArgs } from '../core/process-args.js';
 import { runSeries } from '../core/series.js';
 import {
   generateGridTasks,

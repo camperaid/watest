@@ -32,7 +32,7 @@ class MockLogPipe {
 export * from '../../core/util.js';
 export * from '../../core/base.js';
 export * from '../../core/format.js';
-export * from './mock_series.js';
+export * from './mock-series.js';
 
 export { Series };
 

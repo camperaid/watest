@@ -1,7 +1,7 @@
 import { is_output } from '../../core/base.js';
 import { testflow, fail } from '../../core/core.js';
 import { scope } from '../../webdriver/session.js';
-import { TestExecutionError } from '../../webdriver/driver_base.js';
+import { TestExecutionError } from '../../webdriver/driver-base.js';
 
 const reducedTimeout = 0.001;
 
@@ -30,8 +30,8 @@ const eat_failure = func => async () => {
 
 export * from '../../core/core.js';
 export * from '../../core/base.js';
-export * from '../../webdriver/app_driver.js';
-export * from '../../webdriver/control_driver.js';
+export * from '../../webdriver/app-driver.js';
+export * from '../../webdriver/control-driver.js';
 
 export function do_self_tests(snippet, test) {
   return scope(snippet, async session => {

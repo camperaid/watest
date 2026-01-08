@@ -3,7 +3,7 @@ import { test_is, test_contains, is, contains, ok } from '../core/base.js';
 import { assert, fail } from '../core/core.js';
 import { is_mac, stringify, toDataURL } from '../core/util.js';
 import { log } from '../logging/logging.js';
-import { getTimeout, DriverBase } from './driver_base.js';
+import { getTimeout, DriverBase } from './driver-base.js';
 
 /**
  * A chainable web driver providing a number of handy methods to navigate

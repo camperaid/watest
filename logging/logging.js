@@ -1,4 +1,4 @@
-import { ProcessArgs } from '../core/process_args.js';
+import { ProcessArgs } from '../core/process-args.js';
 
 function log(...args) {
   console.log(...args);

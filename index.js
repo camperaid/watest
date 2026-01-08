@@ -24,8 +24,8 @@ import {
 
 import { settings } from './core/settings.js';
 import { inspect } from './core/util.js';
-import { AppDriver } from './webdriver/app_driver.js';
-import { ControlDriver } from './webdriver/control_driver.js';
+import { AppDriver } from './webdriver/app-driver.js';
+import { ControlDriver } from './webdriver/control-driver.js';
 import { start_session, scope } from './webdriver/session.js';
 import {
   runCommand,

@@ -1,5 +1,5 @@
 import { is_test_output, success } from '../../base/test.js';
-import { MockSeriesWithServicer } from './mock_servicer.js';
+import { MockSeriesWithServicer } from './mock-servicer.js';
 
 /**
  * Test that a folder can specify servicer type without services.

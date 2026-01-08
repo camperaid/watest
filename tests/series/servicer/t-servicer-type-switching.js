@@ -14,7 +14,7 @@
  */
 
 import { is_test_output, success } from '../../base/test.js';
-import { MockSeriesWithServicer } from './mock_servicer.js';
+import { MockSeriesWithServicer } from './mock-servicer.js';
 
 export async function test() {
   const ts = {

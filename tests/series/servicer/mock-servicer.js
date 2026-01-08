@@ -1,5 +1,5 @@
 import { log } from '../../../logging/logging.js';
-import { MockSeries } from '../mock_series.js';
+import { MockSeries } from '../mock-series.js';
 
 /**
  * Mock servicer for testing servicer lifecycle.

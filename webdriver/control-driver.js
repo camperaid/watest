@@ -1,5 +1,5 @@
 import { assert } from '../core/core.js';
-import { AppDriver } from './app_driver.js';
+import { AppDriver } from './app-driver.js';
 
 /**
  * Control driver base.
