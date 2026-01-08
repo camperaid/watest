@@ -1,8 +1,7 @@
 import { testflow } from '../../core/core.js';
 import { is_output as is_output_base } from '../../core/base.js';
 
-export * from '../../core/base.js';
-export * from '../../core/core.js';
+export * from '../test.js';
 export * from '../../core/format.js';
 
 function is_output(func, out, err, msg) {

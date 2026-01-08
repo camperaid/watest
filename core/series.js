@@ -27,7 +27,7 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = nodepath.dirname(__filename);
 
-const root_folder = 'tests';
+const rootFolder = () => settings.testsFolder;
 const root_dir = nodepath.resolve('.');
 
 const kKungFuDeathGripTimeout = {};
@@ -154,7 +154,7 @@ class Series {
   async runFor(patterns, name_postfix = '') {
     let tests = await this.build({
       patterns,
-      folder: root_folder,
+      folder: rootFolder(),
       virtual_folder: this.invocation,
     });
 
@@ -923,7 +923,7 @@ class Series {
       .readdirSync(nodepath.join(root_dir, folder))
       .filter(
         n =>
-          n.startsWith('t_') &&
+          settings.testFilePattern.test(n) &&
           (!settings.ignorePattern || !settings.ignorePattern.test(n)),
       );
   }

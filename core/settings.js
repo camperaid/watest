@@ -47,6 +47,14 @@ class Settings {
     return parseInt(this.rc.debunk_limit) || 5;
   }
 
+  get testsFolder() {
+    return this.rc.tests_folder || 'tests';
+  }
+
+  get testFilePattern() {
+    return this.rc.test_file_pattern || /^t[-_]/;
+  }
+
   get timeout() {
     return parseInt(this.rc.timeout) || 0;
   }

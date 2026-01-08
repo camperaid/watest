@@ -1,1 +1,1 @@
-export var folders = ['base', 'series', 'webdriver', 'e2e'];
+export var folders = ['base', 'series', 'webdriver', 'e2e', 'deps'];

@@ -28,6 +28,14 @@ class ProcessArgs {
           obj.showHelp = true;
           break;
 
+        case '--grid':
+          obj.grid = true;
+          break;
+
+        case '--deps':
+          obj.deps = true;
+          break;
+
         case '--child-process':
           obj.childProcess = true;
           break;
