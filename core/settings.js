@@ -7,9 +7,11 @@ class Settings {
     this.tmp_storage_dir = '';
     this.logger = null;
     this.servicer = null;
+    this.silent = false;
   }
 
-  async initialize() {
+  async initialize(options = {}) {
+    this.silent = options.silent || false;
     this.rc = (await import(path.resolve('.', './.watestrc.js'))).default;
 
     this.logger = (
@@ -48,7 +50,7 @@ class Settings {
   }
 
   get testsFolder() {
-    return this.rc.tests_folder || 'tests';
+    return this.rc?.tests_folder ?? 'tests';
   }
 
   get testFilePattern() {
@@ -61,27 +63,35 @@ class Settings {
 
   setupTmpStorageDir() {
     if (!this.rc.tmp_dir) {
-      console.log(`Settings: no temporary storage dir`);
+      if (!this.silent) {
+        console.log(`Settings: no temporary storage dir`);
+      }
       return;
     }
 
     this.tmp_storage_dir = path.join(this.rc.tmp_dir, 'watest-tmpstorage');
-    console.log(
-      `Settings: temporary storage dir is at ${this.tmp_storage_dir}`,
-    );
+    if (!this.silent) {
+      console.log(
+        `Settings: temporary storage dir is at ${this.tmp_storage_dir}`,
+      );
+    }
   }
 
   setupLogDir() {
     const log_dir = this.rc.log_dir;
     if (!log_dir) {
-      console.log('Settings: no file logging');
+      if (!this.silent) {
+        console.log('Settings: no file logging');
+      }
       return;
     }
 
     this.run = this.rc.run || `${parseInt(Date.now() / 1000)}`;
 
     this.log_dir = path.join(log_dir, this.run);
-    console.log(`Settings: logging into ${log_dir}`);
+    if (!this.silent) {
+      console.log(`Settings: logging into ${log_dir}`);
+    }
   }
 
   setupWebdrivers() {
@@ -108,7 +118,7 @@ class Settings {
     this.webdriver_window_height =
       parseInt(this.rc.webdriver_window_height) || 768;
 
-    if (this.webdrivers) {
+    if (this.webdrivers && !this.silent) {
       console.log(`Settings: ${this.webdrivers.join(', ')} webdrivers`);
     }
   }

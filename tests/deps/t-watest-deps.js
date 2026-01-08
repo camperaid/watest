@@ -1,40 +1,37 @@
-import { is } from './test.js';
-import { spawn } from '../../core/spawn.js';
+import { testDeps } from './test.js';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const unifiedSamplePath = path.join(__dirname, 'samples/unified');
+const nestedSamplePath = path.join(__dirname, 'samples/nested');
 
 export async function test() {
-  let stdout = '';
-  let stderr = '';
+  // Test specific path: tests/e2e
+  await testDeps(['tests/e2e'], unifiedSamplePath, {
+    servicers: ['kubernetes'],
+    webdriver: true,
+    services: ['db', 'request'],
+  });
 
-  await spawn(
-    'node',
-    ['../../../../bin/watest.js', '--deps', 'tests/e2e'],
-    { cwd: path.join(__dirname, 'samples/unified') },
-    buffer => {
-      for (let { str_data, is_stdout } of buffer) {
-        if (is_stdout) stdout += str_data;
-        else stderr += str_data;
-      }
-    },
-  );
+  // Test no arguments (should default to tests/)
+  await testDeps([], unifiedSamplePath, {
+    servicers: ['kubernetes', 'docker'],
+    webdriver: true,
+    services: ['db', 'request', 'inbucket'],
+  });
 
-  is(stderr, '', 'no errors');
+  // Test with deeply nested test file path
+  await testDeps(['tests/services/ws/webservice/t-ws.js'], nestedSamplePath, {
+    servicers: ['docker'],
+    webdriver: false,
+    services: ['ws'],
+  });
 
-  // Filter out Settings lines before JSON
-  const jsonStart = stdout.indexOf('{');
-  const jsonStr = jsonStart >= 0 ? stdout.slice(jsonStart) : stdout;
-
-  const meta = JSON.parse(jsonStr);
-  is(
-    meta,
-    {
-      servicers: ['kubernetes'],
-      webdriver: true,
-      services: ['db', 'request'],
-    },
-    'e2e metadata',
-  );
+  // Test with nested directory path
+  await testDeps(['tests/services/ws/webservice'], nestedSamplePath, {
+    servicers: ['docker'],
+    webdriver: false,
+    services: ['ws'],
+  });
 }

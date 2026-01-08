@@ -36,40 +36,94 @@ export function parseGridArgs(args) {
 }
 
 /**
- * Recursively collect metadata from nested meta.js files
+ * Check if a folder path should be traversed based on target paths.
+ * Similar to series.js matchedPatterns logic:
+ * - folderPath starts with target: we're IN or PAST the target
+ * - target starts with folderPath: we're ON THE WAY to the target
  */
-export async function collectNestedMeta(
-  paths,
-  result = { servicers: [], webdriver: false, services: [] },
-) {
-  for (const path of paths) {
-    try {
-      const metaPath = join(process.cwd(), path, 'meta.js');
-      const metaUrl = pathToFileURL(metaPath).href;
-      const meta = await import(metaUrl);
+function matchesPath(folderPath, targetPaths) {
+  return targetPaths.some(
+    target => folderPath.startsWith(target) || target.startsWith(folderPath),
+  );
+}
 
-      if (meta.servicer && !result.servicers.includes(meta.servicer)) {
-        result.servicers.push(meta.servicer);
-      }
-      if (meta.webdriver) {
-        result.webdriver = true;
-      }
-      if (meta.services) {
-        for (const service of meta.services) {
-          if (!result.services.includes(service)) {
-            result.services.push(service);
-          }
+/**
+ * Collect metadata from a single directory's meta.js
+ * Helper for collectDeps
+ */
+async function collectMetaFromDir(dirPath, result) {
+  try {
+    const metaPath = join(process.cwd(), dirPath, 'meta.js');
+    const metaUrl = pathToFileURL(metaPath).href;
+    const meta = await import(metaUrl);
+
+    if (meta.servicer && !result.servicers.includes(meta.servicer)) {
+      result.servicers.push(meta.servicer);
+    }
+    if (meta.webdriver) {
+      result.webdriver = true;
+    }
+    if (meta.services) {
+      for (const service of meta.services) {
+        if (!result.services.includes(service)) {
+          result.services.push(service);
         }
       }
-
-      // Recursively process folders
-      if (meta.folders) {
-        const nestedPaths = meta.folders.map(f => join(path, f));
-        await collectNestedMeta(nestedPaths, result);
-      }
-    } catch {
-      // No meta.js or error loading it - that's ok
     }
+
+    return meta;
+  } catch {
+    // No meta.js or error loading it - that's ok
+    return null;
+  }
+}
+
+/**
+ * Recursively collect metadata from nested meta.js files.
+ * Starts from root folder, walks DOWN the tree, only following branches that match target paths.
+ * Similar to how series.js builds tests - uses bidirectional path matching.
+ *
+ * @param {string} folder - Current folder being traversed
+ * @param {string[]} targetPaths - The specific test paths we're collecting deps for
+ * @param {Object} result - Accumulated result object
+ */
+async function collectDepsRecursive(folder, targetPaths, result) {
+  // Collect metadata from current folder
+  const meta = await collectMetaFromDir(folder, result);
+
+  // If this folder has subfolders, filter and recurse
+  if (meta?.folders) {
+    for (const subfolder of meta.folders) {
+      const subfolderPath = join(folder, subfolder);
+
+      // Only follow this branch if it matches any target path
+      if (matchesPath(subfolderPath, targetPaths)) {
+        await collectDepsRecursive(subfolderPath, targetPaths, result);
+      }
+    }
+  }
+}
+
+/**
+ * Collect metadata for given test paths.
+ * Walks the tree from tests root, following only branches that lead to target paths.
+ *
+ * @param {string[]} paths - Test paths to collect metadata for (defaults to entire tree)
+ * @param {Object} result - Initial result object
+ */
+export async function collectDeps(
+  paths = [settings.testsFolder],
+  result = { servicers: [], webdriver: false, services: [] },
+) {
+  const rootFolder = settings.testsFolder;
+
+  // Filter to paths under root folder
+  const targetPaths = paths.filter(
+    p => p === rootFolder || p.startsWith(rootFolder + '/'),
+  );
+
+  if (targetPaths.length > 0) {
+    await collectDepsRecursive(rootFolder, targetPaths, result);
   }
 
   return result;
@@ -115,7 +169,7 @@ export async function generateGridTasks(gridConfig, args) {
   const expandedGrid = {};
   for (const [cellKey, cellPaths] of cellPathsMap) {
     const { name, split } = parseCellSyntax(cellKey);
-    const meta = await collectNestedMeta(cellPaths);
+    const meta = await collectDeps(cellPaths);
 
     if (split && meta.webdriver && browsers.length > 1) {
       // Split: one entry per browser

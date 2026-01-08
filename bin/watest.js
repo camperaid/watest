@@ -2,11 +2,7 @@
 
 import { ProcessArgs } from '../core/process-args.js';
 import { runSeries } from '../core/series.js';
-import {
-  generateGridTasks,
-  collectNestedMeta,
-  parseGridArgs,
-} from '../core/deps.js';
+import { generateGridTasks, collectDeps, parseGridArgs } from '../core/deps.js';
 import { settings } from '../core/settings.js';
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
@@ -31,24 +27,17 @@ Options:
 
 // Handle --deps flag (simple metadata from paths, for container rebuild decisions)
 if (args.deps) {
+  await settings.initialize({ silent: true });
   const { paths } = parseGridArgs(args.patterns);
-  if (paths.length === 0) {
-    console.error('Error: --deps requires at least one test path');
-    process.exit(1);
-  }
-  try {
-    const meta = await collectNestedMeta(paths);
-    console.log(JSON.stringify(meta, null, 2));
-    process.exit(0);
-  } catch (err) {
-    console.error('Error collecting metadata:', err.message);
-    process.exit(1);
-  }
+  const targetPaths = paths.length === 0 ? [settings.testsFolder] : paths;
+  const result = await collectDeps(targetPaths);
+  console.log(JSON.stringify(result));
+  process.exit(0);
 }
 
 // Handle --grid flag
 if (args.grid) {
-  await settings.initialize();
+  await settings.initialize({ silent: true });
   const metaPath = join(process.cwd(), settings.testsFolder, 'meta.js');
   const metaUrl = pathToFileURL(metaPath).href;
 
