@@ -1,55 +1,122 @@
-import { is } from './test.js';
-import { spawn } from '../../core/spawn.js';
+import { is, testGrid } from './test.js';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const samplesPath = path.join(__dirname, 'samples/unified');
 
 export async function test() {
-  let stdout = '';
-  let stderr = '';
-
-  await spawn(
-    'node',
-    ['../../../../bin/watest.js', '--grid'],
-    { cwd: path.join(__dirname, 'samples/unified') },
-    buffer => {
-      for (let { str_data, is_stdout } of buffer) {
-        if (is_stdout) stdout += str_data;
-        else stderr += str_data;
-      }
+  // Default browsers from .watestrc.js (chrome, firefox) - splits + cells
+  const result1 = await testGrid([], samplesPath);
+  is(
+    result1,
+    {
+      'e2e-chrome': {
+        paths: ['tests/e2e'],
+        webdrivers: 'chrome',
+        servicers: ['kubernetes'],
+        services: ['db', 'nginx', 'request'],
+      },
+      'e2e-firefox': {
+        paths: ['tests/e2e'],
+        webdrivers: 'firefox',
+        servicers: ['kubernetes'],
+        services: ['db', 'nginx', 'request'],
+      },
+      'integration': {
+        paths: ['tests/integration'],
+        webdrivers: 'chrome firefox',
+        servicers: ['docker'],
+        services: ['db'],
+      },
+      'lib': {
+        paths: ['tests/lib'],
+        webdrivers: '',
+        servicers: [],
+        services: [],
+      },
+      'services': {
+        paths: ['tests/services'],
+        webdrivers: '',
+        servicers: ['docker'],
+        services: ['inbucket', 'request'],
+      },
     },
+    'default browsers split + cells',
   );
 
-  is(stderr, '', 'no errors');
-
-  // Filter out Settings lines before JSON
-  const jsonStart = stdout.indexOf('{');
-  const jsonStr = jsonStart >= 0 ? stdout.slice(jsonStart) : stdout;
-
-  const grid = JSON.parse(jsonStr);
+  // Single browser - no split even for + cells
+  const result2 = await testGrid(['chrome'], samplesPath);
   is(
-    grid,
+    result2,
     {
       e2e: {
         paths: ['tests/e2e'],
-        webdriver: null,
+        webdrivers: 'chrome',
         servicers: ['kubernetes'],
-        services: ['db', 'request'],
+        services: ['db', 'nginx', 'request'],
+      },
+      integration: {
+        paths: ['tests/integration'],
+        webdrivers: 'chrome',
+        servicers: ['docker'],
+        services: ['db'],
       },
       lib: {
         paths: ['tests/lib'],
-        webdriver: null,
+        webdrivers: '',
         servicers: [],
         services: [],
       },
       services: {
         paths: ['tests/services'],
-        webdriver: null,
+        webdrivers: '',
         servicers: ['docker'],
         services: ['inbucket', 'request'],
       },
     },
-    'grid output',
+    'single browser no split',
+  );
+
+  // Multiple browsers without split (no + cells, explicit browsers)
+  const result3 = await testGrid(
+    ['tests/lib', 'chrome', 'firefox'],
+    samplesPath,
+  );
+  is(
+    result3,
+    {
+      lib: {
+        paths: ['tests/lib'],
+        webdrivers: '',
+        servicers: [],
+        services: [],
+      },
+    },
+    'no webdriver cell with multiple browsers',
+  );
+
+  // Filter by paths with multiple browsers (+ cell splits)
+  const result4 = await testGrid(
+    ['tests/e2e', 'chrome', 'firefox'],
+    samplesPath,
+  );
+  is(
+    result4,
+    {
+      'e2e-chrome': {
+        paths: ['tests/e2e'],
+        webdrivers: 'chrome',
+        servicers: ['kubernetes'],
+        services: ['db', 'nginx', 'request'],
+      },
+      'e2e-firefox': {
+        paths: ['tests/e2e'],
+        webdrivers: 'firefox',
+        servicers: ['kubernetes'],
+        services: ['db', 'nginx', 'request'],
+      },
+    },
+    'filtered paths with split',
   );
 }

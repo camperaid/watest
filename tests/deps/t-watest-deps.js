@@ -11,14 +11,14 @@ export async function test() {
   await testDeps(['tests/e2e'], unifiedSamplePath, {
     servicers: ['kubernetes'],
     webdriver: true,
-    services: ['db', 'request'],
+    services: ['db', 'nginx', 'request'],
   });
 
   // Test no arguments (should default to tests/)
   await testDeps([], unifiedSamplePath, {
     servicers: ['kubernetes', 'docker'],
     webdriver: true,
-    services: ['db', 'request', 'inbucket'],
+    services: ['db', 'nginx', 'request', 'inbucket'],
   });
 
   // Test with deeply nested test file path

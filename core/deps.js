@@ -36,6 +36,16 @@ export function parseGridArgs(args) {
 }
 
 /**
+ * Extract service name from service definition.
+ * Services can be either:
+ * - A string: 'db'
+ * - An array: ['nginx', { env: {...} }] where first element is the name
+ */
+function getServiceName(service) {
+  return Array.isArray(service) ? service[0] : service;
+}
+
+/**
  * Check if a folder path should be traversed based on target paths.
  * Similar to series.js matchedPatterns logic:
  * - folderPath starts with target: we're IN or PAST the target
@@ -65,8 +75,9 @@ async function collectMetaFromDir(dirPath, result) {
     }
     if (meta.services) {
       for (const service of meta.services) {
-        if (!result.services.includes(service)) {
-          result.services.push(service);
+        const serviceName = getServiceName(service);
+        if (!result.services.includes(serviceName)) {
+          result.services.push(serviceName);
         }
       }
     }
@@ -176,16 +187,20 @@ export async function generateGridTasks(gridConfig, args) {
       for (const wd of browsers) {
         expandedGrid[`${name}-${wd}`] = {
           paths: cellPaths,
-          webdriver: wd,
+          webdrivers: wd,
           servicers: meta.servicers,
           services: meta.services,
         };
       }
     } else {
-      // No split: single entry
+      // No split: single entry with all browsers as space-separated string
+      let webdriversValue = '';
+      if (meta.webdriver && browsers.length > 0) {
+        webdriversValue = browsers.join(' ');
+      }
       expandedGrid[name] = {
         paths: cellPaths,
-        webdriver: meta.webdriver ? (browsers[0] ?? null) : null,
+        webdrivers: webdriversValue,
         servicers: meta.servicers,
         services: meta.services,
       };
