@@ -1,215 +1,360 @@
 # watest
 
-WATest stands for Web Application Testsuite. It is a lightweight, minimal dependency
-testsuite designed for webdriver-based testing. It also can great be for
-unit and integration testing.
+WATest (Web Application Testsuite) is a lightweight, minimal-dependency test framework designed for webdriver-based E2E testing. Also works great for unit and integration tests.
 
 ## Install
 
-Invoke
-
-```
+```bash
 npm install @camperaid/watest --save
 ```
 
-in the project root.
+Add to `package.json`:
 
-Use `watest` command to run tests located in `tests/` folder. For example, add
-
-```
-scripts: {
-  test: 'watest'
+```json
+{
+  "scripts": {
+    "test": "watest"
+  }
 }
 ```
 
-in `package.json` and then run the tests by
+Run tests:
 
-```
+```bash
 npm test
 ```
 
-## Structure
+## Project Structure
 
-Tests has to be located in `tests/` folder. Each test folder can contain
-`meta.js` file describing the test flow.
+```
+tests/
+├── meta.js          # Root test configuration
+├── unit/
+│   ├── meta.js      # Folder-specific config
+│   ├── t_foo.js     # Test file (t_ prefix)
+│   └── t_bar.js
+└── e2e/
+    ├── meta.js
+    └── t_login.js
+```
 
-`init` function used to initialize tests in a folder
-`uninit` function used to initialize tests in a folder
-`folders` is a list of nested folders containing tests
-`services` is a list of services to run
+### meta.js Options
+
+Each test folder can have a `meta.js` file:
+
+```javascript
+// tests/e2e/meta.js
+export const folders = ['login', 'checkout'];  // Nested test folders
+export const services = ['db', 'ws'];          // Services to start
+export const servicer = 'docker';              // Service manager: 'docker' | 'kubernetes'
+export const webdriver = true;                 // Enable browser testing
+export const init = async () => { /* setup */ };
+export const uninit = async () => { /* teardown */ };
+```
 
 ## Configuration
 
-`.watestrc.js` is used to define configuration.
+### Project Configuration File
 
-Pre-defined webdrivers:
+Create `.watestrc.js` in your **project root** (not in watest):
 
-- `chrome` to run tests in Chrome
-- `chrome-mobile` to run tests in Chrome on iPhone
-- `firefox` to run tests in Firefox
-- `safari` to run tests in Safari
+```javascript
+export default {
+  // Test run identifiers (from env or auto-generated)
+  run: process.env.WATEST_RUN,
+  invocation: process.env.WATEST_INVOCATION,
 
-You can create `.env` file in the root directory to
-define enviropment variables used for configuration.
-Here's an example of `.env` file:
+  // Directories
+  log_dir: process.env.WATEST_LOG_DIR,
+  tmp_dir: process.env.WATEST_TMP_DIR || '/tmp',
 
+  // Test behavior
+  timeout: process.env.WATEST_TIMEOUT || 30000,
+  debunk_limit: process.env.WATEST_DEBUNK_LIMIT || 5,
+
+  // WebDriver settings
+  webdrivers: process.env.WATEST_WEBDRIVERS,
+  webdriver_headless: process.env.WATEST_WEBDRIVER_HEADLESS,
+  webdriver_loglevel: process.env.WATEST_WEBDRIVER_LOGLEVEL,
+  webdriver_window_width: process.env.WATEST_WEBDRIVER_WINDOW_WIDTH,
+  webdriver_window_height: process.env.WATEST_WEBDRIVER_WINDOW_HEIGHT,
+
+  // Integration hooks (absolute paths to your project files)
+  servicer: './tests/servicer.js',  // Manages test services
+  logger: './tests/logserver.js',   // Remote test logging
+
+  // Optional: ignore pattern
+  ignore_pattern: process.env.WATEST_IGNORE_PATTERN,
+};
 ```
-WATEST_DEBUNK_LIMIT=5
-WATEST_LOG_DIR=/tmp
-WATEST_TIMEOUT=3000
-WATEST_WEBDRIVERS=["chrome", "firefox"]
-WATEST_WEBDRIVER_HEADLESS=true
-WATEST_WEBDRIVER_LOGLEVEL=info
+
+**Note**: This file should be created in your project root (where you run `watest`), not inside the watest directory itself.
+
+### Environment Variables
+
+Watest reads configuration from environment variables. Create `.env` in your project root or export them:
+
+```bash
+# Test execution
+WATEST_RUN=run-123                           # Optional: Group multiple test invocations
+WATEST_INVOCATION=inv-456                    # Optional: Unique invocation identifier
+WATEST_TIMEOUT=30000                         # Test timeout in milliseconds
+WATEST_DEBUNK_LIMIT=5                        # Max retry attempts for flaky tests
+
+# Directories
+WATEST_LOG_DIR=/tmp/watest                   # Test logs directory
+WATEST_TMP_DIR=/tmp                          # Temporary files directory
+
+# WebDriver
+WATEST_WEBDRIVERS='["chrome","firefox"]'     # Browser list (JSON array)
+WATEST_WEBDRIVER_HEADLESS=true               # Run browsers headless
+WATEST_WEBDRIVER_LOGLEVEL=info               # WebDriver log level
+WATEST_WEBDRIVER_WINDOW_WIDTH=1280           # Browser window width
+WATEST_WEBDRIVER_WINDOW_HEIGHT=1024          # Browser window height
+
+# Integration
+WATEST_LOGGER_MODULE=./tests/logserver.js    # Path to logger module
+WATEST_SERVICER_MODULE=./tests/servicer.js   # Path to servicer module
+WATEST_IGNORE_PATTERN=_browser\.js$          # Regex for files to skip
 ```
 
-## Unit testing
+### Webdrivers
 
-The testsuite has basic functions:
+Built-in webdriver configurations:
 
-- `fail(msg)` to record test failure
-- `success(msg)` to record test success
-- `ok(cond, msg)` to test a boolean value
-- `is(got, expected, msg)` to compare two values
+- `chrome` - Chrome browser
+- `chrome-mobile` - Chrome with iPhone emulation
+- `firefox` - Firefox browser
+- `safari` - Safari browser
 
-Other functions:
+## CLI Options
 
-- `info(msg)`to print an info message
-- `assert(expression, msg)` to print an assert message if an expression fails
-- `not_reached(msg)` to fail with stack trace printed
-- `group(msg)` prints a grouping message, useful to logically group a test checks
-- `intermittent(msg)` to print an intermittent message
-- `todo(msg)` to print a todo message
-- `warn(msg)` to print a warning message
+```bash
+watest [options] [patterns...]
 
-## Integration testing
+Options:
+  --skip-on-fail  Skip remaining tests in folder after first failure
+  --timeout       Set webdriver condition timeout (ms)
+  --debunk        Re-run passing test until it fails (flakiness detection)
+  -v, --verify    Re-run failing tests
+  --deps          Output metadata (servicers, services) as JSON
+  --grid          Output grid metadata for distributed testing
+  -h, --help      Show help
+```
 
-Make sure to add `servicer` into `watestrc.js` configuration, which refers to an object managing the services. See interfaces/servicer.js for the API, which should be implemented by a `servicer`.
+### Examples
 
-Each time when the testsuite encounters `services` directive in `meta.js` file, it pokes into `servicer` object to start the referred services, and then to stop them, when leaving the folder.
+```bash
+watest                           # Run all tests
+watest tests/unit                # Run specific folder
+watest tests/e2e/t_login.js      # Run specific file
+watest chrome firefox            # Run with multiple browsers
+watest --debunk tests/e2e        # Find flaky tests
+```
 
-## E2E testing
+## Test API
 
-The testuiste provides two helper classes to simplify webdriver testing.
+### Assertions
+
+```javascript
+import { ok, is, contains, throws, no_throws } from '@camperaid/watest';
+
+ok(value, 'value is truthy');
+is(got, expected, 'values match');
+contains(array, expected, 'array contains values');
+throws(() => fn(), 'throws error');
+no_throws(() => fn(), 'does not throw');
+```
+
+### Reporting
+
+```javascript
+import { success, fail, info, warn, todo, group } from '@camperaid/watest';
+
+group('User authentication');
+success('login completed');
+fail('validation failed');
+info('processing 100 items');
+warn('deprecated API used');
+todo('implement logout');
+```
+
+### Utilities
+
+```javascript
+import { assert, not_reached, inspect } from '@camperaid/watest';
+
+assert(condition, 'condition must be true');  // Fails with stack trace
+not_reached('should not get here');           // Always fails with stack trace
+inspect(object);                              // Pretty-print object
+```
+
+### Test Helpers
+
+```javascript
+import { test_is, test_contains } from '@camperaid/watest';
+
+// Silent checks (no success/fail logging)
+if (test_is(got, expected)) { /* ... */ }
+if (test_contains(array, subset)) { /* ... */ }
+```
+
+## Integration Testing
+
+Configure a servicer in `.watestrc.js` to manage services. The servicer interface (`interfaces/servicer.js`) must implement:
+
+- `start(services)` - Start services
+- `stop()` - Stop services
+
+When watest encounters `services` in `meta.js`, it calls the servicer to start/stop services.
+
+## E2E Testing
 
 ### Driver
 
-`Driver` is a chainable wrapper around selenium webdriver. It provides a set
-of handy functions used to implement high level application drivers.
+Chainable wrapper around Selenium WebDriver:
+
+```javascript
+import { scope } from '@camperaid/watest';
+
+export const test = scope('https://example.com', async session => {
+  await session.driver
+    .get('/')
+    .findElement('#login')
+    .click()
+    .findElement('#email')
+    .sendKeys('user@example.com');
+});
+```
 
 ### AppDriver
 
-This is a base class for all application testing blocks. A typical scenario of
-application block would look the following way. Let's you have a chat
-webapp, so you might want to have `Chat` appdriver like this:
+Base class for page object patterns:
 
-```
-class Chat extends AppDriver {
-  sendMessage({ from, to, message }) {
-    return this.chain(() => this.action(`Send a message from ${from} to ${to})).
-      sendKeys(this.MainInput, message, `send keys to main input field`).
-      hitEnter());
-  }
+```javascript
+import { AppDriver } from '@camperaid/watest';
 
-  checkMessages({ messages }) {
-    return this.chain(() => this.action(`Check messages`).
-      getTextAll(this.Messages, messages, `check message boxes`));
+class LoginPage extends AppDriver {
+  login({ email, password }) {
+    return this.chain(() =>
+      this.action('Login')
+        .sendKeys(this.Email, email)
+        .sendKeys(this.Password, password)
+        .click(this.Submit)
+    );
   }
 
   getSelectors() {
     return {
-      Self: '#chat',
-      MainInput: '#main-input',
-      Messages: '.messages',
+      Self: '#login-page',
+      Email: '#email',
+      Password: '#password',
+      Submit: 'button[type=submit]',
     };
   }
 }
-module.exports = Chat;
 ```
 
-and the test will be like
+### ControlDriver
 
-```
-module.exports.test = scope(url, async session => {
-  await session.Chat.get().
-    sendMessage({ from: 'me', to: 'you', 'hi' }).
-    checkMessages({ messages: ['hi']});
-})
-```
+Base class for reusable UI component drivers (dropdowns, modals, etc.).
 
-## Intermittent and perma failures
+## Expected Failures
 
-`meta.js` supports `expected_failures` instruction to handle intermittent and
-perma failures:
+Handle known intermittent or permanent failures in `meta.js`:
 
-```
-module.exports.expected_failures = [
+```javascript
+export const expected_failures = [
   [
-    test_file,
+    'test_file.js',  // or '*' for all files
     [
-      [platform, failure_type, test_group, ...failures],
+      [platform, type, group, failures, description],
     ],
   ],
 ];
 ```
 
-where
+- `platform`: `'all'`, `'darwin'`, `'linux'`, `'darwin-chrome'`, etc.
+- `type`: `'perma'` or `'intermittent'`
+- `group`: Test group name or `'*'`
+- `failures`: Array of failure message patterns
+- `description`: Human-readable description
 
-- `platform` is a value of `process.platform` or in case of webdriver tests
-  it is a dash separated `process.platform` and webdriver name, for example,
-  `darwin-chrome`, can be `all` to indicate that failure can happen on any
-  platform
-- `failure_type` is either 'perma' or 'intermittent'
-- `test_group` is a test group name, can be `*`
-- `...failures` is a list of expected failures
+Example:
 
-For example:
-
-```
-module.exports.expected_failures = [
+```javascript
+export const expected_failures = [
   [
     '*',
     [
-      ['all', 'intermittent', '*', [`socket hang up`], `Socket hang up`],
-      [
-        'all',
-        'intermittent',
-        '*',
-        [`[map:bounds] map retrieveBounds timeout`, `*`],
-        `GoogleMaps is not loaded`,
-      ],
-      [
-        'darwin-safari',
-        'intermittent',
-        '*',
-        [`Wait for LocSearch focus`, `Waiting until element is focused`],
-        `LocSearch is not focused`,
-      ],
+      ['all', 'intermittent', '*', ['socket hang up'], 'Network flakiness'],
+      ['darwin-safari', 'perma', '*', ['WebDriver timeout'], 'Safari bug'],
     ],
   ],
 ];
 ```
 
-## Mocking
+## ES Module Mocking
 
-ES6 modules mocking is supported only. You should add `meta.js` to provide ES6
-module loader. For example, you can substitute a module path by a mock module
-path this way:
+Enable custom module resolution in `meta.js`:
 
-```
+```javascript
 export const loader = true;
 
 export async function resolve(specifier, context, defaultResolve) {
-  switch (specifier) {
-    case './base.mjs':
-      specifier = './base_mock.mjs';
-      break;
+  if (specifier === './api.js') {
+    specifier = './api_mock.js';
   }
   return defaultResolve(specifier, context, defaultResolve);
 }
 ```
 
-## Testsuite options
+## Grid Metadata for Distributed Testing
 
-- `--debunk` to enable debunk mode which will run a test the number of times or until it fails whichever is first
-- `-v` or `--verify` to re-run failing tests
-- `--timeout` to set up a custom timeout for webdriver tests, for example, to break wd condition early
+Watest provides metadata helpers for external orchestrators to distribute tests across multiple workers. Define grid splits in `meta.js`:
+
+```javascript
+// tests/meta.js
+export const grid = {
+  'e2e+': ['tests/e2e'],      // '+' = split per browser
+  'www+': ['tests/www'],
+  'services': ['tests/services', 'tests/integration'],
+  'misc': ['tests/lib', 'tests/ops'],
+};
+```
+
+Query metadata for orchestration:
+
+```bash
+# Get grid metadata as JSON
+watest --grid
+watest --grid chrome firefox
+watest --grid tests/e2e tests/www
+
+# Get dependency metadata (servicers, services)
+watest --deps tests/e2e
+```
+
+**Note**: Watest doesn't implement distributed test execution. These flags output metadata (JSON) that orchestration tools use to spawn workers and split test workload.
+
+## System Commands
+
+```javascript
+import { runCommand, execCommand, spawn, runBashScript } from '@camperaid/watest';
+
+// Run command, log output
+await runCommand('npm', ['install']);
+
+// Run command, capture output
+const { stdout, stderr, code } = await execCommand('git', ['status']);
+
+// Spawn with custom handling
+const proc = spawn('node', ['server.js']);
+
+// Run bash script
+await runBashScript('setup.sh');
+```
+
+## License
+
+MPL-2.0
