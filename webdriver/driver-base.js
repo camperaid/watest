@@ -39,6 +39,11 @@ function getChromeOptions() {
   }
   // Accept self-signed certificates (for k3s testing)
   chromeOptions.addArguments('ignore-certificate-errors');
+
+  // Required for running in Docker/VPS environments
+  chromeOptions.addArguments('no-sandbox');
+  chromeOptions.addArguments('disable-dev-shm-usage');
+
   return chromeOptions;
 }
 
