@@ -55,14 +55,14 @@ export async function test() {
     'Logs are written to',
     '\x1B[38;5;99mStarted\x1B[0m mac/',
     '\x1B[38;5;99mStarted\x1B[0m mac/unit',
-    '\x1B[38;5;99mStarted\x1B[0m mac/unit/core2',
-    '!Running: mac/unit/core2/t_presto.js, path: tests/unit/core/t_presto.js',
-    '>mac/unit/core2/t_presto.js completed in',
-    '\x1B[38;5;243mCompleted\x1B[0m mac/unit/core2',
+    '\x1B[38;5;99mStarted\x1B[0m mac/unit/core-verify',
+    '!Running: mac/unit/core-verify/t_presto.js, path: tests/unit/core/t_presto.js',
+    '>mac/unit/core-verify/t_presto.js completed in',
+    '\x1B[38;5;243mCompleted\x1B[0m mac/unit/core-verify',
     'Logs are written to',
     '\x1B[38;5;243mCompleted\x1B[0m mac/unit',
     'Logs are written to',
-    '\x1B[41m\x1B[37m>mac/unit/core2/t_presto.js\x1B[0m Failure count: 1',
+    '\x1B[41m\x1B[37m>mac/unit/core-verify/t_presto.js\x1B[0m Failure count: 1',
     '\x1B[41m\x1B[37mFailed!\x1B[0m Passed: 0. Failed: 1',
     '\x1B[38;5;243mCompleted\x1B[0m mac/',
     'Logs are written to',
@@ -75,7 +75,7 @@ export async function test() {
     '\x1B[31mFailed:\x1B[0m Presto',
     '\x1B[31m>mac/unit/core/t_presto.js\x1B[0m has 1 failure(s)',
     '\x1B[31mFailed:\x1B[0m Presto',
-    '\x1B[31m>mac/unit/core2/t_presto.js\x1B[0m has 1 failure(s)',
+    '\x1B[31m>mac/unit/core-verify/t_presto.js\x1B[0m has 1 failure(s)',
   ];
 
   await is_test_output(

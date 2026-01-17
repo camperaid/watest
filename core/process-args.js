@@ -44,6 +44,11 @@ class ProcessArgs {
           obj.rootFolder = process.argv[++i];
           break;
 
+        case '--rerun':
+          // Rerun suffix appended to first folder level (e.g., --rerun 5 → www becomes www-5)
+          obj.rerun = process.argv[++i];
+          break;
+
         case '--input-type=module':
           break;
 
@@ -69,6 +74,10 @@ class ProcessArgs {
       list.push('--timeout', args.timeout);
     } else if ('verify' in args) {
       list.push('--verify');
+    }
+    // Pass rerun suffix to child processes
+    if ('rerun' in args) {
+      list.push('--rerun', args.rerun);
     }
     return list;
   }

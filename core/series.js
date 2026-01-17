@@ -76,6 +76,7 @@ class Series {
     {
       debunk,
       invocation,
+      rerun,
       skipOnFail,
       timeout,
       verify,
@@ -90,6 +91,7 @@ class Series {
   ) {
     this.debunk = debunk;
     this.invocation = invocation || settings.invocation;
+    this.rerun = rerun;
     this.patterns = patterns;
     this.skipOnFail = skipOnFail;
     this.verify = verify;
@@ -140,9 +142,9 @@ class Series {
         await this.runFor(this.patterns.map(p => ({ path: p, webdriver: '' })));
       }
     } else {
-      // In very mode, re-run all failing tests.
+      // In verify mode, re-run all failing tests.
       if (this.verify && this.failures.length > 0) {
-        await this.runFor(this.failures, '2');
+        await this.runFor(this.failures, '-verify');
       }
     }
     log(`Elapsed: ${Date.now() - start_time}ms`);
@@ -158,9 +160,21 @@ class Series {
       virtual_folder: this.invocation,
     });
 
-    // Adjust names.
+    // Adjust names for verify mode (appends postfix like "2").
     if (name_postfix) {
       this.adjustTestNames(tests, name_postfix);
+    }
+
+    // Apply rerun suffix to first folder level (e.g., --rerun 5 → www becomes www-5).
+    if (this.rerun) {
+      // Extract numeric ID if the argument includes a prefix (e.g. "www-12" -> "12")
+      let suffix = this.rerun;
+      // Match hyphen + digits at end of string
+      const match = suffix.match(/-(\d+)$/);
+      if (match) {
+        suffix = match[1];
+      }
+      this.applyRerunSuffix(tests, suffix);
     }
 
     if (tests.length == 0) {
@@ -582,6 +596,20 @@ class Series {
     if (test.subtests) {
       for (let subtest of test.subtests) {
         this.adjustTestNamesRec(subtest, oldname, newname);
+      }
+    }
+  }
+
+  /**
+   * Apply rerun suffix to the first folder level in test names.
+   * e.g., --rerun 5 transforms linux/www/test → linux/www-5/test
+   */
+  applyRerunSuffix(tests, suffix) {
+    for (let test of tests) {
+      // Match first folder after invocation: linux/www/ → linux/www-5/
+      test.name = test.name.replace(/^([^/]+\/[^/]+)(\/|$)/, `$1-${suffix}$2`);
+      if (test.subtests) {
+        this.applyRerunSuffix(test.subtests, suffix);
       }
     }
   }

@@ -93,16 +93,16 @@ export async function test() {
           ],
         ],
         [
-          'mac/webdriver/chrome/end-to-end/history2/log',
+          'mac/webdriver/chrome/end-to-end/history-verify/log',
           [
-            '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/chrome/end-to-end/history2',
-            '!Running: mac/webdriver/chrome/end-to-end/history2/t_history.js, path: tests/webdriver/end-to-end/history/t_history.js',
+            '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/chrome/end-to-end/history-verify',
+            '!Running: mac/webdriver/chrome/end-to-end/history-verify/t_history.js, path: tests/webdriver/end-to-end/history/t_history.js',
             '\x1B[32mOk:\x1B[0m TestoOk',
             completed_in(
-              'mac/webdriver/chrome/end-to-end/history2/t_history.js',
+              'mac/webdriver/chrome/end-to-end/history-verify/t_history.js',
             ),
-            '\x1B[102mmac/webdriver/chrome/end-to-end/history2\x1B[0m Total: 1',
-            '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome/end-to-end/history2',
+            '\x1B[102mmac/webdriver/chrome/end-to-end/history-verify\x1B[0m Total: 1',
+            '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome/end-to-end/history-verify',
           ],
         ],
       ]
