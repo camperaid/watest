@@ -1,7 +1,7 @@
 import { By, Condition, Key, until } from 'selenium-webdriver';
 import { test_is, test_contains, is, contains, ok } from '../core/base.js';
 import { assert, fail } from '../core/core.js';
-import { is_mac, stringify, toDataURL } from '../core/util.js';
+import { isMac, stringify, toDataURL } from '../core/util.js';
 import { log } from '../logging/logging.js';
 import { getTimeout, DriverBase } from './driver-base.js';
 
@@ -841,7 +841,7 @@ class Driver extends DriverBase {
     assert(msg, `selectAll: no msg`);
 
     if (this.firefox) {
-      let accel = (is_mac() && Key.COMMAND) || Key.CONTROL;
+      let accel = (isMac() && Key.COMMAND) || Key.CONTROL;
       return this.waitForElementToInvoke(
         selector,
         el => el.sendKeys(Key.chord(accel, 'a')),

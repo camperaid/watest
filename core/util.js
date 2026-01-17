@@ -98,12 +98,29 @@ function removeDir(path) {
   }
 }
 
-function is_mac() {
+function isMac() {
   return process.platform == 'darwin';
+}
+
+function isLinux() {
+  return process.platform == 'linux';
+}
+
+function isWin() {
+  return process.platform == 'win32';
 }
 
 function toDataURL(html) {
   return `data:text/html,${querystring.escape(html)}`;
 }
 
-export { inspect, stringify, is_mac, toDataURL, removeDir, initTmpStorage };
+export {
+  inspect,
+  stringify,
+  isMac,
+  isLinux,
+  isWin,
+  toDataURL,
+  removeDir,
+  initTmpStorage,
+};

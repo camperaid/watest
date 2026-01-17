@@ -1,6 +1,7 @@
 import { assert, group, fail, info } from '../core/core.js';
 import { log, log_error } from '../logging/logging.js';
 import { Driver } from './driver.js';
+import { isMac, isLinux, isWin } from '../core/util.js';
 
 let active_sessions = [];
 
@@ -112,6 +113,12 @@ async function start_session(arg1, arg2) {
   s.isChrome = () => s.driver.chrome;
 
   s.isSafari = () => s.driver.safari;
+
+  s.isMac = () => isMac();
+
+  s.isLinux = () => isLinux();
+
+  s.isWin = () => isWin();
 
   /**
    * Pause the session for number of secs.
