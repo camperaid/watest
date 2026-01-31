@@ -30,7 +30,7 @@ function getChromeOptions() {
     height: settings.webdriver_window_height,
   });
   if (settings.webdriver_headless) {
-    chromeOptions.addArguments('headless');
+    chromeOptions.addArguments('headless=new');
   }
   if (settings.webdriver == 'chrome-mobile') {
     chromeOptions.setMobileEmulation({
