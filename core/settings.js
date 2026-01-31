@@ -54,11 +54,11 @@ class Settings {
   }
 
   get testFilePattern() {
-    return this.rc.test_file_pattern || /^t[-_]/;
+    return this.rc?.test_file_pattern || /^t[-_]/;
   }
 
   get timeout() {
-    return parseInt(this.rc.timeout) || 0;
+    return parseInt(this.rc?.timeout) || 0;
   }
 
   setupTmpStorageDir() {

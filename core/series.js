@@ -500,13 +500,17 @@ class Series {
         testname: path,
       });
 
-      tests.push({
+      const testObj = {
         name,
         path,
         func: test_wrap,
         webdriver,
         failures_info,
-      });
+      };
+      if (test_module.timeout) {
+        testObj.timeout = test_module.timeout;
+      }
+      tests.push(testObj);
     }
 
     // Add tests from subfolders.
@@ -653,6 +657,7 @@ class Series {
         skip_on_fail,
         run_in_child_process,
         init_or_uninit,
+        timeout,
       } = test;
 
       if (stop && !name.endsWith('uninit')) {
@@ -678,6 +683,7 @@ class Series {
 
       // Invoke a test.
       log(`\n!Running: ${name}, path: ${path}\n`);
+
       let start_time = new Date();
       let kungFuDeathGrip = null;
       let kungFuDeathGripResolve = null;
@@ -695,21 +701,23 @@ class Series {
       try {
         this.core.setExpectedFailures(failures_info);
 
-        // If timeout is given then race it against the test.
-        if (settings.timeout) {
+        // If timeout is given (from meta.js or settings) then race it against the test.
+        const effectiveTimeout = timeout ?? settings.timeout;
+        if (effectiveTimeout) {
+          const timeoutMs = effectiveTimeout * 1000;
           kungFuDeathGrip = new Promise(
             resolve => (kungFuDeathGripResolve = resolve),
           ).then(value => {
             if (value != kKungFuDeathGripCancelled) {
               fail(
-                `Test ${name} takes longer than ${settings.timeout}ms. It's either slow or never ends.`,
+                `Test ${name} takes longer than ${effectiveTimeout}s. It's either slow or never ends.`,
               );
               return kKungFuDeathGripTimeout;
             }
           });
           kungFuDeathGripTimer = setTimeout(
             kungFuDeathGripResolve,
-            settings.timeout,
+            timeoutMs,
           );
           let retval = await Promise.race([func(), kungFuDeathGrip]);
           if (retval != kKungFuDeathGripTimeout) {
