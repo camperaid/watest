@@ -44,6 +44,9 @@ function getChromeOptions() {
   chromeOptions.addArguments('no-sandbox');
   chromeOptions.addArguments('disable-dev-shm-usage');
 
+  for (const arg of settings.webdriver_chrome_args || []) {
+    chromeOptions.addArguments(arg);
+  }
   return chromeOptions;
 }
 

@@ -66,6 +66,7 @@ export async function test() {
     [
       'Settings: no temporary storage dir',
       'Settings: logging into /tmp',
+      'Settings: webdriver_chrome_args=[]',
       'Settings: chrome webdrivers',
       '\x1B[38;5;99mStarted\x1B[0m mac/',
       '\x1B[38;5;99mStarted\x1B[0m mac/folder1',

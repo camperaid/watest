@@ -44,6 +44,12 @@ const cfg = {
   webdriver_loglevel: process.env.WATEST_WEBDRIVER_LOGLEVEL,
 
   /**
+   * Additional Chrome arguments.
+   * JSON array, e.g.: ["enable-unsafe-swiftshader", "use-gl=swiftshader"]
+   */
+  webdriver_chrome_args: process.env.WATEST_WEBDRIVER_CHROME_ARGS,
+
+  /**
    * Web drivers to run tests for.
    */
   webdrivers: process.env.WATEST_WEBDRIVERS,

@@ -112,11 +112,32 @@ class Settings {
       this.rc.webdriver_headless == true ||
       this.rc.webdriver_headless == 'true';
     this.webdriver_loglevel = this.rc.webdriver_loglevel;
+    this.webdriver_chrome_args = [];
+
+    if (typeof this.rc.webdriver_chrome_args == 'string') {
+      try {
+        const parsed = JSON.parse(this.rc.webdriver_chrome_args);
+        if (Array.isArray(parsed)) {
+          this.webdriver_chrome_args = parsed;
+        }
+      } catch (e) {
+        console.error(
+          `Settings: failed to parse webdriver_chrome_args '${this.rc.webdriver_chrome_args}'`,
+          e,
+        );
+      }
+    }
 
     this.webdriver_window_width =
       parseInt(this.rc.webdriver_window_width) || 1366;
     this.webdriver_window_height =
       parseInt(this.rc.webdriver_window_height) || 768;
+
+    if (!this.silent) {
+      console.log(
+        `Settings: webdriver_chrome_args=${JSON.stringify(this.webdriver_chrome_args)}`,
+      );
+    }
 
     if (this.webdrivers && !this.silent) {
       console.log(`Settings: ${this.webdrivers.join(', ')} webdrivers`);

@@ -33,6 +33,7 @@ export async function test() {
   const expected_stdout = [
     'Settings: no temporary storage dir',
     'Settings: logging into /tmp',
+    'Settings: webdriver_chrome_args=[]',
     'Settings: chrome webdrivers',
     ...expected_out_for_success,
     ...expected_out_for_success,
