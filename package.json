@@ -1,6 +1,6 @@
 {
   "name": "@camperaid/watest",
-  "version": "2.5.5",
+  "version": "2.5.6",
   "description": "Web Application Testsuite",
   "type": "module",
   "engines": {
