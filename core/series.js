@@ -481,6 +481,7 @@ class Series {
         failures_info: [],
         skip_on_fail: 'skip-on-fail',
         init_or_uninit: true,
+        ...(test_module.timeout && { timeout: test_module.timeout }),
       });
     }
 
@@ -535,6 +536,7 @@ class Series {
         failures_info: [],
         skip_on_fail: 'skip-on-fail',
         init_or_uninit: true,
+        ...(test_module.timeout && { timeout: test_module.timeout }),
       });
     }
 
@@ -715,10 +717,7 @@ class Series {
               return kKungFuDeathGripTimeout;
             }
           });
-          kungFuDeathGripTimer = setTimeout(
-            kungFuDeathGripResolve,
-            timeoutMs,
-          );
+          kungFuDeathGripTimer = setTimeout(kungFuDeathGripResolve, timeoutMs);
           let retval = await Promise.race([func(), kungFuDeathGrip]);
           if (retval != kKungFuDeathGripTimeout) {
             clearTimeout(kungFuDeathGripTimer);
