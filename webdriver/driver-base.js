@@ -580,15 +580,43 @@ class DriverBase {
       });
     `;
 
+    // Removes listeners and cleans up globals without waiting for a click
+    // event. Used when no_click_check is set and the click may not fire
+    // standard mouse events (e.g. range inputs on mobile Chrome).
+    let cleanupClick = `
+      const events = ['mousedown', 'mouseup', 'click', 'dblclick'];
+      for (let ev of events) {
+        window.document.removeEventListener(
+          ev, window.__selenium_clickHandler, true
+        );
+      }
+      delete window.__selenium_clickHandler;
+      delete window.__selenium_lastClick;
+      delete window.__selenium_clickElRect;
+      (arguments[arguments.length - 1])();
+    `;
+
     return this.waitForElementToInvoke(
       selector,
       el =>
         this.dvr
           .executeAsyncScript(listenClick, selector)
           .then(() => click_func(el))
-          .then(
-            () => !no_click_check && this.dvr.executeAsyncScript(checkClick),
-          )
+          .then(() => {
+            let p = this.dvr.executeAsyncScript(
+              no_click_check ? cleanupClick : checkClick,
+            );
+            if (no_click_check) {
+              // Page may navigate before cleanup script runs - that's OK.
+              p = p.catch(e => {
+                if (e instanceof error.ScriptTimeoutError) {
+                  return null;
+                }
+                throw e;
+              });
+            }
+            return p;
+          })
           .then(r => {
             if (!r) {
               if (!no_click_check) {
