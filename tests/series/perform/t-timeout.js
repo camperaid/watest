@@ -22,7 +22,7 @@ function make_perform_with_timeout(tests) {
     try {
       await series.perform({ folder: 'tests/', tests });
     } finally {
-      series.shutdown();
+      await series.shutdown();
     }
   };
 }

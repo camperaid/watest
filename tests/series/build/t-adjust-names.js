@@ -38,7 +38,7 @@ export async function test() {
     virtual_folder: 'unit',
   });
   series.adjustTestNames(tests, '2');
-  series.shutdown();
+  await series.shutdown();
 
   is(
     tests,

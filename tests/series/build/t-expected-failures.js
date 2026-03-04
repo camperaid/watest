@@ -59,7 +59,7 @@ export async function test() {
     folder: 'unit',
     virtual_folder: 'unit',
   });
-  series.shutdown();
+  await series.shutdown();
 
   is(
     tests,

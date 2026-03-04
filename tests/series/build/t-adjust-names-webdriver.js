@@ -39,7 +39,7 @@ export async function test() {
     virtual_folder: 'mac',
   });
   series.adjustTestNames(tests, '2');
-  series.shutdown();
+  await series.shutdown();
 
   is(
     tests,

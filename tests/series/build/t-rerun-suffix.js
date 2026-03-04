@@ -29,7 +29,7 @@ export async function test() {
     virtual_folder: 'linux/www',
   });
   series.applyRerunSuffix(tests, '5');
-  series.shutdown();
+  await series.shutdown();
 
   is(
     tests,

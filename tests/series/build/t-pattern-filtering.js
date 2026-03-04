@@ -70,7 +70,7 @@ export async function test() {
     folder: 'tests',
     virtual_folder: 'mac',
   });
-  series.shutdown();
+  await series.shutdown();
 
   // Should only build the unit folder and its relevant subfolders
   // Should NOT build integration or e2e folders

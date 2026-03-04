@@ -31,7 +31,7 @@ export async function test() {
     folder: 'tests',
     virtual_folder: 'myrun',
   });
-  series.shutdown();
+  await series.shutdown();
 
   is(
     tests,

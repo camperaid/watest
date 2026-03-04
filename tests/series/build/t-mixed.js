@@ -43,7 +43,7 @@ export async function test() {
     folder: 'tests',
     virtual_folder: 'mac',
   });
-  series.shutdown();
+  await series.shutdown();
 
   is(
     tests,

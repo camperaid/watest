@@ -71,7 +71,7 @@ export function make_perform_function(tests) {
     try {
       await series.perform({ folder: 'tests/', tests: build_tests(tests) });
     } finally {
-      series.shutdown();
+      await series.shutdown();
     }
   };
 }

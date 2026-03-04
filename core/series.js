@@ -61,8 +61,8 @@ class Series {
           )
           .then(
             () => series.shutdown(),
-            e => {
-              let failures = series.shutdown();
+            async e => {
+              let failures = await series.shutdown();
               fail(e.message);
               log_error(e);
               return failures;
@@ -191,8 +191,8 @@ class Series {
     await this.perform({ folder: `${this.invocation}/`, tests });
   }
 
-  shutdown() {
-    this.shutdownServicer();
+  async shutdown() {
+    await this.shutdownServicer();
     testflow.unlock();
 
     console.log(`Testsuite: shutdown`);
@@ -1101,9 +1101,9 @@ class Series {
     return settings.getServicer(servicerType);
   }
 
-  shutdownServicer() {
+  async shutdownServicer() {
     if (this.#servicer) {
-      this.#servicer.shutdown();
+      await this.#servicer.shutdown();
       this.#servicer = null;
     }
   }

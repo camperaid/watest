@@ -23,7 +23,7 @@ export async function test() {
     folder: 'e2e',
     virtual_folder: 'e2e',
   });
-  series.shutdown();
+  await series.shutdown();
 
   is(
     tests,
