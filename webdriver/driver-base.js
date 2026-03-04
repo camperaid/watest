@@ -44,6 +44,10 @@ function getChromeOptions() {
   chromeOptions.addArguments('no-sandbox');
   chromeOptions.addArguments('disable-dev-shm-usage');
 
+  // Disable disk cache so stale resources from previous deploys are never
+  // served from cache.  Each test session fetches everything from the network.
+  chromeOptions.addArguments('disk-cache-size=0');
+
   for (const arg of settings.webdriver_chrome_args || []) {
     chromeOptions.addArguments(arg);
   }
