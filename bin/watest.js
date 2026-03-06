@@ -53,4 +53,4 @@ if (args.grid) {
   }
 }
 
-runSeries(args.patterns, args).then(failures => failures && process.exit(1));
+runSeries(args.patterns, args).then(failures => process.exit(failures ? 1 : 0));
