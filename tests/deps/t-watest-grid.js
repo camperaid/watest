@@ -42,7 +42,7 @@ export async function test() {
         services: ['inbucket', 'request'],
       },
     },
-    'default browsers split + cells',
+    'default browsers split + cells and omit disabled suites',
   );
 
   // Single browser - no split even for + cells
@@ -75,7 +75,7 @@ export async function test() {
         services: ['inbucket', 'request'],
       },
     },
-    'single browser no split',
+    'single browser no split and omit disabled suites',
   );
 
   // Multiple browsers without split (no + cells, explicit browsers)
@@ -119,4 +119,13 @@ export async function test() {
     },
     'filtered paths with split',
   );
+
+  const result5 = await testGrid(['tests/disabled', 'chrome'], samplesPath);
+  is(result5, {}, 'disabled grid cell should be omitted');
+
+  const result6 = await testGrid(
+    ['tests/disabled-parent/child', 'chrome'],
+    samplesPath,
+  );
+  is(result6, {}, 'grid cell should be omitted when a parent meta disables it');
 }

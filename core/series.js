@@ -2,12 +2,13 @@ import fs from 'fs';
 import nodepath from 'path';
 import { fileURLToPath } from 'url';
 
-import { assert, fail, testflow } from './core.js';
+import { assert, fail, success, testflow } from './core.js';
 import { parse, parse_failure } from './format.js';
 import { ProcessArgs } from './process-args.js';
 import { settings } from './settings.js';
 import { spawn } from './spawn.js';
 import { stringify } from './util.js';
+import { isMetaEnabled } from './meta.js';
 import { log, log_error } from '../logging/logging.js';
 import { LogPipe } from '../logging/logpipe.js';
 import { DriverBase } from '../webdriver/driver-base.js';
@@ -212,10 +213,23 @@ class Series {
     let tests = [];
     try {
       let test_module = await this.loadTestMeta(folder);
+      const enabled = isMetaEnabled(test_module);
       let subfolders = test_module.folders;
       let testfiles = test_module.list || (await this.getTestFileList(folder));
       if (!subfolders && testfiles.length == 0) {
         throw new Error(`No tests found in ${folder}`);
+      }
+
+      if (!enabled) {
+        return [
+          {
+            name: virtual_folder,
+            path: `${folder}/meta.js`,
+            func: () => success(`Skipped: meta.enabled=false`),
+            failures_info: [],
+            meta_disabled_folder: true,
+          },
+        ];
       }
 
       if (test_module.expected_failures) {
@@ -414,6 +428,9 @@ class Series {
 
     return subtests_for_subfolders
       .flatMap(({ subfolder, subtests }) => {
+        if (subtests.some(t => t.meta_disabled_folder)) {
+          return subtests;
+        }
         // Case: no substests for a loader test running in a child process.
         if (subtests.every(t => t.loader)) {
           return subtests;

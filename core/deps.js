@@ -3,7 +3,9 @@
  * Parses test folder metadata and generates grid configurations.
  */
 
+import fs from 'node:fs';
 import { pathToFileURL } from 'node:url';
+import { isMetaEnabled } from './meta.js';
 import { join } from 'node:path';
 import { settings } from './settings.js';
 
@@ -58,39 +60,41 @@ function matchesPath(folderPath, targetPaths) {
 }
 
 /**
- * Collect metadata from a single directory's meta.js
- * Helper for collectDeps
+ * Collect metadata from a single directory's meta.js.
  */
-async function collectMetaFromDir(dirPath, result) {
-  try {
-    const metaPath = join(process.cwd(), dirPath, 'meta.js');
-    const metaUrl = pathToFileURL(metaPath).href;
-    const meta = await import(metaUrl);
-
-    if (meta.servicer && !result.servicers.includes(meta.servicer)) {
-      result.servicers.push(meta.servicer);
-    }
-    if (meta.webdriver) {
-      result.webdriver = true;
-    }
-    if (meta.services) {
-      for (const service of meta.services) {
-        const serviceName = getServiceName(service);
-        if (!result.services.includes(serviceName)) {
-          result.services.push(serviceName);
-        }
-      }
-    }
-
-    return meta;
-  } catch {
-    // No meta.js or error loading it - that's ok
+async function scanMetaDir(dirPath, result) {
+  const metaPath = join(process.cwd(), dirPath, 'meta.js');
+  if (!fs.existsSync(metaPath)) {
     return null;
   }
+
+  const metaUrl = pathToFileURL(metaPath).href;
+  const meta = await import(metaUrl);
+
+  if (!isMetaEnabled(meta)) {
+    return undefined;
+  }
+
+  if (meta.servicer && !result.servicers.includes(meta.servicer)) {
+    result.servicers.push(meta.servicer);
+  }
+  if (meta.webdriver) {
+    result.webdriver = true;
+  }
+  if (meta.services) {
+    for (const service of meta.services) {
+      const serviceName = getServiceName(service);
+      if (!result.services.includes(serviceName)) {
+        result.services.push(serviceName);
+      }
+    }
+  }
+
+  return meta;
 }
 
 /**
- * Recursively collect metadata from nested meta.js files.
+ * Walk nested meta.js files from root toward the requested target paths.
  * Starts from root folder, walks DOWN the tree, only following branches that match target paths.
  * Similar to how series.js builds tests - uses bidirectional path matching.
  *
@@ -98,9 +102,15 @@ async function collectMetaFromDir(dirPath, result) {
  * @param {string[]} targetPaths - The specific test paths we're collecting deps for
  * @param {Object} result - Accumulated result object
  */
-async function collectDepsRecursive(folder, targetPaths, result) {
+async function walkDepsTree(folder, targetPaths, result) {
   // Collect metadata from current folder
-  const meta = await collectMetaFromDir(folder, result);
+  const meta = await scanMetaDir(folder, result);
+
+  if (meta === undefined) {
+    return false;
+  }
+
+  let hasEnabledTarget = targetPaths.some(target => target === folder);
 
   // If this folder has subfolders, filter and recurse
   if (meta?.folders) {
@@ -109,10 +119,16 @@ async function collectDepsRecursive(folder, targetPaths, result) {
 
       // Only follow this branch if it matches any target path
       if (matchesPath(subfolderPath, targetPaths)) {
-        await collectDepsRecursive(subfolderPath, targetPaths, result);
+        if (await walkDepsTree(subfolderPath, targetPaths, result)) {
+          hasEnabledTarget = true;
+        }
       }
     }
+  } else if (targetPaths.some(target => target.startsWith(`${folder}/`))) {
+    hasEnabledTarget = true;
   }
+
+  return hasEnabledTarget;
 }
 
 /**
@@ -122,7 +138,7 @@ async function collectDepsRecursive(folder, targetPaths, result) {
  * @param {string[]} paths - Test paths to collect metadata for (defaults to entire tree)
  * @param {Object} result - Initial result object
  */
-export async function collectDeps(
+async function buildDepsState(
   paths = [settings.testsFolder],
   result = { servicers: [], webdriver: false, services: [] },
 ) {
@@ -133,11 +149,20 @@ export async function collectDeps(
     p => p === rootFolder || p.startsWith(rootFolder + '/'),
   );
 
+  let hasEnabledTarget = false;
+
   if (targetPaths.length > 0) {
-    await collectDepsRecursive(rootFolder, targetPaths, result);
+    hasEnabledTarget = await walkDepsTree(rootFolder, targetPaths, result);
   }
 
-  return result;
+  return { deps: result, hasEnabledTarget };
+}
+
+export async function collectDeps(
+  paths = [settings.testsFolder],
+  result = { servicers: [], webdriver: false, services: [] },
+) {
+  return (await buildDepsState(paths, result)).deps;
 }
 
 /**
@@ -180,29 +205,33 @@ export async function generateGridTasks(gridConfig, args) {
   const expandedGrid = {};
   for (const [cellKey, cellPaths] of cellPathsMap) {
     const { name, split } = parseCellSyntax(cellKey);
-    const meta = await collectDeps(cellPaths);
+    const { deps, hasEnabledTarget } = await buildDepsState(cellPaths);
 
-    if (split && meta.webdriver && browsers.length > 1) {
+    if (!hasEnabledTarget) {
+      continue;
+    }
+
+    if (split && deps.webdriver && browsers.length > 1) {
       // Split: one entry per browser
       for (const wd of browsers) {
         expandedGrid[`${name}-${wd}`] = {
           paths: cellPaths,
           webdrivers: wd,
-          servicers: meta.servicers,
-          services: meta.services,
+          servicers: deps.servicers,
+          services: deps.services,
         };
       }
     } else {
       // No split: single entry with all browsers as space-separated string
       let webdriversValue = '';
-      if (meta.webdriver && browsers.length > 0) {
+      if (deps.webdriver && browsers.length > 0) {
         webdriversValue = browsers.join(' ');
       }
       expandedGrid[name] = {
         paths: cellPaths,
         webdrivers: webdriversValue,
-        servicers: meta.servicers,
-        services: meta.services,
+        servicers: deps.servicers,
+        services: deps.services,
       };
     }
   }

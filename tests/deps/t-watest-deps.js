@@ -21,6 +21,19 @@ export async function test() {
     services: ['db', 'nginx', 'request', 'inbucket'],
   });
 
+  // Disabled suite should be omitted from deps metadata even when addressed directly
+  await testDeps(['tests/disabled'], unifiedSamplePath, {
+    servicers: [],
+    webdriver: false,
+    services: [],
+  });
+
+  await testDeps(['tests/disabled-parent/child'], unifiedSamplePath, {
+    servicers: [],
+    webdriver: false,
+    services: [],
+  });
+
   // Test with deeply nested test file path
   await testDeps(['tests/services/ws/webservice/t-ws.js'], nestedSamplePath, {
     servicers: ['docker'],

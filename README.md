@@ -44,13 +44,27 @@ Each test folder can have a `meta.js` file:
 
 ```javascript
 // tests/e2e/meta.js
-export const folders = ['login', 'checkout'];  // Nested test folders
-export const services = ['db', 'ws'];          // Services to start
-export const servicer = 'docker';              // Service manager: 'docker' | 'kubernetes'
-export const webdriver = true;                 // Enable browser testing
-export const init = async () => { /* setup */ };
-export const uninit = async () => { /* teardown */ };
+export const folders = ['login', 'checkout']; // Nested test folders
+export const services = ['db', 'ws']; // Services to start
+export const servicer = 'docker'; // Service manager: 'docker' | 'kubernetes'
+export const webdriver = true; // Enable browser testing
+export const enabled = process.env.FEATURE_ON; // Optional: true/false, 'true'/'false', or a function returning one
+export const init = async () => {
+  /* setup */
+};
+export const uninit = async () => {
+  /* teardown */
+};
 ```
+
+`enabled` may be:
+
+- a boolean
+- the string `'true'` or `'false'`
+- a synchronous function returning one of those values
+
+Skipped suites are omitted from `--deps` and `--grid` metadata, and their
+services are not started.
 
 ## Configuration
 
@@ -80,8 +94,8 @@ export default {
   webdriver_window_height: process.env.WATEST_WEBDRIVER_WINDOW_HEIGHT,
 
   // Integration hooks (absolute paths to your project files)
-  servicer: './tests/servicer.js',  // Manages test services
-  logger: './tests/logserver.js',   // Remote test logging
+  servicer: './tests/servicer.js', // Manages test services
+  logger: './tests/logserver.js', // Remote test logging
 
   // Optional: ignore pattern
   ignore_pattern: process.env.WATEST_IGNORE_PATTERN,
@@ -184,9 +198,9 @@ todo('implement logout');
 ```javascript
 import { assert, not_reached, inspect } from '@camperaid/watest';
 
-assert(condition, 'condition must be true');  // Fails with stack trace
-not_reached('should not get here');           // Always fails with stack trace
-inspect(object);                              // Pretty-print object
+assert(condition, 'condition must be true'); // Fails with stack trace
+not_reached('should not get here'); // Always fails with stack trace
+inspect(object); // Pretty-print object
 ```
 
 ### Test Helpers
@@ -195,8 +209,12 @@ inspect(object);                              // Pretty-print object
 import { test_is, test_contains } from '@camperaid/watest';
 
 // Silent checks (no success/fail logging)
-if (test_is(got, expected)) { /* ... */ }
-if (test_contains(array, subset)) { /* ... */ }
+if (test_is(got, expected)) {
+  /* ... */
+}
+if (test_contains(array, subset)) {
+  /* ... */
+}
 ```
 
 ## Integration Testing
@@ -240,7 +258,7 @@ class LoginPage extends AppDriver {
       this.action('Login')
         .sendKeys(this.Email, email)
         .sendKeys(this.Password, password)
-        .click(this.Submit)
+        .click(this.Submit),
     );
   }
 
@@ -266,10 +284,8 @@ Handle known intermittent or permanent failures in `meta.js`:
 ```javascript
 export const expected_failures = [
   [
-    'test_file.js',  // or '*' for all files
-    [
-      [platform, type, group, failures, description],
-    ],
+    'test_file.js', // or '*' for all files
+    [[platform, type, group, failures, description]],
   ],
 ];
 ```
@@ -316,7 +332,7 @@ Watest provides metadata helpers for external orchestrators to distribute tests 
 ```javascript
 // tests/meta.js
 export const grid = {
-  'e2e+': ['tests/e2e'],      // '+' = split per browser
+  'e2e+': ['tests/e2e'], // '+' = split per browser
   'www+': ['tests/www'],
   'services': ['tests/services', 'tests/integration'],
   'misc': ['tests/lib', 'tests/ops'],
@@ -340,7 +356,12 @@ watest --deps tests/e2e
 ## System Commands
 
 ```javascript
-import { runCommand, execCommand, spawn, runBashScript } from '@camperaid/watest';
+import {
+  runCommand,
+  execCommand,
+  spawn,
+  runBashScript,
+} from '@camperaid/watest';
 
 // Run command, log output
 await runCommand('npm', ['install']);
