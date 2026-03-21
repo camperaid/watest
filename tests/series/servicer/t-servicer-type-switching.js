@@ -14,6 +14,7 @@
  */
 
 import { is_test_output, success } from '../../base/test.js';
+import { settings_preamble } from '../test.js';
 import { MockSeriesWithServicer } from './mock-servicer.js';
 
 export async function test() {
@@ -64,10 +65,7 @@ export async function test() {
   await is_test_output(
     () => MockSeriesWithServicer.run([], { ts }),
     [
-      'Settings: no temporary storage dir',
-      'Settings: logging into /tmp',
-      'Settings: webdriver_chrome_args=[]',
-      'Settings: chrome webdrivers',
+      ...settings_preamble(),
       '\x1B[38;5;99mStarted\x1B[0m mac/',
       '\x1B[38;5;99mStarted\x1B[0m mac/folder1',
 
@@ -87,7 +85,6 @@ export async function test() {
       '>mac/folder1/uninit completed in',
 
       '\x1B[38;5;243mCompleted\x1B[0m mac/folder1',
-      'Logs are written to',
       '\x1B[38;5;99mStarted\x1B[0m mac/folder2',
 
       // Folder 2: switch to kubernetes servicer (no shutdown - servicer handles conflicts)
@@ -106,7 +103,6 @@ export async function test() {
       '>mac/folder2/uninit completed in',
 
       '\x1B[38;5;243mCompleted\x1B[0m mac/folder2',
-      'Logs are written to',
       '\x1B[38;5;99mStarted\x1B[0m mac/folder3',
 
       // Folder 3: switch back to docker servicer (no shutdown - servicer handles conflicts)
@@ -125,12 +121,9 @@ export async function test() {
       '>mac/folder3/uninit completed in',
 
       '\x1B[38;5;243mCompleted\x1B[0m mac/folder3',
-      'Logs are written to',
       '\x1B[102mSuccess!\x1B[0m Total: 3',
       '\x1B[38;5;243mCompleted\x1B[0m mac/',
-      'Logs are written to',
       'Elapsed:',
-      'Logs are written to',
       'MockServicer:docker shutdown',
       'Testsuite: shutdown',
     ],

@@ -1,4 +1,5 @@
 import { is_test_output, success } from '../../base/test.js';
+import { settings_preamble } from '../test.js';
 import { MockSeriesWithServicer } from './mock-servicer.js';
 
 /**
@@ -24,10 +25,7 @@ export async function test() {
   await is_test_output(
     () => MockSeriesWithServicer.run([], { ts }),
     [
-      'Settings: no temporary storage dir',
-      'Settings: logging into /tmp',
-      'Settings: webdriver_chrome_args=[]',
-      'Settings: chrome webdrivers',
+      ...settings_preamble(),
       '\x1B[38;5;99mStarted\x1B[0m mac/',
       '!Running: mac/init, path: tests/meta.js',
       'MockServicer:kubernetes init',
@@ -42,9 +40,7 @@ export async function test() {
       '>mac/uninit completed in',
       '\x1B[102mSuccess!\x1B[0m Total: 1',
       '\x1B[38;5;243mCompleted\x1B[0m mac/',
-      'Logs are written to',
       'Elapsed:',
-      'Logs are written to',
       'MockServicer:kubernetes shutdown',
       'Testsuite: shutdown',
     ],

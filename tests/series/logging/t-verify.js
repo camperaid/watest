@@ -11,8 +11,6 @@ import { settings } from '../../../core/settings.js';
 const completed_in = name => got => got.startsWith(`>${name} completed in`);
 
 export async function test() {
-  const { webdrivers } = settings;
-
   let failed = false;
   const ts = {
     'tests': {
@@ -44,6 +42,12 @@ export async function test() {
 
   const LogPipe = createMockLogPipe();
   LogPipe.suppressStdStreams();
+  const savedRcLogDir = settings.rc.log_dir;
+  const savedRcWebdrivers = settings.rc.webdrivers;
+  const savedLogDir = settings.log_dir;
+  const savedWebdrivers = settings.webdrivers;
+  settings.rc.log_dir = '/tmp';
+  settings.rc.webdrivers = ['chrome', 'firefox'];
   try {
     await MockSeries.run([], {
       ts,
@@ -56,7 +60,14 @@ export async function test() {
     LogPipe.restoreStdStreams();
   }
 
-  const chromeLogs = webdrivers.includes('chrome')
+  const { webdrivers: activeWebdrivers } = settings;
+  settings.rc.log_dir = savedRcLogDir;
+  settings.rc.webdrivers = savedRcWebdrivers;
+  settings.log_dir = savedLogDir;
+  settings.webdrivers = savedWebdrivers;
+
+  // Chrome first-run logs.
+  const chromeFirstRunLogs = activeWebdrivers.includes('chrome')
     ? [
         [
           'mac/webdriver/chrome/log',
@@ -92,23 +103,11 @@ export async function test() {
             '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome/end-to-end/history',
           ],
         ],
-        [
-          'mac/webdriver/chrome/end-to-end/history-verify/log',
-          [
-            '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/chrome/end-to-end/history-verify',
-            '!Running: mac/webdriver/chrome/end-to-end/history-verify/t_history.js, path: tests/webdriver/end-to-end/history/t_history.js',
-            '\x1B[32mOk:\x1B[0m TestoOk',
-            completed_in(
-              'mac/webdriver/chrome/end-to-end/history-verify/t_history.js',
-            ),
-            '\x1B[102mmac/webdriver/chrome/end-to-end/history-verify\x1B[0m Total: 1',
-            '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome/end-to-end/history-verify',
-          ],
-        ],
       ]
     : [];
 
-  const firefoxLogs = webdrivers.includes('firefox')
+  // Firefox logs (runs after chrome first pass).
+  const firefoxLogs = activeWebdrivers.includes('firefox')
     ? [
         [
           'mac/webdriver/firefox/log',
@@ -142,6 +141,25 @@ export async function test() {
       ]
     : [];
 
+  // Chrome verify logs (runs after firefox pass).
+  const chromeVerifyLogs = activeWebdrivers.includes('chrome')
+    ? [
+        [
+          'mac/webdriver/chrome/end-to-end/history-verify/log',
+          [
+            '\x1B[38;5;99mStarted\x1B[0m mac/webdriver/chrome/end-to-end/history-verify',
+            '!Running: mac/webdriver/chrome/end-to-end/history-verify/t_history.js, path: tests/webdriver/end-to-end/history/t_history.js',
+            '\x1B[32mOk:\x1B[0m TestoOk',
+            completed_in(
+              'mac/webdriver/chrome/end-to-end/history-verify/t_history.js',
+            ),
+            '\x1B[102mmac/webdriver/chrome/end-to-end/history-verify\x1B[0m Total: 1',
+            '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver/chrome/end-to-end/history-verify',
+          ],
+        ],
+      ]
+    : [];
+
   const buffers = LogPipe.FileStream.getLoggingBuffers();
   is(
     buffers,
@@ -163,8 +181,9 @@ export async function test() {
           '\x1B[38;5;243mCompleted\x1B[0m mac/webdriver',
         ],
       ],
-      ...chromeLogs,
+      ...chromeFirstRunLogs,
       ...firefoxLogs,
+      ...chromeVerifyLogs,
     ],
     'logging verify',
   );

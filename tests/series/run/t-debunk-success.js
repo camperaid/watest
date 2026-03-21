@@ -1,4 +1,9 @@
-import { is_test_output, MockSeries, success } from '../test.js';
+import {
+  is_test_output,
+  MockSeries,
+  success,
+  settings_preamble,
+} from '../test.js';
 
 export async function test() {
   const ts = {
@@ -24,17 +29,12 @@ export async function test() {
     '\x1B[32mOk:\x1B[0m Testo',
     '>mac/unit/t_testo.js completed in',
     '\x1B[38;5;243mCompleted\x1B[0m mac/unit',
-    'Logs are written to',
     '\x1B[102mSuccess!\x1B[0m Total: 1',
     '\x1B[38;5;243mCompleted\x1B[0m mac/',
-    'Logs are written to',
   ];
 
   const expected_stdout = [
-    'Settings: no temporary storage dir',
-    'Settings: logging into /tmp',
-    'Settings: webdriver_chrome_args=[]',
-    'Settings: chrome webdrivers',
+    ...settings_preamble(),
     ...expected_out_for_success,
     ...expected_out_for_success,
     ...expected_out_for_success,
@@ -42,7 +42,6 @@ export async function test() {
     ...expected_out_for_success,
 
     'Elapsed:',
-    'Logs are written to',
     'Testsuite: shutdown',
   ];
 

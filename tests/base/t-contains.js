@@ -17,12 +17,12 @@ export async function test() {
     `failure`,
   );
 
-  // string: failure: got string, expected array
+  // string, empty array: success (contains all of nothing)
   await is_output(
     () => contains('cat', [], `String contains`),
+    [`Ok: String contains, got: 'cat'`],
     [],
-    [`Failed: String contains, got string, expected object: []`],
-    `failure`,
+    `string empty array`,
   );
 
   // string: failure: doesn't contains
@@ -33,6 +33,34 @@ export async function test() {
       `Failed: String contains, got string doesn't contain expected string, got: 'cat', expected: 'green cat'`,
     ],
     `failure`,
+  );
+
+  // string, string[]: success
+  await is_output(
+    () =>
+      contains(
+        'green cat on a mat',
+        ['green', 'cat', 'mat'],
+        `String contains all`,
+      ),
+    [`Ok: String contains all, got: 'green cat on a mat'`],
+    [],
+    `string array success`,
+  );
+
+  // string, string[]: partial failure
+  await is_output(
+    () =>
+      contains(
+        'green cat on a mat',
+        ['green', 'dog', 'mat'],
+        `String contains all`,
+      ),
+    [],
+    [
+      `Failed: String contains all, got string doesn't contain expected string, got: 'green cat on a mat', expected: 'dog'`,
+    ],
+    `string array failure`,
   );
 
   // array: success

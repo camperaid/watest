@@ -1,5 +1,6 @@
 import { Core } from '../../core/core.js';
 import { Series } from '../../core/series.js';
+import { settings } from '../../core/settings.js';
 
 function build_tests(tests) {
   return tests.map(t => ({
@@ -60,6 +61,25 @@ export function logswritten_checker(got) {
 
 export function running_checker(name, path) {
   return `\n!Running: ${name}, path: ${path}\n\n`;
+}
+
+/**
+ * Returns expected settings preamble lines based on current config.
+ */
+export function settings_preamble() {
+  const lines = [
+    settings.rc.tmp_dir
+      ? `Settings: temporary storage dir is at ${settings.tmp_storage_dir}`
+      : 'Settings: no temporary storage dir',
+    settings.rc.log_dir
+      ? `Settings: logging into ${settings.rc.log_dir}`
+      : 'Settings: no file logging',
+    `Settings: webdriver_chrome_args=${JSON.stringify(settings.webdriver_chrome_args)}`,
+  ];
+  if (settings.webdrivers) {
+    lines.push(`Settings: ${settings.webdrivers.join(', ')} webdrivers`);
+  }
+  return lines;
 }
 
 export function make_perform_function(tests) {

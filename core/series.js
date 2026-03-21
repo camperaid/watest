@@ -87,7 +87,7 @@ class Series {
       core,
       LogPipe,
       webdriver,
-      webdrivers = settings.webdrivers,
+      webdrivers = settings.webdrivers || [],
     },
   ) {
     this.debunk = debunk;

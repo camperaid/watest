@@ -67,6 +67,30 @@ function contains(
   msg,
   { ignore_unexpected, fail_ = fail, success_ = success } = {},
 ) {
+  // string contains array of strings: check each substring.
+  if (typeof got == 'string' && expected instanceof Array) {
+    let isok = true;
+    for (let e of expected) {
+      if (typeof e != 'string') {
+        fail_(`${msg}, expected string item, got ${typeof e}: ${stringify(e)}`);
+        isok = false;
+        continue;
+      }
+      if (!got.includes(e)) {
+        fail_(
+          `${msg}, got string doesn't contain expected string, got: ${stringify(
+            got,
+          )}, expected: ${stringify(e)}`,
+        );
+        isok = false;
+      }
+    }
+    if (isok) {
+      success_(`${msg}, got: ${stringify(got)}`);
+    }
+    return isok;
+  }
+
   if (typeof got == 'string' || typeof expected == 'string') {
     if (typeof got != 'string') {
       fail_(`${msg}, expected string, got object: []`);

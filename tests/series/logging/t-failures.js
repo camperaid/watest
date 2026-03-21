@@ -48,9 +48,14 @@ export async function test() {
 
   const LogPipe = createMockLogPipe();
   LogPipe.suppressStdStreams();
+  const savedRcLogDir = settings.rc.log_dir;
+  const savedLogDir = settings.log_dir;
+  settings.rc.log_dir = '/tmp';
   try {
     await MockSeries.run([], { ts, LogPipe });
   } finally {
+    settings.rc.log_dir = savedRcLogDir;
+    settings.log_dir = savedLogDir;
     LogPipe.restoreStdStreams();
   }
 
